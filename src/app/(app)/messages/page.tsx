@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { SendHorizonal, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 export default function MessagesPage() {
@@ -66,7 +66,7 @@ export default function MessagesPage() {
                 )}
               >
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={convo.avatarUrl} />
+                  <AvatarImage src={convo.avatarUrl} alt={convo.participantName} />
                   <AvatarFallback>{convo.participantName.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 truncate">
@@ -90,7 +90,7 @@ export default function MessagesPage() {
               {/* Chat Header */}
               <header className="flex items-center gap-4 border-b bg-muted/40 px-6 h-16">
                 <Avatar>
-                  <AvatarImage src={selectedConversation.avatarUrl} />
+                  <AvatarImage src={selectedConversation.avatarUrl} alt={selectedConversation.participantName} />
                   <AvatarFallback>{selectedConversation.participantName.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div>
@@ -102,11 +102,11 @@ export default function MessagesPage() {
               {/* Messages Area */}
               <div className="flex-1 overflow-y-auto p-6">
                 <div className="flex flex-col gap-4">
-                    {currentMessages.map((msg, index) => (
+                    {currentMessages.map((msg) => (
                         <div key={msg.id} className={cn("flex items-end gap-2", msg.sender === 'You' ? "justify-end" : "justify-start")}>
                              {msg.sender !== 'You' && (
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src={selectedConversation.avatarUrl} />
+                                    <AvatarImage src={selectedConversation.avatarUrl} alt={selectedConversation.participantName} />
                                     <AvatarFallback>{selectedConversation.participantName.charAt(0)}</AvatarFallback>
                                 </Avatar>
                             )}

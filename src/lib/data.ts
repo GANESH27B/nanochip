@@ -187,6 +187,7 @@ export const conversations: Conversation[] = [
     lastMessage: 'Yes, please proceed with the submission for batch B-ABC-67890.',
     lastMessageTimestamp: '2024-07-29T14:30:00Z',
     unreadCount: 0,
+    avatarUrl: 'https://picsum.photos/seed/diana/100/100'
   },
   {
     id: 'CONV-002',
@@ -195,6 +196,7 @@ export const conversations: Conversation[] = [
     lastMessage: 'Okay, sounds good. I will get the truck ready for pickup.',
     lastMessageTimestamp: '2024-07-29T11:15:00Z',
     unreadCount: 2,
+    avatarUrl: 'https://picsum.photos/seed/bob/100/100'
   },
   {
     id: 'CONV-003',
@@ -203,6 +205,7 @@ export const conversations: Conversation[] = [
     lastMessage: 'We are running low on Amoxicillin, can you expedite?',
     lastMessageTimestamp: '2024-07-28T18:05:00Z',
     unreadCount: 0,
+    avatarUrl: 'https://picsum.photos/seed/charlie/100/100'
   },
 ];
 
