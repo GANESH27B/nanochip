@@ -31,6 +31,7 @@ export default function MessagesPage() {
     conversations[0]
   );
   const [newMessage, setNewMessage] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -79,6 +80,10 @@ export default function MessagesPage() {
       });
     }
   };
+  
+  const filteredConversations = conversations.filter((convo) =>
+    convo.participantName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const currentMessages = messages.filter((m) => m.conversationId === selectedConversation?.id);
 
@@ -119,9 +124,18 @@ export default function MessagesPage() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+             <div className="relative mt-4">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search chats..."
+                className="pl-8"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
           <nav className="flex flex-col gap-1 p-2">
-            {conversations.map((convo) => (
+            {filteredConversations.map((convo) => (
               <button
                 key={convo.id}
                 onClick={() => setSelectedConversation(convo)}
