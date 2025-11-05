@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -19,6 +20,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 
 const initialNeededDrugs = [
   {
@@ -65,7 +68,7 @@ const priorityStyles: { [key: string]: string } = {
 };
 
 export default function NeededDrugsPage() {
-  const [neededDrugs] = useState(initialNeededDrugs);
+  const [neededDrugs, setNeededDrugs] = useState(initialNeededDrugs);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDrugName, setSelectedDrugName] = useState('');
   const { toast } = useToast();
@@ -73,13 +76,36 @@ export default function NeededDrugsPage() {
   const handleOrderSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const drugName = formData.get('drug-name');
-    const quantity = formData.get('quantity');
+    const drugName = formData.get('drug-name') as string;
+    const quantity = parseInt(formData.get('quantity') as string, 10);
+    const reorderLevel = parseInt(formData.get('reorder-level') as string, 10);
+    const currentStock = parseInt(formData.get('current-stock') as string, 10);
+    const priority = formData.get('priority') as 'High' | 'Medium' | 'Low';
+    
+    // Check if we are editing or creating
+    const existingDrug = neededDrugs.find(d => d.name === drugName);
 
-    toast({
-      title: 'Order Placed',
-      description: `Successfully ordered ${quantity} units of ${drugName}.`,
-    });
+    if (!existingDrug) {
+        const newDrug = {
+            id: `DRUG-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+            name: drugName,
+            currentStock: currentStock || 0,
+            reorderLevel: reorderLevel || 0,
+            priority: priority || 'Medium',
+        };
+        setNeededDrugs([newDrug, ...neededDrugs]);
+        toast({
+            title: 'Drug Added',
+            description: `${newDrug.name} has been added to the needed drugs list. An order for ${quantity} units has been placed.`,
+        });
+    } else {
+         toast({
+            title: 'Order Placed',
+            description: `Successfully ordered ${quantity} units of ${drugName}.`,
+        });
+    }
+
+
     setIsDialogOpen(false);
   };
 
@@ -159,7 +185,7 @@ export default function NeededDrugsPage() {
             <DialogHeader>
               <DialogTitle>Create Purchase Order</DialogTitle>
               <DialogDescription>
-                Fill in the details to place a new drug order.
+                Fill in the details to place a new drug order. If the drug is not in the list, it will be added.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -177,7 +203,7 @@ export default function NeededDrugsPage() {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="quantity" className="text-right">
-                  Quantity
+                  Order Quantity
                 </Label>
                 <Input
                   id="quantity"
@@ -188,6 +214,37 @@ export default function NeededDrugsPage() {
                   required
                 />
               </div>
+              {!selectedDrugName && (
+                <>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="current-stock" className="text-right">
+                        Current Stock
+                        </Label>
+                        <Input id="current-stock" name="current-stock" defaultValue="0" type="number" className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="reorder-level" className="text-right">
+                        Reorder Level
+                        </Label>
+                        <Input id="reorder-level" name="reorder-level" defaultValue="50" type="number" className="col-span-3" required />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="priority" className="text-right">
+                        Priority
+                        </Label>
+                         <Select name="priority" defaultValue="Medium">
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="Select priority" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="High">High</SelectItem>
+                                <SelectItem value="Medium">Medium</SelectItem>
+                                <SelectItem value="Low">Low</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </>
+              )}
             </div>
             <DialogFooter>
               <Button type="submit">Place Order</Button>
@@ -198,3 +255,5 @@ export default function NeededDrugsPage() {
     </div>
   );
 }
+
+    
