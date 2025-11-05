@@ -76,7 +76,7 @@ export default function MapDisplay({ shipment }: MapDisplayProps) {
     }, [shipment, isClient]);
 
     if (!isClient) {
-        return <div className="flex items-center justify-center h-full bg-muted"><p>Loading map...</p></div>;
+        return null; // Don't render anything on the server
     }
     
     if (error) {

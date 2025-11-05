@@ -50,6 +50,7 @@ const statusStyles: { [key: string]: string } = {
 
 const MapDisplay = dynamic(() => import('@/components/app/map-display'), {
   ssr: false,
+  loading: () => <div className="flex items-center justify-center h-full bg-muted"><p>Loading map...</p></div>
 });
 
 export default function ShipmentsPage() {
@@ -239,7 +240,7 @@ export default function ShipmentsPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="rounded-lg overflow-hidden h-full w-full">
-                <MapDisplay key={selectedShipment.batchId} shipment={selectedShipment} />
+                <MapDisplay shipment={selectedShipment} />
               </div>
             </>
           )}
