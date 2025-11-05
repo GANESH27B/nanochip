@@ -1,0 +1,11 @@
+[
+    { "id": "MSG-001", "conversationId": "CONV-001", "sender": "Diana Regulator", "text": "Have you addressed the tamper alert on batch B-ABC-67890?", "timestamp": "2024-07-29T14:20:00Z", "isRead": true },
+    { "id": "MSG-002", "conversationId": "CONV-001", "sender": "You", "text": "Yes, we have investigated. It was a false positive during routine inspection. The batch is secure.", "timestamp": "2024-07-29T14:25:00Z", "isRead": true },
+    { "id": "MSG-003", "conversationId": "CONV-001", "sender": "Diana Regulator", "text": "Thank you for confirming. Yes, please proceed with the submission for batch B-ABC-67890.", "timestamp": "2024-07-29T14:30:00Z", "isRead": true },
+    { "id": "MSG-004", "conversationId": "CONV-002", "sender": "Bob Distributor", "text": "Shipment for B-MNO-33445 is ready for transit. What is the destination?", "timestamp": "2024-07-29T11:00:00Z", "isRead": true },
+    { "id": "MSG-005", "conversationId": "CONV-002", "sender": "You", "text": "Destination is General Hospital. Please ensure temperature is maintained at 5°C.", "timestamp": "2024-07-29T11:05:00Z", "isRead": true },
+    { "id": "MSG-006", "conversationId": "CONV-002", "sender": "Bob Distributor", "text": "Understood. Will monitor.", "timestamp": "2024-07-29T11:07:00Z", "isRead": false },
+    { "id": "MSG-007", "conversationId": "CONV-002", "sender": "Bob Distributor", "text": "Okay, sounds good. I will get the truck ready for pickup.", "timestamp": "2024-07-29T11:15:00Z", "isRead": false },
+    { "id": "MSG-008", "conversationId": "CONV-003", "sender": "Charlie Pharmacist", "text": "We are running low on Amoxicillin, can you expedite?", "timestamp": "2024-07-28T18:05:00Z", "isRead": true },
+    { "id": "MSG-009", "conversationId": "CONV-003", "sender": "You", "text": "I see that. I will check with production and get back to you shortly.", "timestamp": "2024-07-28T18:10:00Z", "isRead": true }
+]

@@ -1,0 +1,26 @@
+{
+  "Manufacturer": {
+    "id": "user-mfg",
+    "name": "Alice Manufacturer",
+    "email": "alice@pharma.co",
+    "role": "Manufacturer"
+  },
+  "Distributor": {
+    "id": "user-dist",
+    "name": "Bob Distributor",
+    "email": "bob@logistics.co",
+    "role": "Distributor"
+  },
+  "Pharmacy": {
+    "id": "user-pharma",
+    "name": "Charlie Pharmacist",
+    "email": "charlie@meds.co",
+    "role": "Pharmacy"
+  },
+  "FDA": {
+    "id": "user-fda",
+    "name": "Diana Regulator",
+    "email": "diana@fda.gov",
+    "role": "FDA"
+  }
+}

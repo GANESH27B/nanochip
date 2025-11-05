@@ -1,0 +1,52 @@
+[
+  {
+    "batchId": "B-XYZ-12345",
+    "currentHolder": "City-Distro",
+    "status": "In-Transit",
+    "createdAt": "2024-07-28T10:00:00Z",
+    "alerts": 2,
+    "lastUpdate": "2024-07-28T14:30:00Z",
+    "startingPoint": "New York, NY",
+    "endingPoint": "Boston, MA"
+  },
+  {
+    "batchId": "B-ABC-67890",
+    "currentHolder": "Pharma-Factory",
+    "status": "Requires-Approval",
+    "createdAt": "2024-07-27T15:00:00Z",
+    "alerts": 1,
+    "lastUpdate": "2024-07-28T09:00:00Z",
+    "startingPoint": "Chicago, IL",
+    "endingPoint": "Los Angeles, CA"
+  },
+  {
+    "batchId": "B-DEF-11223",
+    "currentHolder": "General Hospital",
+    "status": "Delivered",
+    "createdAt": "2024-07-25T08:00:00Z",
+    "alerts": 0,
+    "lastUpdate": "2024-07-26T18:00:00Z",
+    "startingPoint": "San Francisco, CA",
+    "endingPoint": "Seattle, WA"
+  },
+  {
+    "batchId": "B-GHI-44556",
+    "currentHolder": "Regional-Logistics",
+    "status": "In-Transit",
+    "createdAt": "2024-07-28T11:00:00Z",
+    "alerts": 0,
+    "lastUpdate": "2024-07-28T16:45:00Z",
+    "startingPoint": "Miami, FL",
+    "endingPoint": "Atlanta, GA"
+  },
+  {
+    "batchId": "B-JKL-77889",
+    "currentHolder": "Pharma-Factory",
+    "status": "Pending",
+    "createdAt": "2024-07-28T18:00:00Z",
+    "alerts": 0,
+    "lastUpdate": "2024-07-28T18:00:00Z",
+    "startingPoint": "Dallas, TX",
+    "endingPoint": "Houston, TX"
+  }
+]
