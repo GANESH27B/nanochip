@@ -36,6 +36,7 @@ import { Label } from '@/components/ui/label';
 import { batches as initialBatches } from '@/lib/data';
 import type { Batch } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const statusStyles: { [key: string]: string } = {
   'In-Production': 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300',
@@ -47,6 +48,7 @@ export default function BatchesPage() {
   const [batches, setBatches] = useState<Batch[]>(initialBatches);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleCreateBatch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -65,6 +67,22 @@ export default function BatchesPage() {
       title: 'Batch Created',
       description: `New batch ${newBatch.id} for ${newBatch.drugName} is now in production.`,
     });
+  };
+
+  const handleMarkAsReady = (batchId: string) => {
+    setBatches((prevBatches) =>
+      prevBatches.map((batch) =>
+        batch.id === batchId ? { ...batch, status: 'Ready-for-Shipment' } : batch
+      )
+    );
+    toast({
+      title: 'Batch Updated',
+      description: `Batch ${batchId} is now ready for shipment.`,
+    });
+  };
+
+  const handleViewDetails = (batchId: string) => {
+    router.push(`/shipments/${batchId}`);
   };
 
   return (
@@ -155,8 +173,15 @@ export default function BatchesPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>Mark as Ready</DropdownMenuItem>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleMarkAsReady(batch.id)}
+                            disabled={batch.status !== 'In-Production'}
+                          >
+                            Mark as Ready
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewDetails(batch.id)}>
+                            View Details
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>                  
