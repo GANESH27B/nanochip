@@ -20,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Logo } from '../logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
@@ -34,6 +35,7 @@ import {
 } from '../ui/dropdown-menu';
 import { useEffect, useState } from 'react';
 import type { Role } from '@/lib/types';
+import { ThemeSwitcher } from '../theme-switcher';
 
 const navItems = {
   all: [
@@ -91,7 +93,9 @@ export default function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
+      <SidebarSeparator />
       <SidebarFooter className="p-2">
+        <ThemeSwitcher />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
              <div className="flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent cursor-pointer w-full">
