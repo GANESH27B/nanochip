@@ -22,7 +22,8 @@ import {
 
 export default function ShipmentDetailPage({ params }: { params: { id: string } }) {
   const [shipments, setShipments] = useState(initialShipments);
-  const shipment = useMemo(() => shipments.find(s => s.batchId === params.id), [shipments, params.id]);
+  const { id } = params;
+  const shipment = useMemo(() => shipments.find(s => s.batchId === id), [shipments, id]);
 
   const [userRole, setUserRole] = useState<Role | null>(null);
   const [isSummaryLoading, setIsSummaryLoading] = useState(false);
@@ -37,7 +38,7 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
     }
   }, []);
 
-  const shipmentAlerts = allAlerts.filter(a => a.batchId === params.id);
+  const shipmentAlerts = allAlerts.filter(a => a.batchId === id);
   const mapImage = PlaceHolderImages.find(img => img.id === 'shipment-map');
 
   const handleUpdateStatus = (newStatus: 'Delivered' | 'In-Transit') => {
