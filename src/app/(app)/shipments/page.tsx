@@ -39,6 +39,11 @@ import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
 import type { Shipment } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import dynamic from 'next/dynamic';
+
+const MapDisplay = dynamic(() => import('@/components/app/map-display'), {
+  ssr: false,
+});
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -51,6 +56,8 @@ export default function ShipmentsPage() {
   const { searchTerm } = useSearch();
   const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isMapDialogOpen, setIsMapDialogOpen] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
   const { toast } = useToast();
 
   const filteredShipments = useMemo(() => {
@@ -82,6 +89,11 @@ export default function ShipmentsPage() {
       title: 'Shipment Created',
       description: `Shipment for batch ${newShipment.batchId} has been created.`,
     });
+  };
+
+  const handleTrackOnMap = (shipment: Shipment) => {
+    setSelectedShipment(shipment);
+    setIsMapDialogOpen(true);
   };
 
   return (
@@ -190,6 +202,9 @@ export default function ShipmentsPage() {
                             <DropdownMenuItem asChild>
                               <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
                             </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => handleTrackOnMap(shipment)}>
+                              Track on Map
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>Acknowledge Alerts</DropdownMenuItem>
                           </DropdownMenuContent>
@@ -203,6 +218,20 @@ export default function ShipmentsPage() {
           </Card>
         </main>
       </div>
+
+      <Dialog open={isMapDialogOpen} onOpenChange={setIsMapDialogOpen}>
+        <DialogContent className="sm:max-w-[80vw] h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Shipment Route: {selectedShipment?.batchId}</DialogTitle>
+            <DialogDescription>
+              Tracking the route from {selectedShipment?.startingPoint} to {selectedShipment?.endingPoint}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-full w-full">
+            {selectedShipment && <MapDisplay key={selectedShipment.batchId} shipment={selectedShipment} />}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
