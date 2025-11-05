@@ -28,6 +28,7 @@ type Drug = {
   currentStock: number;
   reorderLevel: number;
   priority: 'High' | 'Medium' | 'Low';
+  requestedBy: string;
 };
 
 type SortKey = keyof Drug | '';
@@ -40,6 +41,7 @@ const initialNeededDrugs: Drug[] = [
     currentStock: 50,
     reorderLevel: 100,
     priority: 'High',
+    requestedBy: 'General Hospital Pharmacy',
   },
   {
     id: 'DRUG-002',
@@ -47,6 +49,7 @@ const initialNeededDrugs: Drug[] = [
     currentStock: 120,
     reorderLevel: 200,
     priority: 'Medium',
+    requestedBy: 'City-Distro',
   },
   {
     id: 'DRUG-003',
@@ -54,6 +57,7 @@ const initialNeededDrugs: Drug[] = [
     currentStock: 80,
     reorderLevel: 150,
     priority: 'High',
+    requestedBy: 'Downtown Pharmacy',
   },
   {
     id: 'DRUG-004',
@@ -61,6 +65,7 @@ const initialNeededDrugs: Drug[] = [
     currentStock: 250,
     reorderLevel: 300,
     priority: 'Low',
+    requestedBy: 'Regional Meds',
   },
   {
     id: 'DRUG-005',
@@ -68,6 +73,7 @@ const initialNeededDrugs: Drug[] = [
     currentStock: 30,
     reorderLevel: 75,
     priority: 'High',
+    requestedBy: 'General Hospital Pharmacy',
   },
 ];
 
@@ -93,7 +99,8 @@ export default function NeededDrugsPage() {
     const reorderLevel = parseInt(formData.get('reorder-level') as string, 10);
     const currentStock = parseInt(formData.get('current-stock') as string, 10);
     const priority = formData.get('priority') as 'High' | 'Medium' | 'Low';
-    
+    const requestedBy = formData.get('requested-by') as string;
+
     const existingDrug = neededDrugs.find(d => d.name === drugName);
 
     if (!existingDrug) {
@@ -103,6 +110,7 @@ export default function NeededDrugsPage() {
             currentStock: currentStock || 0,
             reorderLevel: reorderLevel || 0,
             priority: priority || 'Medium',
+            requestedBy: requestedBy || 'Internal Request'
         };
         setNeededDrugs([newDrug, ...neededDrugs]);
         toast({
@@ -142,12 +150,22 @@ export default function NeededDrugsPage() {
     
     if (filterTerm) {
       sortableItems = sortableItems.filter(drug =>
-        drug.name.toLowerCase().includes(filterTerm.toLowerCase())
+        drug.name.toLowerCase().includes(filterTerm.toLowerCase()) ||
+        drug.requestedBy.toLowerCase().includes(filterTerm.toLowerCase())
       );
     }
     
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
+        if (sortConfig.key === 'priority') {
+            const priorityOrder = { High: 3, Medium: 2, Low: 1 };
+            const aValue = priorityOrder[a.priority];
+            const bValue = priorityOrder[b.priority];
+            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+            return 0;
+        }
+
         const aValue = a[sortConfig.key!];
         const bValue = b[sortConfig.key!];
         
@@ -161,10 +179,10 @@ export default function NeededDrugsPage() {
       });
     }
     return sortableItems;
-  }, [neededDrugs, filterTerm, sortConfig.key, sortConfig.direction]);
+  }, [neededDrugs, filterTerm, sortConfig]);
 
-  const SortableHeader = ({ sortKey, children }: { sortKey: SortKey, children: React.ReactNode }) => (
-    <TableHead onClick={() => requestSort(sortKey)} className="cursor-pointer">
+  const SortableHeader = ({ sortKey, children, className }: { sortKey: SortKey, children: React.ReactNode, className?: string }) => (
+    <TableHead onClick={() => requestSort(sortKey)} className={cn("cursor-pointer", className)}>
       <div className="flex items-center gap-2">
         {children}
         <ArrowUpDown className="h-3 w-3" />
@@ -186,7 +204,7 @@ export default function NeededDrugsPage() {
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-2">
               <Input
-                placeholder="Filter by drug name..."
+                placeholder="Filter by drug or requestor..."
                 value={filterTerm}
                 onChange={(e) => setFilterTerm(e.target.value)}
                 className="w-full sm:w-auto"
@@ -204,10 +222,11 @@ export default function NeededDrugsPage() {
               <TableHeader>
                 <TableRow>
                   <SortableHeader sortKey="name">Drug Name</SortableHeader>
+                  <SortableHeader sortKey="requestedBy">Requested By</SortableHeader>
                   <SortableHeader sortKey="currentStock">Current Stock</SortableHeader>
                   <SortableHeader sortKey="reorderLevel">Reorder Level</SortableHeader>
                   <SortableHeader sortKey="priority">Priority</SortableHeader>
-                  <TableHead>
+                  <TableHead className="text-right">
                     <span className="sr-only">Actions</span>
                   </TableHead>
                 </TableRow>
@@ -216,6 +235,7 @@ export default function NeededDrugsPage() {
                 {sortedAndFilteredDrugs.map((drug) => (
                   <TableRow key={drug.id}>
                     <TableCell className="font-medium">{drug.name}</TableCell>
+                    <TableCell>{drug.requestedBy}</TableCell>
                     <TableCell>{drug.currentStock}</TableCell>
                     <TableCell>{drug.reorderLevel}</TableCell>
                     <TableCell>
@@ -274,6 +294,12 @@ export default function NeededDrugsPage() {
               </div>
               {!selectedDrugName && (
                 <>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="requested-by" className="text-right">
+                        Requested By
+                        </Label>
+                        <Input id="requested-by" name="requested-by" placeholder="e.g. General Hospital" className="col-span-3" required />
+                    </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="current-stock" className="text-right">
                         Current Stock
