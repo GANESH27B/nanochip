@@ -33,7 +33,7 @@ export default function ShipmentsPage() {
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader title="Shipments" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <Card>
+        <Card className="animate-fade-in-up">
           <CardHeader>
             <CardTitle>All Shipments</CardTitle>
             <CardDescription>
@@ -55,8 +55,8 @@ export default function ShipmentsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {shipments.map((shipment) => (
-                  <TableRow key={shipment.batchId}>
+                {shipments.map((shipment, index) => (
+                  <TableRow key={shipment.batchId} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
                     <TableCell className="font-medium">{shipment.batchId}</TableCell>
                     <TableCell>
                       <Badge

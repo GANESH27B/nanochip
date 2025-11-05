@@ -42,7 +42,7 @@ export default function DashboardPage() {
       <AppHeader title={userRole ? `${userRole} Dashboard` : 'Dashboard'} />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-          <Card>
+          <Card className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Shipments</CardTitle>
               <Truck className="h-4 w-4 text-muted-foreground" />
@@ -52,7 +52,7 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground">Tracked across the network</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
@@ -62,7 +62,7 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground">Awaiting FDA review</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Alerts</CardTitle>
               <Siren className="h-4 w-4 text-muted-foreground" />
@@ -74,7 +74,7 @@ export default function DashboardPage() {
           </Card>
         </div>
         <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-          <Card className="xl:col-span-2">
+          <Card className="xl:col-span-2 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <CardHeader>
               <CardTitle>Shipment Status Overview</CardTitle>
               <CardDescription>A summary of all current shipment statuses.</CardDescription>
@@ -90,7 +90,7 @@ export default function DashboardPage() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
             <CardHeader>
               <CardTitle>Recent Alerts</CardTitle>
               <CardDescription>Top priority alerts from the network.</CardDescription>

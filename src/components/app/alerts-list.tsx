@@ -65,7 +65,7 @@ export default function AlertsList({ initialAlerts }: { initialAlerts: Alert[] }
 
   return (
     <>
-      <Card>
+      <Card className="animate-fade-in-up">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>All Alerts</CardTitle>
@@ -94,8 +94,8 @@ export default function AlertsList({ initialAlerts }: { initialAlerts: Alert[] }
               </TableRow>
             </TableHeader>
             <TableBody>
-              {alerts.map((alert) => (
-                <TableRow key={alert.alertId}>
+              {alerts.map((alert, index) => (
+                <TableRow key={alert.alertId} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s`}}>
                   <TableCell>
                     <Badge variant="outline" className={`border-none ${severityStyles[alert.severity]}`}>
                       {alert.severity}
