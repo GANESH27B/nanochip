@@ -30,6 +30,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
 
 const severityStyles: { [key: string]: string } = {
   High: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
@@ -104,7 +105,7 @@ export default function AlertsList({ initialAlerts }: { initialAlerts: Alert[] }
                   <TableCell className="font-medium">{alert.type}</TableCell>
                   <TableCell>{alert.batchId}</TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {new Date(alert.timestamp).toLocaleString()}
+                    {format(new Date(alert.timestamp), 'MM/dd/yyyy, HH:mm:ss')}
                   </TableCell>
                   <TableCell>{alert.details}</TableCell>
                 </TableRow>
