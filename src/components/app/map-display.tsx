@@ -24,8 +24,12 @@ const geocode = async (address: string): Promise<[number, number] | null> => {
     try {
         // In a real app, you would use a geocoding service API
         const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`);
+        if (!response.ok) { // Check if response is ok
+          console.error("Geocoding API response not OK:", response.statusText);
+          return null;
+        }
         const data = await response.json();
-        if (data.length > 0) {
+        if (data && data.length > 0) {
             return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
         }
         return null;
@@ -40,31 +44,47 @@ export default function MapDisplay({ shipment }: MapDisplayProps) {
     const [startCoords, setStartCoords] = useState<[number, number] | null>(null);
     const [endCoords, setEndCoords] = useState<[number, number] | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false)
+ 
+    useEffect(() => {
+      setIsClient(true)
+    }, [])
 
     useEffect(() => {
+        if (!isClient) return;
+        
         const fetchCoords = async () => {
             if (shipment?.startingPoint && shipment?.endingPoint) {
-                const start = await geocode(shipment.startingPoint);
-                const end = await geocode(shipment.endingPoint);
+                try {
+                  const start = await geocode(shipment.startingPoint);
+                  const end = await geocode(shipment.endingPoint);
 
-                if (start && end) {
-                    setStartCoords(start);
-                    setEndCoords(end);
-                    setError(null);
-                } else {
-                    setError("Could not find coordinates for the given locations.");
+                  if (start && end) {
+                      setStartCoords(start);
+                      setEndCoords(end);
+                      setError(null);
+                  } else {
+                      setError("Could not find coordinates for the given locations.");
+                  }
+                } catch(e) {
+                   console.error(e);
+                   setError("An error occurred while fetching coordinates.");
                 }
             }
         };
         fetchCoords();
-    }, [shipment]);
+    }, [shipment, isClient]);
 
+    if (!isClient) {
+        return <div className="flex items-center justify-center h-full bg-muted"><p>Loading map...</p></div>;
+    }
+    
     if (error) {
         return <div className="flex items-center justify-center h-full bg-muted"><p className="text-destructive">{error}</p></div>;
     }
 
     if (!startCoords || !endCoords) {
-        return <div className="flex items-center justify-center h-full bg-muted"><p>Loading map...</p></div>;
+        return <div className="flex items-center justify-center h-full bg-muted"><p>Loading coordinates...</p></div>;
     }
     
     const center: [number, number] = [
