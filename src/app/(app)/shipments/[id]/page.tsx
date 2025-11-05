@@ -20,7 +20,8 @@ import {
 
 export default function ShipmentDetailPage({ params }: { params: { id: string } }) {
   const [shipments, setShipments] = useState(initialShipments);
-  const { id } = params;
+  const id = params.id;
+  
   const shipment = useMemo(() => shipments.find(s => s.batchId === id), [shipments, id]);
 
   const [userRole, setUserRole] = useState<Role | null>(null);
