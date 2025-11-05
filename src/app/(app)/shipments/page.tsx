@@ -239,7 +239,7 @@ export default function ShipmentsPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="rounded-lg overflow-hidden h-full w-full">
-                <MapDisplay shipment={selectedShipment} />
+                <MapDisplay key={selectedShipment.batchId} shipment={selectedShipment} />
               </div>
             </>
           )}
