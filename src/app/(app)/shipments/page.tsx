@@ -158,7 +158,7 @@ export default function ShipmentsPage() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {format(new Date(shipment.createdAt), 'MM/dd/yyyy')}
+                      {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
                     </TableCell>
                     <TableCell className="text-right">{shipment.alerts}</TableCell>
                     <TableCell>

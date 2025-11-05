@@ -159,7 +159,7 @@ export default function BatchesPage() {
                           <DropdownMenuItem>View Details</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </TableCell>
+                    </TableCell>                  
                   </TableRow>
                 ))}
               </TableBody>
