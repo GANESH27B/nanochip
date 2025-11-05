@@ -5,8 +5,11 @@ import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download } from 'lucide-react';
+import { Download, CreditCard, QrCode, Landmark, Wallet } from 'lucide-react';
 import { format } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const transactions = [
   {
@@ -74,6 +77,95 @@ export default function BillingPage() {
               <p className="text-xs text-muted-foreground">Due on August 1, 2024</p>
             </CardContent>
           </Card>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-5">
+            <div className="md:col-span-3">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Pay Invoice</CardTitle>
+                        <CardDescription>Select a payment method to settle your invoice.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="card">
+                            <TabsList className="grid w-full grid-cols-4">
+                                <TabsTrigger value="card"><CreditCard className="mr-2 h-4 w-4" />Card</TabsTrigger>
+                                <TabsTrigger value="upi"><Wallet className="mr-2 h-4 w-4" />UPI</TabsTrigger>
+                                <TabsTrigger value="netbanking"><Landmark className="mr-2 h-4 w-4" />Bank</TabsTrigger>
+                                <TabsTrigger value="qr"><QrCode className="mr-2 h-4 w-4" />Scan</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="card" className="mt-6">
+                                 <div className="grid gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="card-number">Card Number</Label>
+                                        <Input id="card-number" placeholder="0000 0000 0000 0000" />
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="expiry">Expires</Label>
+                                            <Input id="expiry" placeholder="MM/YY" />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="cvc">CVC</Label>
+                                            <Input id="cvc" placeholder="123" />
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="zip">ZIP</Label>
+                                            <Input id="zip" placeholder="12345" />
+                                        </div>
+                                    </div>
+                                    <Button className="w-full">Pay with Card</Button>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="upi" className="mt-6">
+                                <div className="grid gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="upi-id">UPI ID</Label>
+                                        <Input id="upi-id" placeholder="yourname@bank" />
+                                    </div>
+                                    <Button className="w-full">Pay with UPI</Button>
+                                </div>
+                            </TabsContent>
+                            <TabsContent value="netbanking" className="mt-6">
+                               <div className="grid gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="bank">Bank</Label>
+                                        <Input id="bank" placeholder="Select your bank" />
+                                    </div>
+                                    <Button className="w-full">Proceed to Net Banking</Button>
+                                </div>
+                            </TabsContent>
+                             <TabsContent value="qr" className="mt-6 flex flex-col items-center justify-center gap-4">
+                               <div className="rounded-md border p-2">
+                                 <QrCode size={128} />
+                               </div>
+                                <p className="text-sm text-muted-foreground">Scan this QR code with your payment app.</p>
+                            </TabsContent>
+                        </Tabs>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="md:col-span-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Invoice Summary</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid gap-4">
+                         <div className="flex justify-between">
+                            <span>Metformin (100 units)</span>
+                            <span>$150.00</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>Processing Fee</span>
+                            <span>$5.00</span>
+                        </div>
+                         <div className="flex justify-between font-semibold">
+                            <span>Total</span>
+                            <span>$155.00</span>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
 
         <Card>
