@@ -1,16 +1,43 @@
+'use client';
+
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Siren } from 'lucide-react';
-import { shipments, alerts as allAlerts } from '@/lib/data';
+import { shipments as initialShipments, alerts as allAlerts } from '@/lib/data';
 import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+import type { Shipment, Role } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ShipmentDetailPage({ params }: { params: { id: string } }) {
-  const shipment = shipments.find(s => s.batchId === params.id);
+  const [shipment, setShipment] = useState<Shipment | undefined>(
+    initialShipments.find(s => s.batchId === params.id)
+  );
+  const [userRole, setUserRole] = useState<Role | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole') as Role;
+    if (role) {
+      setUserRole(role);
+    }
+  }, []);
+
   const shipmentAlerts = allAlerts.filter(a => a.batchId === params.id);
   const mapImage = PlaceHolderImages.find(img => img.id === 'shipment-map');
+
+  const handleUpdateStatus = (newStatus: 'Delivered' | 'In-Transit') => {
+    if (shipment) {
+      setShipment({ ...shipment, status: newStatus });
+      toast({
+        title: `Shipment ${newStatus === 'Delivered' ? 'Approved' : 'Rejected'}`,
+        description: `Batch ${shipment.batchId} has been updated.`,
+      });
+    }
+  };
 
   if (!shipment) {
     return (
@@ -71,13 +98,19 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-              Status: {shipment.status === 'Requires-Approval' ? 'Pending Approval' : 'Approved'}
+              Status: <span className="font-semibold">{shipment.status.replace('-', ' ')}</span>
             </p>
-            {shipment.status === 'Requires-Approval' && (
+            {shipment.status === 'Requires-Approval' && userRole === 'FDA' && (
               <div className="flex gap-2">
-                <Button>Approve Batch</Button>
-                <Button variant="destructive">Reject Batch</Button>
+                <Button onClick={() => handleUpdateStatus('Delivered')}>Approve Batch</Button>
+                <Button variant="destructive" onClick={() => handleUpdateStatus('In-Transit')}>Reject Batch</Button>
               </div>
+            )}
+             {shipment.status !== 'Requires-Approval' && (
+                <p className="text-sm text-muted-foreground">This shipment has already been reviewed.</p>
+            )}
+            {userRole !== 'FDA' && shipment.status === 'Requires-Approval' && (
+                 <p className="text-sm text-muted-foreground">Awaiting review from an FDA agent.</p>
             )}
           </CardContent>
         </Card>
