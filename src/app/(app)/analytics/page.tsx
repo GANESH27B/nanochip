@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { generateTelemetryData } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { TelemetryData } from '@/lib/types';
 
 const ChartWrapper = ({ data, dataKey, name, color }: { data: TelemetryData[], dataKey: keyof TelemetryData, name: string, color: string }) => (
@@ -28,7 +28,7 @@ const ChartWrapper = ({ data, dataKey, name, color }: { data: TelemetryData[], d
           axisLine={false}
           tickFormatter={(str) => {
             const date = new Date(str);
-            return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' });
+            return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', timeZone: 'UTC' });
           }}
         />
         <YAxis
@@ -52,14 +52,19 @@ const ChartWrapper = ({ data, dataKey, name, color }: { data: TelemetryData[], d
 
 export default function AnalyticsPage() {
   const [timeframe, setTimeframe] = useState('24h');
+  const [chartData, setChartData] = useState<{[key: string]: TelemetryData[]}>({});
+  const [isClient, setIsClient] = useState(false);
 
-  const dataMap: { [key: string]: TelemetryData[] } = {
-    '24h': generateTelemetryData(1),
-    '7d': generateTelemetryData(7),
-    '30d': generateTelemetryData(30),
-  };
+  useEffect(() => {
+    setIsClient(true);
+    setChartData({
+      '24h': generateTelemetryData(1),
+      '7d': generateTelemetryData(7),
+      '30d': generateTelemetryData(30),
+    });
+  }, []);
 
-  const data = dataMap[timeframe];
+  const data = chartData[timeframe] || [];
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -74,35 +79,43 @@ export default function AnalyticsPage() {
               <TabsTrigger value="30d">30d</TabsTrigger>
             </TabsList>
           </div>
-          <div className="grid gap-4 md:gap-8 mt-4">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Temperature (°C)</CardTitle>
-                    <CardDescription>Average temperature across all shipments.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartWrapper data={data} dataKey="temperature" name="Temperature" color="hsl(var(--primary))" />
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Humidity (%)</CardTitle>
-                    <CardDescription>Average humidity levels across all shipments.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartWrapper data={data} dataKey="humidity" name="Humidity" color="hsl(var(--chart-2))" />
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>Pressure (hPa)</CardTitle>
-                    <CardDescription>Average atmospheric pressure during transit.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ChartWrapper data={data} dataKey="pressure" name="Pressure" color="hsl(var(--accent))" />
-                </CardContent>
-            </Card>
-          </div>
+          {isClient ? (
+            <div className="grid gap-4 md:gap-8 mt-4">
+              <Card>
+                  <CardHeader>
+                      <CardTitle>Temperature (°C)</CardTitle>
+                      <CardDescription>Average temperature across all shipments.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <ChartWrapper data={data} dataKey="temperature" name="Temperature" color="hsl(var(--primary))" />
+                  </CardContent>
+              </Card>
+              <Card>
+                  <CardHeader>
+                      <CardTitle>Humidity (%)</CardTitle>
+                      <CardDescription>Average humidity levels across all shipments.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <ChartWrapper data={data} dataKey="humidity" name="Humidity" color="hsl(var(--chart-2))" />
+                  </CardContent>
+              </Card>
+               <Card>
+                  <CardHeader>
+                      <CardTitle>Pressure (hPa)</CardTitle>
+                      <CardDescription>Average atmospheric pressure during transit.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <ChartWrapper data={data} dataKey="pressure" name="Pressure" color="hsl(var(--accent))" />
+                  </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:gap-8 mt-4">
+              <Card><CardHeader><CardTitle>Temperature (°C)</CardTitle></CardHeader><CardContent><div style={{height: '300px'}} /></CardContent></Card>
+              <Card><CardHeader><CardTitle>Humidity (%)</CardTitle></CardHeader><CardContent><div style={{height: '300px'}} /></CardContent></Card>
+              <Card><CardHeader><CardTitle>Pressure (hPa)</CardTitle></CardHeader><CardContent><div style={{height: '300px'}} /></CardContent></Card>
+            </div>
+          )}
         </Tabs>
       </main>
     </div>
