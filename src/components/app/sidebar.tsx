@@ -6,7 +6,6 @@ import {
   Home,
   LineChart,
   Package,
-  PanelLeft,
   Siren,
   Truck,
   User,
@@ -20,9 +19,9 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Logo } from '../logo';
-import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
@@ -66,14 +65,12 @@ export default function AppSidebar() {
     <Sidebar
       variant="sidebar"
       collapsible="icon"
-      className="hidden border-r bg-sidebar text-sidebar-foreground lg:flex lg:flex-col"
+      className="border-r bg-sidebar text-sidebar-foreground"
     >
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex w-full items-center justify-between p-2">
           <Logo className="text-sidebar-primary-foreground" />
-          <Button variant="ghost" size="icon" className="lg:hidden">
-            <PanelLeft />
-          </Button>
+          <SidebarTrigger className="hidden lg:flex" />
         </div>
       </SidebarHeader>
       <SidebarContent className="flex-1 p-2">
@@ -97,18 +94,16 @@ export default function AppSidebar() {
       <SidebarFooter className="p-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-auto w-full justify-start p-2">
-              <div className="flex items-center gap-3">
+             <div className="flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent cursor-pointer w-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
-                <div className="text-left">
+                <div className="text-left group-data-[collapsible=icon]:hidden">
                   <p className="text-sm font-medium">PharmaTrust User</p>
                   <p className="text-xs text-muted-foreground">{userRole}</p>
                 </div>
               </div>
-            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="right" align="start">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>

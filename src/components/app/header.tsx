@@ -1,6 +1,7 @@
-import { Bell, Search } from 'lucide-react';
+import { Bell, Menu, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 interface AppHeaderProps {
   title: string;
@@ -10,6 +11,7 @@ interface AppHeaderProps {
 export default function AppHeader({ title, showSearch = true }: AppHeaderProps) {
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
+       <SidebarTrigger className="lg:hidden" />
       <h1 className="text-xl font-semibold md:text-2xl">{title}</h1>
       <div className="ml-auto flex items-center gap-4">
         {showSearch && (
