@@ -76,7 +76,7 @@ export default function MapDisplay({ shipment }: MapDisplayProps) {
     }, [shipment, isClient]);
 
     if (!isClient) {
-        return null; // Don't render anything on the server
+        return <div className="flex items-center justify-center h-full bg-muted"><p>Loading map...</p></div>;
     }
     
     if (error) {
@@ -95,7 +95,7 @@ export default function MapDisplay({ shipment }: MapDisplayProps) {
     const bounds = L.latLngBounds(startCoords, endCoords);
 
     return (
-        <MapContainer center={center} bounds={bounds} style={{ height: '100%', width: '100%' }} className='z-0'>
+        <MapContainer attributionControl={false} center={center} bounds={bounds} style={{ height: '100%', width: '100%' }} className='z-0'>
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
