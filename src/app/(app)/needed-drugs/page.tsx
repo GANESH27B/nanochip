@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,12 +14,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
-const neededDrugs = [
+const initialNeededDrugs = [
   {
     id: 'DRUG-001',
     name: 'Amoxicillin 500mg',
@@ -62,8 +64,36 @@ const priorityStyles: { [key: string]: string } = {
   Low: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
 };
 
-
 export default function NeededDrugsPage() {
+  const [neededDrugs] = useState(initialNeededDrugs);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedDrugName, setSelectedDrugName] = useState('');
+  const { toast } = useToast();
+
+  const handleOrderSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const drugName = formData.get('drug-name');
+    const quantity = formData.get('quantity');
+
+    toast({
+      title: 'Order Placed',
+      description: `Successfully ordered ${quantity} units of ${drugName}.`,
+    });
+    setIsDialogOpen(false);
+  };
+
+  const handleOrderNowClick = (drugName: string) => {
+    setSelectedDrugName(drugName);
+    setIsDialogOpen(true);
+  };
+  
+  const handleNewOrderClick = () => {
+    setSelectedDrugName('');
+    setIsDialogOpen(true);
+  };
+
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader title="Needed Drugs" />
@@ -77,41 +107,12 @@ export default function NeededDrugsPage() {
               </CardDescription>
             </div>
             <div className="ml-auto flex items-center gap-2">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="h-7 gap-1">
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                      New Order
-                    </span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Create Purchase Order</DialogTitle>
-                    <DialogDescription>
-                      Fill in the details to place a new drug order.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="drug-name" className="text-right">
-                        Drug Name
-                      </Label>
-                      <Input id="drug-name" defaultValue="Amoxicillin 500mg" className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="quantity" className="text-right">
-                        Quantity
-                      </Label>
-                      <Input id="quantity" defaultValue="500" type="number" className="col-span-3" />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit">Place Order</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+              <Button size="sm" className="h-7 gap-1" onClick={handleNewOrderClick}>
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  New Order
+                </span>
+              </Button>
             </div>
           </CardHeader>
           <CardContent>
@@ -134,12 +135,12 @@ export default function NeededDrugsPage() {
                     <TableCell>{drug.currentStock}</TableCell>
                     <TableCell>{drug.reorderLevel}</TableCell>
                     <TableCell>
-                        <Badge className={`border-transparent ${priorityStyles[drug.priority]}`}>
-                            {drug.priority}
-                        </Badge>
+                      <Badge className={`border-transparent ${priorityStyles[drug.priority]}`}>
+                        {drug.priority}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" className="gap-1">
+                      <Button variant="outline" size="sm" className="gap-1" onClick={() => handleOrderNowClick(drug.name)}>
                         <ShoppingCart className="h-3.5 w-3.5" />
                         Order Now
                       </Button>
@@ -151,6 +152,49 @@ export default function NeededDrugsPage() {
           </CardContent>
         </Card>
       </main>
+
+       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <form onSubmit={handleOrderSubmit}>
+            <DialogHeader>
+              <DialogTitle>Create Purchase Order</DialogTitle>
+              <DialogDescription>
+                Fill in the details to place a new drug order.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="drug-name" className="text-right">
+                  Drug Name
+                </Label>
+                <Input
+                  id="drug-name"
+                  name="drug-name"
+                  defaultValue={selectedDrugName}
+                  className="col-span-3"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="quantity" className="text-right">
+                  Quantity
+                </Label>
+                <Input
+                  id="quantity"
+                  name="quantity"
+                  defaultValue="100"
+                  type="number"
+                  className="col-span-3"
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Place Order</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
