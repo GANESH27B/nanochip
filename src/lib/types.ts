@@ -47,3 +47,22 @@ export interface Batch {
   expiryDate: string;
   status: 'In-Production' | 'Ready-for-Shipment' | 'Shipped';
 }
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  sender: 'You' | string;
+  text: string;
+  timestamp: string;
+  isRead: boolean;
+}
+
+export interface Conversation {
+  id: string;
+  participantName: string;
+  participantRole: Role;
+  lastMessage: string;
+  lastMessageTimestamp: string;
+  unreadCount: number;
+  avatarUrl?: string;
+}

@@ -11,6 +11,7 @@ import {
   User,
   CreditCard,
   ClipboardList,
+  MessageSquare,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
@@ -43,6 +44,7 @@ const navItems = {
   all: [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/shipments', icon: Truck, label: 'Shipments' },
+    { href: '/messages', icon: MessageSquare, label: 'Messages' },
     { href: '/analytics', icon: LineChart, label: 'Analytics' },
     { href: '/alerts', icon: Siren, label: 'Alerts' },
     { href: '/billing', icon: CreditCard, label: 'Billing' },
