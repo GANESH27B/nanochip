@@ -22,6 +22,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 type Drug = {
   id: string;
@@ -91,6 +92,7 @@ export default function NeededDrugsPage() {
   const [filterTerm, setFilterTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ key: 'priority', direction: 'desc' });
   const { toast } = useToast();
+  const router = useRouter();
   
   const handleOrderSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -126,6 +128,7 @@ export default function NeededDrugsPage() {
     }
 
     setIsDialogOpen(false);
+    router.push('/billing');
   };
 
   const handleOrderNowClick = (drugName: string) => {
@@ -332,7 +335,7 @@ export default function NeededDrugsPage() {
               )}
             </div>
             <DialogFooter>
-              <Button type="submit">Place Order</Button>
+              <Button type="submit">Place Order &amp; Proceed to Payment</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -340,3 +343,5 @@ export default function NeededDrugsPage() {
     </div>
   );
 }
+
+    

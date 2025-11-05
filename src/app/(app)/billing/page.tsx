@@ -1,10 +1,11 @@
+
 'use client';
 
 import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ArrowUpRight, Download } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { format } from 'date-fns';
 
 const transactions = [
@@ -128,3 +129,5 @@ export default function BillingPage() {
     </div>
   );
 }
+
+    

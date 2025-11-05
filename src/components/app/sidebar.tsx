@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -47,8 +48,8 @@ const navItems = {
     { href: '/messages', icon: MessageSquare, label: 'Messages' },
     { href: '/analytics', icon: LineChart, label: 'Analytics' },
     { href: '/alerts', icon: Siren, label: 'Alerts' },
-    { href: '/billing', icon: CreditCard, label: 'Billing' },
     { href: '/needed-drugs', icon: ClipboardList, label: 'Needed Drugs' },
+    { href: '/billing', icon: CreditCard, label: 'Billing' },
   ],
   Manufacturer: [{ href: '/batches', icon: FlaskConical, label: 'Batches' }],
   FDA: [{ href: '/approvals', icon: Package, label: 'Approvals' }],
@@ -67,7 +68,11 @@ export default function AppSidebar() {
 
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   const roleNav = userRole ? navItems[userRole as keyof typeof navItems] || [] : [];
-  const combinedNav = [...navItems.all, ...roleNav];
+  const combinedNav = [...navItems.all, ...roleNav].filter((item, index, self) =>
+    index === self.findIndex((t) => (
+      t.href === item.href
+    ))
+  );
 
   return (
     <Sidebar
@@ -136,3 +141,5 @@ export default function AppSidebar() {
     </Sidebar>
   );
 }
+
+    
