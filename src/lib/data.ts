@@ -117,12 +117,11 @@ const generateRandomValue = (base: number, range: number, factor: number) => {
 
 export const generateTelemetryData = (days: number): TelemetryData[] => {
   const data: TelemetryData[] = [];
-  const now = new Date('2024-07-29T12:00:00Z'); // Use a fixed date to ensure consistency
+  const now = new Date('2024-07-29T12:00:00Z').getTime();
   for (let i = 0; i < 24 * days; i++) {
-    const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+    const time = new Date(now - i * 60 * 60 * 1000);
     const dayHour = time.getUTCHours();
     
-    // Create a deterministic seed based on the time
     const seed = time.getTime();
 
     data.push({
