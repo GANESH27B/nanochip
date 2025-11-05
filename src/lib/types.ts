@@ -66,3 +66,11 @@ export interface Conversation {
   unreadCount: number;
   avatarUrl?: string;
 }
+
+export interface Transaction {
+  id: string;
+  date: string;
+  description: string;
+  amount: number;
+  status: 'Completed' | 'Pending' | 'Failed';
+}

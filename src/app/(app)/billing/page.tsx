@@ -5,14 +5,16 @@ import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, CreditCard, QrCode, Landmark, Wallet } from 'lucide-react';
+import { Download, CreditCard, QrCode, Landmark, Wallet, ReceiptText } from 'lucide-react';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import type { Transaction } from '@/lib/types';
 
-const transactions = [
+const initialTransactions: Transaction[] = [
   {
     id: 'TRX-001',
     date: '2024-07-15T10:30:00Z',
@@ -56,27 +58,60 @@ type InvoiceItem = {
     price: number;
 };
 
-const defaultInvoice: InvoiceItem[] = [
-    { name: 'Metformin (100 units)', quantity: 1, price: 150.00 },
-];
+const defaultInvoice: InvoiceItem[] = [];
 
 export default function BillingPage() {
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>(defaultInvoice);
+  const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const { toast } = useToast();
   
   useEffect(() => {
     const storedInvoice = localStorage.getItem('currentInvoice');
     if (storedInvoice) {
       setInvoiceItems(JSON.parse(storedInvoice));
-      // Clear the stored invoice after displaying it once
-      localStorage.removeItem('currentInvoice');
+      // Do not remove from local storage immediately, clear it after payment
     }
   }, []);
 
   const processingFee = 5.00;
-  const invoiceSubtotal = invoiceItems.reduce((acc, item) => acc + item.price, 0);
-  const invoiceTotal = invoiceSubtotal + processingFee;
+  const invoiceSubtotal = useMemo(() => invoiceItems.reduce((acc, item) => acc + item.price, 0), [invoiceItems]);
+  const invoiceTotal = useMemo(() => invoiceSubtotal + processingFee, [invoiceSubtotal, processingFee]);
+  const totalUnits = useMemo(() => invoiceItems.reduce((acc, item) => acc + item.quantity, 0), [invoiceItems]);
 
-  const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
+  const currentBalance = useMemo(() => transactions.reduce((acc, t) => acc + t.amount, 0), [transactions]);
+
+  const handlePayment = () => {
+    if (invoiceItems.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'No Invoice to Pay',
+        description: 'There is no pending invoice to be paid.',
+      });
+      return;
+    }
+
+    // Create a new transaction from the invoice
+    const newTransaction: Transaction = {
+      id: `TRX-${Date.now()}`,
+      date: new Date().toISOString(),
+      description: `Payment for ${totalUnits} units (${invoiceItems.map(i => i.name).join(', ')})`,
+      amount: -invoiceTotal, // Payment is a deduction
+      status: 'Completed',
+    };
+
+    // Add to history
+    setTransactions(prev => [newTransaction, ...prev]);
+
+    // Clear the invoice
+    setInvoiceItems([]);
+    localStorage.removeItem('currentInvoice');
+
+    // Show confirmation
+    toast({
+      title: 'Payment Successful',
+      description: `Your payment of $${invoiceTotal.toFixed(2)} has been processed.`,
+    });
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -95,12 +130,22 @@ export default function BillingPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Next Invoice</CardTitle>
+              <CardTitle className="text-sm font-medium">Next Recurring Bill</CardTitle>
               <span className="text-muted-foreground">USD</span>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">$500.00</div>
-              <p className="text-xs text-muted-foreground">Due on August 1, 2024</p>
+              <p className="text-xs text-muted-foreground">Due on August 1, 2024 for subscription</p>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Invoice Total</CardTitle>
+              <ReceiptText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${invoiceItems.length > 0 ? invoiceTotal.toFixed(2) : '0.00'}</div>
+              <p className="text-xs text-muted-foreground">{totalUnits > 0 ? `${totalUnits} units to be paid` : 'No pending invoice'}</p>
             </CardContent>
           </Card>
         </div>
@@ -140,7 +185,7 @@ export default function BillingPage() {
                                             <Input id="zip" placeholder="12345" />
                                         </div>
                                     </div>
-                                    <Button className="w-full">Pay with Card</Button>
+                                    <Button className="w-full" onClick={handlePayment}>Pay with Card</Button>
                                 </div>
                             </TabsContent>
                             <TabsContent value="upi" className="mt-6">
@@ -149,7 +194,7 @@ export default function BillingPage() {
                                         <Label htmlFor="upi-id">UPI ID</Label>
                                         <Input id="upi-id" placeholder="yourname@bank" />
                                     </div>
-                                    <Button className="w-full">Pay with UPI</Button>
+                                    <Button className="w-full" onClick={handlePayment}>Pay with UPI</Button>
                                 </div>
                             </TabsContent>
                             <TabsContent value="netbanking" className="mt-6">
@@ -158,7 +203,7 @@ export default function BillingPage() {
                                         <Label htmlFor="bank">Bank</Label>
                                         <Input id="bank" placeholder="Select your bank" />
                                     </div>
-                                    <Button className="w-full">Proceed to Net Banking</Button>
+                                    <Button className="w-full" onClick={handlePayment}>Proceed to Net Banking</Button>
                                 </div>
                             </TabsContent>
                              <TabsContent value="qr" className="mt-6 flex flex-col items-center justify-center gap-4">
@@ -177,20 +222,26 @@ export default function BillingPage() {
                         <CardTitle>Invoice Summary</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                        {invoiceItems.map((item, index) => (
-                            <div key={index} className="flex justify-between">
-                                <span>{`${item.name} (${item.quantity} units)`}</span>
-                                <span>${item.price.toFixed(2)}</span>
-                            </div>
-                        ))}
-                        <div className="flex justify-between">
-                            <span>Processing Fee</span>
-                            <span>${processingFee.toFixed(2)}</span>
-                        </div>
-                         <div className="flex justify-between font-semibold">
-                            <span>Total</span>
-                            <span>${invoiceTotal.toFixed(2)}</span>
-                        </div>
+                       {invoiceItems.length > 0 ? (
+                        <>
+                          {invoiceItems.map((item, index) => (
+                              <div key={index} className="flex justify-between">
+                                  <span>{`${item.name} (${item.quantity} units)`}</span>
+                                  <span>${item.price.toFixed(2)}</span>
+                              </div>
+                          ))}
+                          <div className="flex justify-between">
+                              <span>Processing Fee</span>
+                              <span>${processingFee.toFixed(2)}</span>
+                          </div>
+                           <div className="flex justify-between font-semibold">
+                              <span>Total</span>
+                              <span>${invoiceTotal.toFixed(2)}</span>
+                          </div>
+                        </>
+                       ) : (
+                        <p className="text-sm text-muted-foreground">No items in the current invoice.</p>
+                       )}
                     </CardContent>
                 </Card>
             </div>
