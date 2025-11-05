@@ -105,16 +105,31 @@ export const alerts: Alert[] = [
   },
 ];
 
+const generateRandomValue = (base: number, range: number, factor: number) => {
+  // Simple pseudo-random generator based on a factor to keep it deterministic
+  const a = 1103515245;
+  const c = 12345;
+  const m = Math.pow(2, 31);
+  const pseudoRandom = (a * factor + c) % m / m;
+  return base + pseudoRandom * range;
+};
+
+
 export const generateTelemetryData = (days: number): TelemetryData[] => {
   const data: TelemetryData[] = [];
-  const now = new Date();
+  const now = new Date('2024-07-29T12:00:00Z'); // Use a fixed date to ensure consistency
   for (let i = 0; i < 24 * days; i++) {
     const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+    const dayHour = time.getUTCHours();
+    
+    // Create a deterministic seed based on the time
+    const seed = time.getTime();
+
     data.push({
       time: time.toISOString().substring(0, 16).replace('T', ' '),
-      temperature: 4 + Math.random() * 2 + (i % 24 > 10 && i % 24 < 18 ? Math.random() : -Math.random()),
-      humidity: 60 + Math.random() * 5,
-      pressure: 1010 + Math.random() * 10 - 5,
+      temperature: generateRandomValue(4, 2, seed) + (dayHour > 10 && dayHour < 18 ? generateRandomValue(0,1,seed) : -generateRandomValue(0,1,seed)),
+      humidity: generateRandomValue(60, 5, seed + 1),
+      pressure: generateRandomValue(1010, 10, seed + 2) - 5,
     });
   }
   return data.reverse();
