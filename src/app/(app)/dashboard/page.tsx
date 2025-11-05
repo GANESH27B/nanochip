@@ -8,8 +8,19 @@ import { Siren, Package, Truck, CheckCircle } from 'lucide-react';
 import AppHeader from '@/components/app/header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import type { Role } from '@/lib/types';
 
 export default function DashboardPage() {
+  const [userRole, setUserRole] = useState<Role | null>(null);
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole') as Role;
+    if (role) {
+      setUserRole(role);
+    }
+  }, []);
+
   const totalShipments = shipments.length;
   const pendingApprovals = shipments.filter((s) => s.status === 'Requires-Approval').length;
   const activeAlerts = alerts.length;
@@ -28,7 +39,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <AppHeader title="Dashboard" />
+      <AppHeader title={userRole ? `${userRole} Dashboard` : 'Dashboard'} />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
           <Card>
