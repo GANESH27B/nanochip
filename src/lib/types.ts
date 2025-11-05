@@ -74,3 +74,12 @@ export interface Transaction {
   amount: number;
   status: 'Completed' | 'Pending' | 'Failed';
 }
+
+export type Drug = {
+  id: string;
+  name: string;
+  currentStock: number;
+  reorderLevel: number;
+  priority: 'High' | 'Medium' | 'Low';
+  requestedBy: string;
+};

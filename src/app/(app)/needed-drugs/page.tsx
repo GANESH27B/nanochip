@@ -23,61 +23,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-
-type Drug = {
-  id: string;
-  name: string;
-  currentStock: number;
-  reorderLevel: number;
-  priority: 'High' | 'Medium' | 'Low';
-  requestedBy: string;
-};
+import { neededDrugs as initialNeededDrugs } from '@/lib/data';
+import type { Drug } from '@/lib/types';
 
 type SortKey = keyof Drug | '';
 type SortDirection = 'asc' | 'desc';
-
-const initialNeededDrugs: Drug[] = [
-  {
-    id: 'DRUG-001',
-    name: 'Amoxicillin 500mg',
-    currentStock: 50,
-    reorderLevel: 100,
-    priority: 'High',
-    requestedBy: 'General Hospital Pharmacy',
-  },
-  {
-    id: 'DRUG-002',
-    name: 'Ibuprofen 200mg',
-    currentStock: 120,
-    reorderLevel: 200,
-    priority: 'Medium',
-    requestedBy: 'City-Distro',
-  },
-  {
-    id: 'DRUG-003',
-    name: 'Paracetamol 500mg',
-    currentStock: 80,
-    reorderLevel: 150,
-    priority: 'High',
-    requestedBy: 'Downtown Pharmacy',
-  },
-  {
-    id: 'DRUG-004',
-    name: 'Cetirizine 10mg',
-    currentStock: 250,
-    reorderLevel: 300,
-    priority: 'Low',
-    requestedBy: 'Regional Meds',
-  },
-  {
-    id: 'DRUG-005',
-    name: 'Omeprazole 20mg',
-    currentStock: 30,
-    reorderLevel: 75,
-    priority: 'High',
-    requestedBy: 'General Hospital Pharmacy',
-  },
-];
 
 const priorityStyles: { [key: string]: string } = {
   High: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
@@ -99,12 +49,18 @@ export default function NeededDrugsPage() {
     const formData = new FormData(event.currentTarget);
     const drugName = formData.get('drug-name') as string;
     const quantity = parseInt(formData.get('quantity') as string, 10);
-    const reorderLevel = parseInt(formData.get('reorder-level') as string, 10);
-    const currentStock = parseInt(formData.get('current-stock') as string, 10);
-    const priority = formData.get('priority') as 'High' | 'Medium' | 'Low';
-    const requestedBy = formData.get('requested-by') as string;
 
-    const existingDrug = neededDrugs.find(d => d.name === drugName);
+    const newDrugRequest: Drug = {
+      id: `DRUG-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+      name: drugName,
+      currentStock: parseInt(formData.get('current-stock') as string, 10) || 0,
+      reorderLevel: parseInt(formData.get('reorder-level') as string, 10) || 50,
+      priority: (formData.get('priority') as 'High' | 'Medium' | 'Low') || 'Medium',
+      requestedBy: (formData.get('requested-by') as string) || 'Internal Request',
+    };
+
+    // Add to the list
+    setNeededDrugs(prevDrugs => [newDrugRequest, ...prevDrugs]);
     
     // Simulate invoice generation
     const invoiceItems = [{
@@ -114,31 +70,15 @@ export default function NeededDrugsPage() {
     }];
     localStorage.setItem('currentInvoice', JSON.stringify(invoiceItems));
 
-
-    if (!existingDrug) {
-        const newDrug: Drug = {
-            id: `DRUG-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-            name: drugName,
-            currentStock: currentStock || 0,
-            reorderLevel: reorderLevel || 0,
-            priority: priority || 'Medium',
-            requestedBy: requestedBy || 'Internal Request'
-        };
-        setNeededDrugs([newDrug, ...neededDrugs]);
-        toast({
-            title: 'Drug Added & Order Placed',
-            description: `${newDrug.name} has been added. An order for ${quantity} units has been placed.`,
-        });
-    } else {
-         toast({
-            title: 'Order Placed',
-            description: `Successfully ordered ${quantity} units of ${drugName}.`,
-        });
-    }
+    toast({
+      title: 'Order Placed',
+      description: `Successfully ordered ${quantity} units of ${drugName}.`,
+    });
 
     setIsDialogOpen(false);
     router.push('/billing');
   };
+
 
   const handleOrderNowClick = (drugName: string) => {
     setSelectedDrugName(drugName);
@@ -305,7 +245,7 @@ export default function NeededDrugsPage() {
                   required
                 />
               </div>
-              {!selectedDrugName && (
+              {!neededDrugs.find(d => d.name === selectedDrugName) && (
                 <>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="requested-by" className="text-right">

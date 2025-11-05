@@ -13,44 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useEffect, useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { Transaction } from '@/lib/types';
-
-const initialTransactions: Transaction[] = [
-  {
-    id: 'TRX-001',
-    date: '2024-07-15T10:30:00Z',
-    description: 'Shipment Fee for B-XYZ-12345',
-    amount: -75.5,
-    status: 'Completed',
-  },
-  {
-    id: 'TRX-002',
-    date: '2024-07-18T14:00:00Z',
-    description: 'Payment from General Hospital',
-    amount: 5200.0,
-    status: 'Completed',
-  },
-  {
-    id: 'TRX-003',
-    date: '2024-07-20T09:00:00Z',
-    description: 'Regulatory Filing Fee - FDA',
-    amount: -250.0,
-    status: 'Completed',
-  },
-  {
-    id: 'TRX-004',
-    date: '2024-07-22T11:45:00Z',
-    description: 'Batch Production Cost B-ABC-67890',
-    amount: -12000.0,
-    status: 'Completed',
-  },
-  {
-    id: 'TRX-005',
-    date: '2024-07-29T16:20:00Z',
-    description: 'Service Subscription - July 2024',
-    amount: -500.0,
-    status: 'Pending',
-  },
-];
+import { transactions as initialTransactions } from '@/lib/data';
 
 type InvoiceItem = {
     name: string;
@@ -230,11 +193,15 @@ export default function BillingPage() {
                                   <span>${item.price.toFixed(2)}</span>
                               </div>
                           ))}
-                          <div className="flex justify-between">
+                          <div className="flex justify-between text-muted-foreground">
+                              <span>Subtotal</span>
+                              <span>${invoiceSubtotal.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between text-muted-foreground">
                               <span>Processing Fee</span>
                               <span>${processingFee.toFixed(2)}</span>
                           </div>
-                           <div className="flex justify-between font-semibold">
+                           <div className="flex justify-between font-semibold text-lg">
                               <span>Total</span>
                               <span>${invoiceTotal.toFixed(2)}</span>
                           </div>
@@ -287,7 +254,7 @@ export default function BillingPage() {
                     <TableCell className="hidden sm:table-cell">
                       {format(new Date(transaction.date), 'MMMM d, yyyy')}
                     </TableCell>
-                    <TableCell className={`text-right ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <TableCell className={`text-right font-semibold ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {transaction.amount < 0 ? '-' : ''}${Math.abs(transaction.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
                   </TableRow>
