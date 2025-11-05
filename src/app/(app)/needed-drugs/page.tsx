@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { PlusCircle, ShoppingCart } from 'lucide-react';
+import { PlusCircle, ShoppingCart, ArrowUpDown } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -22,8 +22,18 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+type Drug = {
+  id: string;
+  name: string;
+  currentStock: number;
+  reorderLevel: number;
+  priority: 'High' | 'Medium' | 'Low';
+};
 
-const initialNeededDrugs = [
+type SortKey = keyof Drug | '';
+type SortDirection = 'asc' | 'desc';
+
+const initialNeededDrugs: Drug[] = [
   {
     id: 'DRUG-001',
     name: 'Amoxicillin 500mg',
@@ -71,8 +81,10 @@ export default function NeededDrugsPage() {
   const [neededDrugs, setNeededDrugs] = useState(initialNeededDrugs);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDrugName, setSelectedDrugName] = useState('');
+  const [filterTerm, setFilterTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ key: '', direction: 'asc' });
   const { toast } = useToast();
-
+  
   const handleOrderSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -82,11 +94,10 @@ export default function NeededDrugsPage() {
     const currentStock = parseInt(formData.get('current-stock') as string, 10);
     const priority = formData.get('priority') as 'High' | 'Medium' | 'Low';
     
-    // Check if we are editing or creating
     const existingDrug = neededDrugs.find(d => d.name === drugName);
 
     if (!existingDrug) {
-        const newDrug = {
+        const newDrug: Drug = {
             id: `DRUG-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
             name: drugName,
             currentStock: currentStock || 0,
@@ -95,8 +106,8 @@ export default function NeededDrugsPage() {
         };
         setNeededDrugs([newDrug, ...neededDrugs]);
         toast({
-            title: 'Drug Added',
-            description: `${newDrug.name} has been added to the needed drugs list. An order for ${quantity} units has been placed.`,
+            title: 'Drug Added & Order Placed',
+            description: `${newDrug.name} has been added. An order for ${quantity} units has been placed.`,
         });
     } else {
          toast({
@@ -104,7 +115,6 @@ export default function NeededDrugsPage() {
             description: `Successfully ordered ${quantity} units of ${drugName}.`,
         });
     }
-
 
     setIsDialogOpen(false);
   };
@@ -118,22 +128,67 @@ export default function NeededDrugsPage() {
     setSelectedDrugName('');
     setIsDialogOpen(true);
   };
+  
+  const requestSort = (key: SortKey) => {
+    let direction: SortDirection = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
 
+  const sortedAndFilteredDrugs = useMemo(() => {
+    let sortableItems = [...neededDrugs];
+    
+    if (filterTerm) {
+      sortableItems = sortableItems.filter(drug =>
+        drug.name.toLowerCase().includes(filterTerm.toLowerCase())
+      );
+    }
+    
+    if (sortConfig.key) {
+      sortableItems.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [neededDrugs, filterTerm, sortConfig]);
+
+  const SortableHeader = ({ sortKey, children }: { sortKey: SortKey, children: React.ReactNode }) => (
+    <TableHead onClick={() => requestSort(sortKey)} className="cursor-pointer">
+      <div className="flex items-center gap-2">
+        {children}
+        <ArrowUpDown className="h-3 w-3" />
+      </div>
+    </TableHead>
+  );
 
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader title="Needed Drugs" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <Card>
-          <CardHeader className="flex flex-row items-center">
+          <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="grid gap-2">
               <CardTitle>Drug Stock Levels</CardTitle>
               <CardDescription>
                 List of drugs that are below their reorder level and require procurement.
               </CardDescription>
             </div>
-            <div className="ml-auto flex items-center gap-2">
-              <Button size="sm" className="h-7 gap-1" onClick={handleNewOrderClick}>
+            <div className="flex flex-col sm:flex-row items-center gap-2">
+              <Input
+                placeholder="Filter by drug name..."
+                value={filterTerm}
+                onChange={(e) => setFilterTerm(e.target.value)}
+                className="w-full sm:w-auto"
+              />
+              <Button size="sm" className="h-9 gap-1 w-full sm:w-auto" onClick={handleNewOrderClick}>
                 <PlusCircle className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                   New Order
@@ -145,17 +200,17 @@ export default function NeededDrugsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Drug Name</TableHead>
-                  <TableHead>Current Stock</TableHead>
-                  <TableHead>Reorder Level</TableHead>
-                  <TableHead>Priority</TableHead>
+                  <SortableHeader sortKey="name">Drug Name</SortableHeader>
+                  <SortableHeader sortKey="currentStock">Current Stock</SortableHeader>
+                  <SortableHeader sortKey="reorderLevel">Reorder Level</SortableHeader>
+                  <SortableHeader sortKey="priority">Priority</SortableHeader>
                   <TableHead>
                     <span className="sr-only">Actions</span>
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {neededDrugs.map((drug) => (
+                {sortedAndFilteredDrugs.map((drug) => (
                   <TableRow key={drug.id}>
                     <TableCell className="font-medium">{drug.name}</TableCell>
                     <TableCell>{drug.currentStock}</TableCell>
@@ -255,5 +310,3 @@ export default function NeededDrugsPage() {
     </div>
   );
 }
-
-    
