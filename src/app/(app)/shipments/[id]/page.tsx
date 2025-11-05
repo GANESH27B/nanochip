@@ -2,7 +2,6 @@
 
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import Image from 'next/image';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Siren, Sparkles, Loader2 } from 'lucide-react';
 import { shipments as initialShipments, alerts as allAlerts } from '@/lib/data';
@@ -72,16 +71,6 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
     }
   };
   
-  const mapImageUrl = useMemo(() => {
-    if (shipment?.startingPoint && shipment?.endingPoint) {
-      const origin = encodeURIComponent(shipment.startingPoint);
-      const destination = encodeURIComponent(shipment.endingPoint);
-      return `https://images.unsplash.com/photo-1532154058647-334b228638e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYXAlMjByb3V0ZSUyMCUyMi${origin}JTIyJTIwdG8lMjAlMjIlMj${destination}JTIyfGVufDB8fHx8MTc2MjM0NTc2Nnww&ixlib=rb-4.1.0&q=80&w=1080`;
-    }
-    return 'https://images.unsplash.com/photo-1532154058647-334b228638e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYXAlMjByb3V0ZXxlbnwwfHx8fDE3NjIzNDU3NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080';
-  }, [shipment]);
-
-
   if (!shipment) {
     return (
       <div className="flex min-h-screen w-full flex-col">
@@ -101,17 +90,25 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
           <Card className="lg:col-span-4">
             <CardHeader>
-              <CardTitle>Live Telemetry & Route</CardTitle>
+              <CardTitle>Shipment Details</CardTitle>
             </CardHeader>
-            <CardContent>
-              <Image
-                src={mapImageUrl}
-                alt="Shipment map"
-                width={800}
-                height={400}
-                className="rounded-lg"
-                data-ai-hint="map route"
-              />
+            <CardContent className="grid gap-4">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Batch ID</p>
+                <p>{shipment.batchId}</p>
+              </div>
+               <div>
+                <p className="text-sm font-medium text-muted-foreground">Current Holder</p>
+                <p>{shipment.currentHolder}</p>
+              </div>
+               <div>
+                <p className="text-sm font-medium text-muted-foreground">Status</p>
+                <p>{shipment.status.replace('-', ' ')}</p>
+              </div>
+               <div>
+                <p className="text-sm font-medium text-muted-foreground">Route</p>
+                <p>{shipment.startingPoint} to {shipment.endingPoint}</p>
+              </div>
             </CardContent>
           </Card>
           <Card className="lg:col-span-3">

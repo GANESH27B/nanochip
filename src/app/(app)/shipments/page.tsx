@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { MoreHorizontal, PlusCircle, Map } from 'lucide-react';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import AppHeader from '@/components/app/header';
 import {
   Table,
@@ -39,7 +39,6 @@ import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
 import type { Shipment } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import dynamic from 'next/dynamic';
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -48,17 +47,10 @@ const statusStyles: { [key: string]: string } = {
   Pending: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
 };
 
-const MapDisplay = dynamic(() => import('@/components/app/map-display'), {
-  ssr: false,
-  loading: () => <div className="flex items-center justify-center h-full bg-muted"><p>Loading map...</p></div>
-});
-
 export default function ShipmentsPage() {
   const { searchTerm } = useSearch();
   const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isMapDialogOpen, setIsMapDialogOpen] = useState(false);
-  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
   const { toast } = useToast();
 
   const filteredShipments = useMemo(() => {
@@ -90,19 +82,6 @@ export default function ShipmentsPage() {
       title: 'Shipment Created',
       description: `Shipment for batch ${newShipment.batchId} has been created.`,
     });
-  };
-
-  const handleTrackOnMap = (shipment: Shipment) => {
-    if (shipment.startingPoint && shipment.endingPoint) {
-      setSelectedShipment(shipment);
-      setIsMapDialogOpen(true);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Tracking Unavailable',
-        description: 'This shipment is missing location data.'
-      });
-    }
   };
 
   return (
@@ -211,10 +190,6 @@ export default function ShipmentsPage() {
                             <DropdownMenuItem asChild>
                               <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleTrackOnMap(shipment)}>
-                                <Map className="mr-2 h-4 w-4" />
-                                Track on Map
-                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem>Acknowledge Alerts</DropdownMenuItem>
                           </DropdownMenuContent>
@@ -228,24 +203,6 @@ export default function ShipmentsPage() {
           </Card>
         </main>
       </div>
-
-      <Dialog open={isMapDialogOpen} onOpenChange={setIsMapDialogOpen}>
-        <DialogContent className="sm:max-w-[625px] h-[70vh]">
-          {selectedShipment && (
-            <>
-              <DialogHeader>
-                <DialogTitle>Shipment Route: {selectedShipment.batchId}</DialogTitle>
-                <DialogDescription>
-                  From {selectedShipment.startingPoint} to {selectedShipment.endingPoint}.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="rounded-lg overflow-hidden h-full w-full">
-                <MapDisplay shipment={selectedShipment} />
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
