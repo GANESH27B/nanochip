@@ -68,6 +68,8 @@ export default function ShipmentsPage() {
     const newShipment: Shipment = {
       batchId: formData.get('batchId') as string,
       currentHolder: formData.get('currentHolder') as string,
+      startingPoint: formData.get('startingPoint') as string,
+      endingPoint: formData.get('endingPoint') as string,
       status: 'Pending',
       createdAt: now.toISOString(),
       alerts: 0,
@@ -122,6 +124,18 @@ export default function ShipmentsPage() {
                         Holder
                       </Label>
                       <Input id="currentHolder" name="currentHolder" required className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="startingPoint" className="text-right">
+                            Starting Point
+                        </Label>
+                        <Input id="startingPoint" name="startingPoint" required className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="endingPoint" className="text-right">
+                            Ending Point
+                        </Label>
+                        <Input id="endingPoint" name="endingPoint" required className="col-span-3" />
                     </div>
                   </div>
                   <DialogFooter>

@@ -17,6 +17,8 @@ export interface Shipment {
   createdAt: string;
   alerts: number;
   lastUpdate: string;
+  startingPoint?: string;
+  endingPoint?: string;
 }
 
 export type AlertType = 'Temperature' | 'Tamper' | 'Fake-Transfer' | 'Pressure' | 'Humidity';
