@@ -82,7 +82,7 @@ export default function NeededDrugsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedDrugName, setSelectedDrugName] = useState('');
   const [filterTerm, setFilterTerm] = useState('');
-  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ key: '', direction: 'asc' });
+  const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ key: 'priority', direction: 'desc' });
   const { toast } = useToast();
   
   const handleOrderSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -148,17 +148,20 @@ export default function NeededDrugsPage() {
     
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const aValue = a[sortConfig.key!];
+        const bValue = b[sortConfig.key!];
+        
+        if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aValue > bValue) {
           return sortConfig.direction === 'asc' ? 1 : -1;
         }
         return 0;
       });
     }
     return sortableItems;
-  }, [neededDrugs, filterTerm, sortConfig]);
+  }, [neededDrugs, filterTerm, sortConfig.key, sortConfig.direction]);
 
   const SortableHeader = ({ sortKey, children }: { sortKey: SortKey, children: React.ReactNode }) => (
     <TableHead onClick={() => requestSort(sortKey)} className="cursor-pointer">
