@@ -11,10 +11,18 @@ import type { Conversation, ChatMessage, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { SendHorizonal, Search } from 'lucide-react';
+import { SendHorizonal, Search, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function MessagesPage() {
   const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
@@ -23,7 +31,6 @@ export default function MessagesPage() {
     conversations[0]
   );
   const [newMessage, setNewMessage] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -47,40 +54,28 @@ export default function MessagesPage() {
     });
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchTerm.trim()) return;
-
-    const foundUser = Object.values(allUsers).find(
-      (user) => user.email.toLowerCase() === searchTerm.toLowerCase()
+  const handleStartConversation = (user: User) => {
+    const existingConvo = conversations.find(
+      (convo) => convo.participantName === user.name
     );
 
-    if (foundUser) {
-      const existingConvo = conversations.find(
-        (convo) => convo.participantName === foundUser.name
-      );
-
-      if (existingConvo) {
-        setSelectedConversation(existingConvo);
-      } else {
-        const newConvo: Conversation = {
-          id: `CONV-${Date.now()}`,
-          participantName: foundUser.name,
-          participantRole: foundUser.role,
-          lastMessage: 'New conversation started.',
-          lastMessageTimestamp: new Date().toISOString(),
-          unreadCount: 0,
-          avatarUrl: `https://picsum.photos/seed/${foundUser.id}/100/100`,
-        };
-        setConversations([newConvo, ...conversations]);
-        setSelectedConversation(newConvo);
-      }
-      setSearchTerm('');
+    if (existingConvo) {
+      setSelectedConversation(existingConvo);
     } else {
+      const newConvo: Conversation = {
+        id: `CONV-${Date.now()}`,
+        participantName: user.name,
+        participantRole: user.role,
+        lastMessage: 'New conversation started.',
+        lastMessageTimestamp: new Date().toISOString(),
+        unreadCount: 0,
+        avatarUrl: `https://picsum.photos/seed/${user.id}/100/100`,
+      };
+      setConversations([newConvo, ...conversations]);
+      setSelectedConversation(newConvo);
       toast({
-        variant: 'destructive',
-        title: 'User Not Found',
-        description: `No user with the email "${searchTerm}" is registered.`,
+        title: 'Conversation Started',
+        description: `You can now chat with ${user.name}.`,
       });
     }
   };
@@ -94,16 +89,36 @@ export default function MessagesPage() {
         {/* Conversations Sidebar */}
         <aside className="w-1/4 min-w-[250px] max-w-[350px] border-r">
           <div className="p-4">
-            <h2 className="text-xl font-bold">Chats</h2>
-            <form onSubmit={handleSearch} className="relative mt-4">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by email..."
-                className="pl-8"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </form>
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold">Chats</h2>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <UserPlus className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Start a new chat</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {Object.values(allUsers)
+                    .filter(u => u.name !== 'Alice Manufacturer') // Assuming 'You' are the manufacturer
+                    .map((user) => (
+                    <DropdownMenuItem key={user.id} onSelect={() => handleStartConversation(user)}>
+                      <div className="flex items-center gap-2">
+                         <Avatar className="h-6 w-6">
+                            <AvatarImage src={`https://picsum.photos/seed/${user.id}/100/100`} alt={user.name} />
+                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                            <p className="text-sm font-medium">{user.name}</p>
+                            <p className="text-xs text-muted-foreground">{user.role}</p>
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <nav className="flex flex-col gap-1 p-2">
             {conversations.map((convo) => (
@@ -223,7 +238,7 @@ export default function MessagesPage() {
             </>
           ) : (
             <div className="flex flex-1 items-center justify-center text-muted-foreground">
-              <p>Select a conversation to start chatting</p>
+              <p>Select a conversation or start a new one</p>
             </div>
           )}
         </main>
