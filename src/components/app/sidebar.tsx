@@ -9,6 +9,8 @@ import {
   Siren,
   Truck,
   User,
+  CreditCard,
+  ClipboardList,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
@@ -43,6 +45,8 @@ const navItems = {
     { href: '/shipments', icon: Truck, label: 'Shipments' },
     { href: '/analytics', icon: LineChart, label: 'Analytics' },
     { href: '/alerts', icon: Siren, label: 'Alerts' },
+    { href: '/billing', icon: CreditCard, label: 'Billing' },
+    { href: '/needed-drugs', icon: ClipboardList, label: 'Needed Drugs' },
   ],
   Manufacturer: [{ href: '/batches', icon: FlaskConical, label: 'Batches' }],
   FDA: [{ href: '/approvals', icon: Package, label: 'Approvals' }],
