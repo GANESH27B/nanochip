@@ -1,5 +1,9 @@
 'use client';
 
+import { useMemo, useState } from 'react';
+import { format } from 'date-fns';
+import Link from 'next/link';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import AppHeader from '@/components/app/header';
 import {
   Table,
@@ -13,8 +17,6 @@ import { Badge } from '@/components/ui/badge';
 import { shipments as initialShipments } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { MoreHorizontal } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,9 +24,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
-import { useMemo } from 'react';
-import { format } from 'date-fns';
+import type { Shipment } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -35,26 +48,88 @@ const statusStyles: { [key: string]: string } = {
 
 export default function ShipmentsPage() {
   const { searchTerm } = useSearch();
+  const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
 
-  const shipments = useMemo(() => {
+  const filteredShipments = useMemo(() => {
     if (!searchTerm) {
-      return initialShipments;
+      return shipments;
     }
-    return initialShipments.filter((shipment) =>
+    return shipments.filter((shipment) =>
       shipment.batchId.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [searchTerm]);
+  }, [searchTerm, shipments]);
+
+  const handleCreateShipment = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const now = new Date();
+    const newShipment: Shipment = {
+      batchId: formData.get('batchId') as string,
+      currentHolder: formData.get('currentHolder') as string,
+      status: 'Pending',
+      createdAt: now.toISOString(),
+      alerts: 0,
+      lastUpdate: now.toISOString(),
+    };
+    setShipments([newShipment, ...shipments]);
+    setIsDialogOpen(false);
+    toast({
+      title: 'Shipment Created',
+      description: `Shipment for batch ${newShipment.batchId} has been created.`,
+    });
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader title="Shipments" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <Card className="animate-fade-in-up">
-          <CardHeader>
-            <CardTitle>All Shipments</CardTitle>
-            <CardDescription>
-              Track and manage all pharmaceutical shipments across the supply chain.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>All Shipments</CardTitle>
+              <CardDescription>
+                Track and manage all pharmaceutical shipments across the supply chain.
+              </CardDescription>
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-1">
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    New Shipment
+                  </span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <form onSubmit={handleCreateShipment}>
+                  <DialogHeader>
+                    <DialogTitle>Create New Shipment</DialogTitle>
+                    <DialogDescription>
+                      Fill in the details for the new shipment.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="batchId" className="text-right">
+                        Batch ID
+                      </Label>
+                      <Input id="batchId" name="batchId" required className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="currentHolder" className="text-right">
+                        Holder
+                      </Label>
+                      <Input id="currentHolder" name="currentHolder" required className="col-span-3" />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit">Create Shipment</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </CardHeader>
           <CardContent>
             <Table>
@@ -71,7 +146,7 @@ export default function ShipmentsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {shipments.map((shipment, index) => (
+                {filteredShipments.map((shipment, index) => (
                   <TableRow key={shipment.batchId} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
                     <TableCell className="font-medium">{shipment.batchId}</TableCell>
                     <TableCell>
