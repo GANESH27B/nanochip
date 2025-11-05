@@ -1,4 +1,4 @@
-import type { Shipment, Alert, User, Role, TelemetryData } from './types';
+import type { Shipment, Alert, User, Role, TelemetryData, Batch } from './types';
 
 export const users: Record<Role, User> = {
   Manufacturer: {
@@ -102,6 +102,41 @@ export const alerts: Alert[] = [
     type: 'Humidity',
     details: 'Humidity level rose to 75%.',
     severity: 'Low',
+  },
+];
+
+export const batches: Batch[] = [
+  {
+    id: 'B-XYZ-12345',
+    drugName: 'Sertraline',
+    quantity: 5000,
+    manufactureDate: '2024-07-20T00:00:00Z',
+    expiryDate: '2026-07-20T00:00:00Z',
+    status: 'Shipped',
+  },
+  {
+    id: 'B-ABC-67890',
+    drugName: 'Lisinopril',
+    quantity: 10000,
+    manufactureDate: '2024-07-15T00:00:00Z',
+    expiryDate: '2026-07-15T00:00:00Z',
+    status: 'Shipped',
+  },
+  {
+    id: 'B-MNO-33445',
+    drugName: 'Atorvastatin',
+    quantity: 20000,
+    manufactureDate: '2024-07-28T00:00:00Z',
+    expiryDate: '2026-07-28T00:00:00Z',
+    status: 'Ready-for-Shipment',
+  },
+  {
+    id: 'B-PQR-66778',
+    drugName: 'Metformin',
+    quantity: 15000,
+    manufactureDate: '2024-07-29T00:00:00Z',
+    expiryDate: '2026-07-29T00:00:00Z',
+    status: 'In-Production',
   },
 ];
 

@@ -36,3 +36,12 @@ export interface TelemetryData {
   humidity: number;
   pressure: number;
 }
+
+export interface Batch {
+  id: string;
+  drugName: string;
+  quantity: number;
+  manufactureDate: string;
+  expiryDate: string;
+  status: 'In-Production' | 'Ready-for-Shipment' | 'Shipped';
+}
