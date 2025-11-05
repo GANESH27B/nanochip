@@ -1,17 +1,24 @@
-import { Bell, Menu, Search } from 'lucide-react';
+'use client';
+
+import { Bell, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useSearch } from '@/hooks/use-search';
+import { usePathname } from 'next/navigation';
 
 interface AppHeaderProps {
   title: string;
-  showSearch?: boolean;
 }
 
-export default function AppHeader({ title, showSearch = true }: AppHeaderProps) {
+export default function AppHeader({ title }: AppHeaderProps) {
+  const { searchTerm, setSearchTerm } = useSearch();
+  const pathname = usePathname();
+  const showSearch = pathname === '/shipments';
+
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm md:px-6">
-       <SidebarTrigger className="lg:hidden" />
+      <SidebarTrigger className="lg:hidden" />
       <h1 className="text-xl font-semibold md:text-2xl">{title}</h1>
       <div className="ml-auto flex items-center gap-4">
         {showSearch && (
@@ -21,6 +28,8 @@ export default function AppHeader({ title, showSearch = true }: AppHeaderProps) 
               type="search"
               placeholder="Search shipments..."
               className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </form>
         )}

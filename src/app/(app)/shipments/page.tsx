@@ -1,3 +1,5 @@
+'use client';
+
 import AppHeader from '@/components/app/header';
 import {
   Table,
@@ -8,7 +10,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { shipments } from '@/lib/data';
+import { shipments as initialShipments } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -20,6 +22,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useSearch } from '@/hooks/use-search';
+import { useMemo } from 'react';
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -29,6 +33,17 @@ const statusStyles: { [key: string]: string } = {
 };
 
 export default function ShipmentsPage() {
+  const { searchTerm } = useSearch();
+
+  const shipments = useMemo(() => {
+    if (!searchTerm) {
+      return initialShipments;
+    }
+    return initialShipments.filter((shipment) =>
+      shipment.batchId.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm]);
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader title="Shipments" />
