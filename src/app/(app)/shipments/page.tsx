@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Map } from 'lucide-react';
 import AppHeader from '@/components/app/header';
 import {
   Table,
@@ -23,6 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import {
   Dialog,
@@ -81,6 +82,19 @@ export default function ShipmentsPage() {
       title: 'Shipment Created',
       description: `Shipment for batch ${newShipment.batchId} has been created.`,
     });
+  };
+
+  const handleTrackOnMap = (shipment: Shipment) => {
+    if (shipment.startingPoint && shipment.endingPoint) {
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(shipment.startingPoint)}&destination=${encodeURIComponent(shipment.endingPoint)}`;
+      window.open(url, '_blank');
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Tracking Unavailable',
+        description: 'This shipment is missing location data.'
+      });
+    }
   };
 
   return (
@@ -188,6 +202,11 @@ export default function ShipmentsPage() {
                           <DropdownMenuItem asChild>
                             <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
                           </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleTrackOnMap(shipment)}>
+                            <Map className="mr-2 h-4 w-4" />
+                            Track in Google Maps
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem>Acknowledge Alerts</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
