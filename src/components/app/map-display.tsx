@@ -1,6 +1,6 @@
 'use client';
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Shipment } from '@/lib/types';
@@ -93,6 +93,7 @@ export default function MapDisplay({ shipment }: MapDisplayProps) {
     ];
 
     const bounds = L.latLngBounds(startCoords, endCoords);
+    const polyline: [number, number][] = [startCoords, endCoords];
 
     return (
         <MapContainer attributionControl={false} center={center} bounds={bounds} style={{ height: '100%', width: '100%' }} className='z-0'>
@@ -110,6 +111,7 @@ export default function MapDisplay({ shipment }: MapDisplayProps) {
                   <Popup>Ending Point: {shipment?.endingPoint}</Popup>
               </Marker>
             )}
+            <Polyline positions={polyline} color="blue" />
         </MapContainer>
     );
 }
