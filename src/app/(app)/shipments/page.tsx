@@ -39,6 +39,7 @@ import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
 import type { Shipment } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import dynamic from 'next/dynamic';
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -46,6 +47,10 @@ const statusStyles: { [key: string]: string } = {
   'Requires-Approval': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
   Pending: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
 };
+
+const MapDisplay = dynamic(() => import('@/components/app/map-display'), {
+  ssr: false,
+});
 
 export default function ShipmentsPage() {
   const { searchTerm } = useSearch();
@@ -98,17 +103,6 @@ export default function ShipmentsPage() {
       });
     }
   };
-  
-  const mapEmbedUrl = useMemo(() => {
-    if (selectedShipment?.startingPoint && selectedShipment?.endingPoint) {
-      const origin = encodeURIComponent(selectedShipment.startingPoint);
-      const destination = encodeURIComponent(selectedShipment.endingPoint);
-      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-      return `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${origin}&destination=${destination}`;
-    }
-    return '';
-  }, [selectedShipment]);
-
 
   return (
     <>
@@ -245,20 +239,7 @@ export default function ShipmentsPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="rounded-lg overflow-hidden h-full w-full">
-                {mapEmbedUrl ? (
-                    <iframe
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0 }}
-                        loading="lazy"
-                        allowFullScreen
-                        src={mapEmbedUrl}>
-                    </iframe>
-                ) : (
-                  <div className="flex items-center justify-center h-full bg-muted rounded-lg">
-                    <p className="text-muted-foreground">Please add your Google Maps API key to the .env file.</p>
-                  </div>
-                )}
+                <MapDisplay shipment={selectedShipment} />
               </div>
             </>
           )}
