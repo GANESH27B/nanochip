@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSearch } from '@/hooks/use-search';
 import { useMemo } from 'react';
+import { format } from 'date-fns';
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -83,7 +84,7 @@ export default function ShipmentsPage() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {new Date(shipment.createdAt).toLocaleDateString()}
+                      {format(new Date(shipment.createdAt), 'MM/dd/yyyy')}
                     </TableCell>
                     <TableCell className="text-right">{shipment.alerts}</TableCell>
                     <TableCell>
