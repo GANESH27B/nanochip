@@ -17,8 +17,8 @@ export default function AppHeader({ title }: AppHeaderProps) {
   const showSearch = pathname === '/shipments';
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-primary/20 bg-primary/90 px-4 text-primary-foreground backdrop-blur-sm md:px-6">
-      <SidebarTrigger className="lg:hidden text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground" />
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur-sm md:px-6">
+      <SidebarTrigger className="lg:hidden" />
       <h1 className="text-xl font-semibold md:text-2xl">{title}</h1>
       <div className="ml-auto flex items-center gap-4">
         {showSearch && (
@@ -27,13 +27,13 @@ export default function AppHeader({ title }: AppHeaderProps) {
             <Input
               type="search"
               placeholder="Search shipments..."
-              className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px] bg-background text-foreground"
+              className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px] bg-background"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         )}
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground">
+        <Button variant="ghost" size="icon" className="h-8 w-8">
           <Bell className="h-4 w-4" />
           <span className="sr-only">Toggle notifications</span>
         </Button>
