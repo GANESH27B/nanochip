@@ -80,12 +80,16 @@ export default function MapDisplay({ shipment }: MapDisplayProps) {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
-            <Marker position={startCoords}>
-                <Popup>Starting Point: {shipment?.startingPoint}</Popup>
-            </Marker>
-            <Marker position={endCoords}>
-                <Popup>Ending Point: {shipment?.endingPoint}</Popup>
-            </Marker>
+            {startCoords && (
+              <Marker position={startCoords}>
+                  <Popup>Starting Point: {shipment?.startingPoint}</Popup>
+              </Marker>
+            )}
+            {endCoords && (
+              <Marker position={endCoords}>
+                  <Popup>Ending Point: {shipment?.endingPoint}</Popup>
+              </Marker>
+            )}
         </MapContainer>
     );
 }
