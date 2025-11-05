@@ -103,12 +103,12 @@ export default function ShipmentsPage() {
     if (selectedShipment?.startingPoint && selectedShipment?.endingPoint) {
       const origin = encodeURIComponent(selectedShipment.startingPoint);
       const destination = encodeURIComponent(selectedShipment.endingPoint);
-      // Using Google Maps Embed API for directions.
-      // NOTE: An API key is recommended for production use.
-      return `https://www.google.com/maps/embed/v1/directions?key=&origin=${origin}&destination=${destination}`;
+      const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+      return `https://www.google.com/maps/embed/v1/directions?key=${apiKey}&origin=${origin}&destination=${destination}`;
     }
     return '';
   }, [selectedShipment]);
+
 
   return (
     <>
@@ -195,7 +195,7 @@ export default function ShipmentsPage() {
                         <Badge
                           className={`border-transparent ${statusStyles[shipment.status]}`}
                         >
-                          {shipment.status}
+                          {shipment.status.replace('-', ' ')}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
@@ -245,7 +245,7 @@ export default function ShipmentsPage() {
                 </DialogDescription>
               </DialogHeader>
               <div className="rounded-lg overflow-hidden h-full w-full">
-                {mapEmbedUrl && (
+                {mapEmbedUrl ? (
                     <iframe
                         width="100%"
                         height="100%"
@@ -254,6 +254,10 @@ export default function ShipmentsPage() {
                         allowFullScreen
                         src={mapEmbedUrl}>
                     </iframe>
+                ) : (
+                  <div className="flex items-center justify-center h-full bg-muted rounded-lg">
+                    <p className="text-muted-foreground">Please add your Google Maps API key to the .env file.</p>
+                  </div>
                 )}
               </div>
             </>
