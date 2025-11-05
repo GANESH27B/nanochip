@@ -39,7 +39,6 @@ import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
 import type { Shipment } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -100,13 +99,15 @@ export default function ShipmentsPage() {
     }
   };
   
-  const mapImageUrl = useMemo(() => {
+  const mapEmbedUrl = useMemo(() => {
     if (selectedShipment?.startingPoint && selectedShipment?.endingPoint) {
       const origin = encodeURIComponent(selectedShipment.startingPoint);
       const destination = encodeURIComponent(selectedShipment.endingPoint);
-      return `https://images.unsplash.com/photo-1532154058647-334b228638e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYXAlMjByb3V0ZSUyMCUyMi${origin}JTIyJTIwdG8lMjAlMjIlMj${destination}JTIyfGVufDB8fHx8MTc2MjM0NTc2Nnww&ixlib=rb-4.1.0&q=80&w=1080`;
+      // Using Google Maps Embed API for directions.
+      // NOTE: An API key is recommended for production use.
+      return `https://www.google.com/maps/embed/v1/directions?key=&origin=${origin}&destination=${destination}`;
     }
-    return 'https://images.unsplash.com/photo-1532154058647-334b228638e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYXAlMjByb3V0ZXxlbnwwfHx8fDE3NjIzNDU3NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080';
+    return '';
   }, [selectedShipment]);
 
   return (
@@ -234,7 +235,7 @@ export default function ShipmentsPage() {
       </div>
 
       <Dialog open={isMapDialogOpen} onOpenChange={setIsMapDialogOpen}>
-        <DialogContent className="sm:max-w-[625px]">
+        <DialogContent className="sm:max-w-[625px] h-[70vh]">
           {selectedShipment && (
             <>
               <DialogHeader>
@@ -243,15 +244,17 @@ export default function ShipmentsPage() {
                   From {selectedShipment.startingPoint} to {selectedShipment.endingPoint}.
                 </DialogDescription>
               </DialogHeader>
-              <div className="rounded-lg overflow-hidden">
-                <Image
-                  src={mapImageUrl}
-                  alt="Shipment map"
-                  width={800}
-                  height={600}
-                  className="object-cover"
-                  data-ai-hint="map route"
-                />
+              <div className="rounded-lg overflow-hidden h-full w-full">
+                {mapEmbedUrl && (
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        loading="lazy"
+                        allowFullScreen
+                        src={mapEmbedUrl}>
+                    </iframe>
+                )}
               </div>
             </>
           )}
