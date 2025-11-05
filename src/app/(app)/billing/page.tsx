@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useEffect, useState } from 'react';
 
 const transactions = [
   {
@@ -49,7 +50,32 @@ const transactions = [
   },
 ];
 
+type InvoiceItem = {
+    name: string;
+    quantity: number;
+    price: number;
+};
+
+const defaultInvoice: InvoiceItem[] = [
+    { name: 'Metformin (100 units)', quantity: 1, price: 150.00 },
+];
+
 export default function BillingPage() {
+  const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>(defaultInvoice);
+  
+  useEffect(() => {
+    const storedInvoice = localStorage.getItem('currentInvoice');
+    if (storedInvoice) {
+      setInvoiceItems(JSON.parse(storedInvoice));
+      // Clear the stored invoice after displaying it once
+      localStorage.removeItem('currentInvoice');
+    }
+  }, []);
+
+  const processingFee = 5.00;
+  const invoiceSubtotal = invoiceItems.reduce((acc, item) => acc + item.price, 0);
+  const invoiceTotal = invoiceSubtotal + processingFee;
+
   const currentBalance = transactions.reduce((acc, t) => acc + t.amount, 0);
 
   return (
@@ -151,17 +177,19 @@ export default function BillingPage() {
                         <CardTitle>Invoice Summary</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                         <div className="flex justify-between">
-                            <span>Metformin (100 units)</span>
-                            <span>$150.00</span>
-                        </div>
+                        {invoiceItems.map((item, index) => (
+                            <div key={index} className="flex justify-between">
+                                <span>{`${item.name} (${item.quantity} units)`}</span>
+                                <span>${item.price.toFixed(2)}</span>
+                            </div>
+                        ))}
                         <div className="flex justify-between">
                             <span>Processing Fee</span>
-                            <span>$5.00</span>
+                            <span>${processingFee.toFixed(2)}</span>
                         </div>
                          <div className="flex justify-between font-semibold">
                             <span>Total</span>
-                            <span>$155.00</span>
+                            <span>${invoiceTotal.toFixed(2)}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -221,5 +249,3 @@ export default function BillingPage() {
     </div>
   );
 }
-
-    

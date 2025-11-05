@@ -105,6 +105,15 @@ export default function NeededDrugsPage() {
     const requestedBy = formData.get('requested-by') as string;
 
     const existingDrug = neededDrugs.find(d => d.name === drugName);
+    
+    // Simulate invoice generation
+    const invoiceItems = [{
+        name: drugName,
+        quantity: quantity,
+        price: Math.round(quantity * 1.5 * 100) / 100 // Simulate a price
+    }];
+    localStorage.setItem('currentInvoice', JSON.stringify(invoiceItems));
+
 
     if (!existingDrug) {
         const newDrug: Drug = {
@@ -343,5 +352,3 @@ export default function NeededDrugsPage() {
     </div>
   );
 }
-
-    
