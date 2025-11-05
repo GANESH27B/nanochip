@@ -39,6 +39,7 @@ import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
 import type { Shipment } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import Image from 'next/image';
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -50,7 +51,9 @@ const statusStyles: { [key: string]: string } = {
 export default function ShipmentsPage() {
   const { searchTerm } = useSearch();
   const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isMapDialogOpen, setIsMapDialogOpen] = useState(false);
+  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
   const { toast } = useToast();
 
   const filteredShipments = useMemo(() => {
@@ -77,7 +80,7 @@ export default function ShipmentsPage() {
       lastUpdate: now.toISOString(),
     };
     setShipments([newShipment, ...shipments]);
-    setIsDialogOpen(false);
+    setIsCreateDialogOpen(false);
     toast({
       title: 'Shipment Created',
       description: `Shipment for batch ${newShipment.batchId} has been created.`,
@@ -86,8 +89,8 @@ export default function ShipmentsPage() {
 
   const handleTrackOnMap = (shipment: Shipment) => {
     if (shipment.startingPoint && shipment.endingPoint) {
-      const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(shipment.startingPoint)}&destination=${encodeURIComponent(shipment.endingPoint)}`;
-      window.open(url, '_blank');
+      setSelectedShipment(shipment);
+      setIsMapDialogOpen(true);
     } else {
       toast({
         variant: 'destructive',
@@ -97,127 +100,159 @@ export default function ShipmentsPage() {
     }
   };
 
+  const mapImageUrl = useMemo(() => {
+    if (selectedShipment?.startingPoint && selectedShipment?.endingPoint) {
+      const origin = encodeURIComponent(selectedShipment.startingPoint);
+      const destination = encodeURIComponent(selectedShipment.endingPoint);
+      return `https://images.unsplash.com/photo-1532154058647-334b228638e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYXAlMjByb3V0ZSUyMCUyMi${origin}JTIyJTIwdG8lMjAlMjIlMj${destination}JTIyfGVufDB8fHx8MTc2MjM0NTc2Nnww&ixlib=rb-4.1.0&q=80&w=1080`;
+    }
+    return 'https://images.unsplash.com/photo-1532154058647-334b228638e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtYXAlMjByb3V0ZXxlbnwwfHx8fDE3NjIzNDU3NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080';
+  }, [selectedShipment]);
+
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <AppHeader title="Shipments" />
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <Card className="animate-fade-in-up">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>All Shipments</CardTitle>
-              <CardDescription>
-                Track and manage all pharmaceutical shipments across the supply chain.
-              </CardDescription>
-            </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-1">
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    New Shipment
-                  </span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
-                <form onSubmit={handleCreateShipment}>
-                  <DialogHeader>
-                    <DialogTitle>Create New Shipment</DialogTitle>
-                    <DialogDescription>
-                      Fill in the details for the new shipment.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="batchId" className="text-right">
-                        Batch ID
-                      </Label>
-                      <Input id="batchId" name="batchId" required className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="currentHolder" className="text-right">
-                        Holder
-                      </Label>
-                      <Input id="currentHolder" name="currentHolder" required className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="startingPoint" className="text-right">
-                            Starting Point
+    <>
+      <div className="flex min-h-screen w-full flex-col">
+        <AppHeader title="Shipments" />
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+          <Card className="animate-fade-in-up">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>All Shipments</CardTitle>
+                <CardDescription>
+                  Track and manage all pharmaceutical shipments across the supply chain.
+                </CardDescription>
+              </div>
+              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="gap-1">
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                      New Shipment
+                    </span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <form onSubmit={handleCreateShipment}>
+                    <DialogHeader>
+                      <DialogTitle>Create New Shipment</DialogTitle>
+                      <DialogDescription>
+                        Fill in the details for the new shipment.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="batchId" className="text-right">
+                          Batch ID
                         </Label>
-                        <Input id="startingPoint" name="startingPoint" required className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="endingPoint" className="text-right">
-                            Ending Point
+                        <Input id="batchId" name="batchId" required className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="currentHolder" className="text-right">
+                          Holder
                         </Label>
-                        <Input id="endingPoint" name="endingPoint" required className="col-span-3" />
+                        <Input id="currentHolder" name="currentHolder" required className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="startingPoint" className="text-right">
+                              Starting Point
+                          </Label>
+                          <Input id="startingPoint" name="startingPoint" required className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="endingPoint" className="text-right">
+                              Ending Point
+                          </Label>
+                          <Input id="endingPoint" name="endingPoint" required className="col-span-3" />
+                      </div>
                     </div>
-                  </div>
-                  <DialogFooter>
-                    <Button type="submit">Create Shipment</Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Batch ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="hidden md:table-cell">Current Holder</TableHead>
-                  <TableHead className="hidden md:table-cell">Created At</TableHead>
-                  <TableHead className="text-right">Alerts</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredShipments.map((shipment, index) => (
-                  <TableRow key={shipment.batchId} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
-                    <TableCell className="font-medium">{shipment.batchId}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={`border-transparent ${statusStyles[shipment.status]}`}
-                      >
-                        {shipment.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
-                    </TableCell>
-                    <TableCell className="text-right">{shipment.alerts}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleTrackOnMap(shipment)}>
-                            <Map className="mr-2 h-4 w-4" />
-                            Track in Google Maps
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>Acknowledge Alerts</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+                    <DialogFooter>
+                      <Button type="submit">Create Shipment</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Batch ID</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="hidden md:table-cell">Current Holder</TableHead>
+                    <TableHead className="hidden md:table-cell">Created At</TableHead>
+                    <TableHead className="text-right">Alerts</TableHead>
+                    <TableHead>
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredShipments.map((shipment, index) => (
+                    <TableRow key={shipment.batchId} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
+                      <TableCell className="font-medium">{shipment.batchId}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={`border-transparent ${statusStyles[shipment.status]}`}
+                        >
+                          {shipment.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
+                      </TableCell>
+                      <TableCell className="text-right">{shipment.alerts}</TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleTrackOnMap(shipment)}>
+                              <Map className="mr-2 h-4 w-4" />
+                              Track on Map
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>Acknowledge Alerts</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+
+      <Dialog open={isMapDialogOpen} onOpenChange={setIsMapDialogOpen}>
+        <DialogContent className="sm:max-w-[825px]">
+          <DialogHeader>
+            <DialogTitle>Shipment Route: {selectedShipment?.batchId}</DialogTitle>
+            <DialogDescription>
+              From {selectedShipment?.startingPoint} to {selectedShipment?.endingPoint}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            <Image
+                src={mapImageUrl}
+                alt="Shipment map"
+                width={800}
+                height={600}
+                className="rounded-lg object-cover"
+                data-ai-hint="map route"
+              />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
