@@ -76,8 +76,7 @@ export default function ShipmentsPage() {
                     <TableCell className="font-medium">{shipment.batchId}</TableCell>
                     <TableCell>
                       <Badge
-                        variant="outline"
-                        className={`border-none ${statusStyles[shipment.status]}`}
+                        className={`border-transparent ${statusStyles[shipment.status]}`}
                       >
                         {shipment.status}
                       </Badge>
