@@ -170,27 +170,7 @@ export default function BillingPage() {
       <AppHeader title="Billing" />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
-              <span className="text-muted-foreground">$</span>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-              <p className="text-xs text-muted-foreground">Available balance in your account</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Next Recurring Bill</CardTitle>
-              <span className="text-muted-foreground">USD</span>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$500.00</div>
-              <p className="text-xs text-muted-foreground">Due on August 1, 2024 for subscription</p>
-            </CardContent>
-          </Card>
-           <Card>
+           <Card className="lg:col-span-3">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Pending Invoice Total</CardTitle>
               <ReceiptText className="h-4 w-4 text-muted-foreground" />
