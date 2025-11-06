@@ -29,7 +29,7 @@ export default function AppHeader({ title }: { title?: string }) {
   const { searchTerm, setSearchTerm } = useSearch();
   const { isMobile } = useSidebar();
   const pathname = usePathname();
-  const { handleLogout, userName, user } = useAppNavigation();
+  const { handleLogout, userName, user, visibleNavItems } = useAppNavigation();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
 
@@ -74,14 +74,6 @@ export default function AppHeader({ title }: { title?: string }) {
         <div className="ml-auto flex items-center gap-2">
           <ThemeSwitcher />
           
-          {!isMobile && (
-              <>
-                 <Button variant="ghost" className="gap-2">
-                    <User className="h-5 w-5" /> Hello, {userName.split(' ')[0]}
-                </Button>
-              </>
-          )}
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
@@ -92,7 +84,10 @@ export default function AppHeader({ title }: { title?: string }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>
+                <p>Signed in as</p>
+                <p className="font-semibold">{userName}</p>
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/profile">
@@ -100,6 +95,19 @@ export default function AppHeader({ title }: { title?: string }) {
                   <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
+              {isMobile && (
+                <>
+                <DropdownMenuSeparator />
+                  {visibleNavItems.map(item => (
+                    <DropdownMenuItem key={item.href} asChild>
+                       <Link href={item.href}>
+                        <item.icon className="mr-2 h-4 w-4" />
+                        <span>{item.label}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                  <LogOut className="mr-2 h-4 w-4" />
@@ -112,7 +120,7 @@ export default function AppHeader({ title }: { title?: string }) {
       
       {!isMobile && (
          <nav className="flex items-center gap-6 text-sm font-medium px-6 h-12 border-t justify-center">
-            {useAppNavigation().visibleNavItems.map((item) => (
+            {visibleNavItems.map((item) => (
                 <Link
                 key={item.href}
                 href={item.href}
