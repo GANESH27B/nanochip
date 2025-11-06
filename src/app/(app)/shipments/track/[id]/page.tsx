@@ -3,8 +3,7 @@
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { shipments as initialShipments, users } from '@/lib/data';
-import { useMemo, useState, useEffect, use } from 'react';
-import { useParams } from 'next/navigation';
+import { useMemo, useState, useEffect } from 'react';
 import type { Shipment } from '@/lib/types';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
@@ -24,24 +23,22 @@ const statusColors: { [key: string]: string } = {
 };
 
 
-export default function TrackShipmentPage() {
-  const params = use(Promise.resolve(useParams() as { id: string }));
-  const id = params.id;
-  const [shipments, setShipments] = useState(initialShipments);
-  const [shipment, setShipment] = useState<Shipment | undefined>(initialShipments.find(s => s.batchId === id));
+export default function TrackShipmentPage({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const [shipment, setShipment] = useState<Shipment | undefined>(() => initialShipments.find(s => s.batchId === id));
 
   useEffect(() => {
     // This effect simulates real-time updates for the shipment status
     const interval = setInterval(() => {
       // In a real app, you would fetch this from a server
-      const updatedShipment = shipments.find(s => s.batchId === id);
+      const updatedShipment = initialShipments.find(s => s.batchId === id);
       if (updatedShipment && updatedShipment.status !== shipment?.status) {
         setShipment(updatedShipment);
       }
     }, 2000); // Check for updates every 2 seconds
 
     return () => clearInterval(interval);
-  }, [id, shipments, shipment]);
+  }, [id, shipment?.status]);
 
   const { startUser, endUser } = useMemo(() => {
     if (!shipment) return { startUser: null, endUser: null };
