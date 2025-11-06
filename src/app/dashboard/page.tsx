@@ -158,6 +158,27 @@ const fdaActionCategories = [
     },
 ];
 
+const ingredientSupplierActionCategories = [
+    {
+        href: '/raw-materials',
+        label: 'Raw Materials',
+        icon: Beaker,
+        description: 'Manage your raw material inventory.',
+    },
+    {
+        href: '/shipments',
+        label: 'Shipments',
+        icon: Truck,
+        description: 'Track shipments to manufacturers.',
+    },
+    {
+        href: '/alerts',
+        label: 'Quality Alerts',
+        icon: Siren,
+        description: 'Review any quality or deviation alerts.',
+    },
+];
+
 type ActiveFdaModule = 'dashboard-overview' | 'product-management' | null;
 
 
@@ -234,6 +255,28 @@ export default function DashboardPage() {
 
   if (!isClient) {
     return null;
+  }
+  
+  if (userRole === 'Ingredient Supplier') {
+    return (
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up">
+                {ingredientSupplierActionCategories.map((cat, index) => (
+                    <Link href={cat.href} key={index}>
+                         <Card className="h-full hover:shadow-lg transition-shadow">
+                            <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
+                                 <div className="flex items-center justify-center bg-primary/10 rounded-full p-3 mb-2">
+                                    <cat.icon className="h-6 w-6 text-primary" />
+                                 </div>
+                                 <p className="font-semibold">{cat.label}</p>
+                                 <p className="text-xs text-muted-foreground">{cat.description}</p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                ))}
+            </div>
+        </main>
+    );
   }
 
   if (userRole === 'Manufacturer') {

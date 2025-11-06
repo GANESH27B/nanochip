@@ -140,6 +140,17 @@ export default function ShipmentsPage() {
         return allItems.filter(item => 'startingPoint' in item && ((item as Shipment).currentHolder === pharmName || ((item as Shipment).endingPoint === pharmLocation && (item as Shipment).status === 'In-Transit')));
     }
 
+    if (userRole === 'Ingredient Supplier') {
+      return rawMaterials.map(rm => ({
+        batchId: rm.id,
+        productName: rm.name,
+        status: rm.status,
+        currentHolder: users['Ingredient Supplier'].name,
+        lastUpdate: new Date().toISOString(),
+        isRawMaterial: true,
+      }));
+    }
+
     return allItems;
   }, [shipments, userRole, isClient]);
 
@@ -458,7 +469,7 @@ export default function ShipmentsPage() {
                     const shipment = isShipment ? item as Shipment : null;
                     const isCurrentUserHolder = shipment?.currentHolder === currentUser?.name;
                     
-                    const canShip = item.status === 'Ready-for-Shipment' && userRole === 'Manufacturer';
+                    const canShip = (item.status === 'Ready-for-Shipment' && userRole === 'Manufacturer') || (item.status === 'In-Stock' && userRole === 'Ingredient Supplier');
                     const canShipToPharmacy = isShipment && shipment.status === 'Delivered' && userRole === 'Distributor' && isCurrentUserHolder;
 
                     const canReceive = isShipment && shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location;
@@ -514,16 +525,16 @@ export default function ShipmentsPage() {
 
                                 {canShip && (
                                 <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger>Ship to Distributor</DropdownMenuSubTrigger>
+                                    <DropdownMenuSubTrigger>Ship to {userRole === 'Ingredient Supplier' ? 'Manufacturer' : 'Distributor'}</DropdownMenuSubTrigger>
                                     <DropdownMenuPortal>
                                         <DropdownMenuSubContent>
-                                            <DropdownMenuLabel>Select Distributor</DropdownMenuLabel>
-                                            {distributors.map(distributor => (
+                                            <DropdownMenuLabel>Select Destination</DropdownMenuLabel>
+                                            {nextStageUsers.map(user => (
                                                 <DropdownMenuItem 
-                                                    key={distributor.id} 
-                                                    onClick={() => openCreateShipmentDialog(item.batchId, distributor.name)}
+                                                    key={user.id} 
+                                                    onClick={() => openCreateShipmentDialog(item.batchId, user.name)}
                                                 >
-                                                    {distributor.name}
+                                                    {user.name}
                                                 </DropdownMenuItem>
                                             ))}
                                         </DropdownMenuSubContent>
