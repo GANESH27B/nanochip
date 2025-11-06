@@ -18,20 +18,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import type { Role } from '@/lib/types';
+import type { Role, User } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { users } from '@/lib/data';
+import { MapPin } from 'lucide-react';
 
 const profileSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
+  location: z.string().optional(),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
   const [userRole, setUserRole] = useState<Role | null>(null);
-  const [user, setUser] = useState<{ name: string; email: string; role: Role } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const { toast } = useToast();
 
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -49,9 +51,9 @@ export default function ProfilePage() {
     const role = localStorage.getItem('userRole') as Role;
     if (role) {
       setUserRole(role);
-      const currentUser = users[role as keyof typeof users] || { name: 'PharmaTrust User', email: 'user@example.com', role: role };
+      const currentUser = users[role as keyof typeof users] || { name: 'PharmaTrust User', email: 'user@example.com', role: role, location: 'Unknown' };
       setUser(currentUser);
-      reset({ name: currentUser.name, email: currentUser.email });
+      reset({ name: currentUser.name, email: currentUser.email, location: currentUser.location });
     }
   }, [reset]);
 
@@ -88,6 +90,12 @@ export default function ProfilePage() {
                 <div className="grid gap-1">
                     <p className="text-lg font-semibold">{user.name}</p>
                     <p className="text-sm text-muted-foreground">{user.role}</p>
+                    {user.location && (
+                       <div className="flex items-center text-sm text-muted-foreground">
+                         <MapPin className="mr-1 h-4 w-4" />
+                         {user.location}
+                       </div>
+                    )}
                 </div>
               </div>
               <div className="grid gap-2">
@@ -102,6 +110,13 @@ export default function ProfilePage() {
                 <Input id="email" type="email" {...register('email')} />
                 {errors.email && (
                   <p className="text-sm text-destructive">{errors.email.message}</p>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="location">Location</Label>
+                <Input id="location" {...register('location')} />
+                {errors.location && (
+                  <p className="text-sm text-destructive">{errors.location.message}</p>
                 )}
               </div>
             </CardContent>

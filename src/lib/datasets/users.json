@@ -3,24 +3,28 @@
     "id": "user-mfg",
     "name": "Alice Manufacturer",
     "email": "alice@pharma.co",
-    "role": "Manufacturer"
+    "role": "Manufacturer",
+    "location": "New York, NY"
   },
   "Distributor": {
     "id": "user-dist",
     "name": "Bob Distributor",
     "email": "bob@logistics.co",
-    "role": "Distributor"
+    "role": "Distributor",
+    "location": "Chicago, IL"
   },
   "Pharmacy": {
     "id": "user-pharma",
     "name": "Charlie Pharmacist",
     "email": "charlie@meds.co",
-    "role": "Pharmacy"
+    "role": "Pharmacy",
+    "location": "Los Angeles, CA"
   },
   "FDA": {
     "id": "user-fda",
     "name": "Diana Regulator",
     "email": "diana@fda.gov",
-    "role": "FDA"
+    "role": "FDA",
+    "location": "Washington, DC"
   }
 }

@@ -6,6 +6,7 @@ export interface User {
   email: string;
   role: Role;
   avatarUrl?: string;
+  location?: string;
 }
 
 export type ShipmentStatus = 'Pending' | 'In-Transit' | 'Delivered' | 'Requires-Approval';
