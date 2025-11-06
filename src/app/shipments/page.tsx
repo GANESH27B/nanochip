@@ -271,7 +271,7 @@ export default function ShipmentsPage() {
     } else if (userRole === 'Manufacturer') {
       availableItems = allBatches.filter(b => b.status === 'Ready-for-Shipment');
     } else if (userRole === 'Distributor') {
-      availableItems = shipments.filter(s => s.status === 'Delivered' && s.currentHolder === currentUser?.name).map(s => ({id: s.batchId, name: s.productName, lotNumber: s.batchId, quantity: 0, units: 'kg', status: 'In-Stock'}));
+      availableItems = shipments.filter(s => s.status === 'Delivered' && s.currentHolder === currentUser?.name).map(s => ({id: s.batchId, name: s.productName, lotNumber: s.batchId, quantity: 0, units: 'kg', status: 'In-Stock'}) as unknown as Batch);
     }
     setPrefillData({ batchId, destination, availableItems });
     setIsCreateDialogOpen(true);
@@ -638,7 +638,7 @@ export default function ShipmentsPage() {
                   <SelectContent>
                     {prefillData.availableItems?.map(item => (
                       <SelectItem key={item.id} value={item.id}>
-                        {item.name} ({'lotNumber' in item ? item.lotNumber : item.id})
+                        {'name' in item ? item.name : (item as Batch).drugName} ({item.id})
                       </SelectItem>
                     ))}
                   </SelectContent>
