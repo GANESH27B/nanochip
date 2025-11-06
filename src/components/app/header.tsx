@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User, CreditCard, LogOut } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import {
@@ -15,7 +15,6 @@ import { SidebarTrigger } from '../ui/sidebar';
 import { useSearch } from '@/hooks/use-search';
 import { useAppNavigation } from './navigation';
 import Link from 'next/link';
-import { LogOut } from 'lucide-react';
 
 export default function AppHeader() {
   const { searchTerm, setSearchTerm } = useSearch();
