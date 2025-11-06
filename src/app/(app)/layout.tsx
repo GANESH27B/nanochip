@@ -6,6 +6,7 @@ import { SearchProvider } from '@/hooks/use-search';
 import AppHeader from '@/components/app/header';
 import { useAppNavigation } from '@/components/app/navigation';
 import { usePathname } from 'next/navigation';
+import AppFooter from '@/components/app/footer';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { visibleNavItems } = useAppNavigation();
@@ -30,8 +31,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <AppHeader title={getTitleForPath(pathname)} />
           <div className="flex flex-1">
             <AppSidebar />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 bg-muted/30">{children}</main>
           </div>
+          <AppFooter />
         </div>
       </SearchProvider>
     </SidebarProvider>
