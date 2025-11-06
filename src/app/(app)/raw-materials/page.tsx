@@ -30,17 +30,21 @@ import { rawMaterials as initialRawMaterials } from '@/lib/data';
 import type { RawMaterial } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useRouter } from 'next/navigation';
 
 const statusStyles: { [key: string]: string } = {
   'In-Stock': 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
   'Low-Stock': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
   'Out-of-Stock': 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
+  Shipped: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
 };
 
 export default function RawMaterialsPage() {
   const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>(initialRawMaterials);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
+
 
   const handleAddMaterial = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -60,6 +64,15 @@ export default function RawMaterialsPage() {
       title: 'Material Added',
       description: `New material ${newMaterial.name} has been added to your inventory.`,
     });
+  };
+
+  const handleShipMaterial = (materialId: string) => {
+    setRawMaterials(prev => prev.map(m => m.id === materialId ? {...m, status: 'Shipped'} : m));
+    toast({
+        title: 'Material Shipped',
+        description: 'The material has been marked as shipped.',
+    });
+    router.push('/shipments');
   };
   
   return (
@@ -143,6 +156,7 @@ export default function RawMaterialsPage() {
                   <TableHead>Supplier</TableHead>
                   <TableHead>Quantity</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -156,6 +170,13 @@ export default function RawMaterialsPage() {
                       <Badge className={`border-transparent ${statusStyles[material.status]}`}>
                         {material.status.replace('-', ' ')}
                       </Badge>
+                    </TableCell>
+                     <TableCell className="text-right">
+                        {material.status === 'In-Stock' && (
+                            <Button variant="outline" size="sm" onClick={() => handleShipMaterial(material.id)}>
+                                Ship to Manufacturer
+                            </Button>
+                        )}
                     </TableCell>
                   </TableRow>
                 ))}

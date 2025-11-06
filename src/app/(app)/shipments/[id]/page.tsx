@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Siren, Sparkles, Loader2, Thermometer, Droplets, Gauge, MapPin } from 'lucide-react';
-import { shipments as initialShipments, alerts as allAlerts } from '@/lib/data';
+import { shipments as initialShipments, alerts as allAlerts, users } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useMemo } from 'react';
 import type { Shipment, Role, ShipmentStatus } from '@/lib/types';
@@ -49,11 +50,28 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
 
   const shipmentAlerts = allAlerts.filter(a => a.batchId === id);
 
-  const handleUpdateStatus = (newStatus: ShipmentStatus) => {
+  const handleUpdateStatus = (newStatus: ShipmentStatus, nextHolderName?: string) => {
     if (shipment) {
+      const currentUser = userRole ? Object.values(users).find(u => u.role === userRole) : null;
+      if (!currentUser) return;
+      
+      let nextHolder = nextHolderName ? Object.values(users).find(u => u.name === nextHolderName) : null;
+
+      if (!nextHolder) {
+        const currentHolderUser = Object.values(users).find(u => u.name === shipment.currentHolder);
+        if (currentHolderUser?.role === 'Ingredient Supplier') nextHolder = Object.values(users).find(u => u.role === 'Manufacturer');
+        else if (currentHolderUser?.role === 'Manufacturer') nextHolder = Object.values(users).find(u => u.role === 'Distributor');
+        else if (currentHolderUser?.role === 'Distributor') nextHolder = Object.values(users).find(u => u.role === 'Pharmacy');
+      }
+
       setShipments(currentShipments =>
         currentShipments.map(s =>
-          s.batchId === shipment.batchId ? { ...s, status: newStatus } : s
+          s.batchId === shipment.batchId ? { 
+              ...s, 
+              status: newStatus,
+              currentHolder: nextHolder?.name || currentUser.name,
+              history: [...(s.history || []), { status: newStatus, holder: nextHolder?.name || currentUser.name, timestamp: new Date().toISOString() }]
+          } : s
         )
       );
       toast({
@@ -94,7 +112,9 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
     );
   }
 
-  const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
+  const currentUser = userRole ? Object.values(users).find(u => u.role === userRole) : null;
+  const canUpdateStatus = shipment.currentHolder === currentUser?.name && shipment.status === 'Pending';
+  const canReceive = shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location;
 
   return (
     <>
@@ -118,7 +138,7 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
                </div>
                <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Batch ID</p>
+                  <p className="text-sm font-medium text-muted-foreground">Batch/Lot ID</p>
                   <p>{shipment.batchId}</p>
                 </div>
                  <div>
@@ -201,7 +221,7 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
               </Card>
           </div>
         </div>
-        {canUpdateStatus && (
+        {(canUpdateStatus || canReceive || userRole === 'FDA') && (
          <Card>
           <CardHeader>
             <CardTitle>Update Status</CardTitle>
@@ -209,21 +229,21 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
               Manually update the status of this shipment.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-             {userRole === 'Distributor' && shipment.status === 'Pending' && (
-                <Button onClick={() => handleUpdateStatus('In-Transit')}>Mark as Received</Button>
+          <CardContent className="flex flex-col gap-2">
+             {canUpdateStatus && (
+                <Button onClick={() => handleUpdateStatus('In-Transit')}>Mark as Shipped</Button>
              )}
-             {userRole === 'Pharmacy' && shipment.status === 'In-Transit' && (
-                <Button onClick={() => handleUpdateStatus('Delivered')}>Mark as Received</Button>
+             {canReceive && (
+                <Button onClick={() => handleUpdateStatus('Delivered', currentUser?.name)}>Mark as Received</Button>
              )}
              {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
-              <div className="flex flex-col gap-2">
+              <>
                 <p className='text-sm text-muted-foreground'>As an FDA agent, you can approve or reject this batch.</p>
                 <div className="flex gap-2">
                     <Button onClick={() => handleUpdateStatus('In-Transit')}>Approve Batch</Button>
                     <Button variant="destructive" onClick={() => handleUpdateStatus('Pending')}>Reject Batch</Button>
                 </div>
-              </div>
+              </>
             )}
           </CardContent>
         </Card>

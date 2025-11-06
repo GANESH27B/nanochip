@@ -16,7 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { shipments as initialShipments, users, batches as allBatches, neededDrugs } from '@/lib/data';
+import { shipments as initialShipments, users, batches as allBatches, neededDrugs, rawMaterials } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,7 +49,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useSearch } from '@/hooks/use-search';
-import type { Shipment, ShipmentStatus, Role, User, Batch, ShipmentHistoryEntry } from '@/lib/types';
+import type { Shipment, ShipmentStatus, Role, User, Batch, ShipmentHistoryEntry, RawMaterial } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -108,111 +108,83 @@ export default function ShipmentsPage() {
   const handleCreateShipment = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const manufacturer = Object.values(users).find(u => u.role === 'Manufacturer');
-    
-    if (!manufacturer) {
-        toast({
-            variant: "destructive",
-            title: "Creation Failed",
-            description: "Could not create shipment. Manufacturer role not found.",
-        });
+    const now = new Date();
+
+    const batchId = formData.get('batchId') as string;
+    if (!batchId) {
+      toast({ variant: "destructive", title: "Creation Failed", description: "Please select an item to ship." });
+      return;
+    }
+
+    const startingPoint = formData.get('startingPoint') as string;
+    const endingPoint = formData.get('endingPoint') as string;
+
+    const startUser = Object.values(users).find(u => u.name === startingPoint);
+    const endUser = Object.values(users).find(u => u.name === endingPoint);
+
+    if (!startUser || !endUser) {
+        toast({ variant: "destructive", title: "Creation Failed", description: "Invalid start or end point." });
         return;
     }
 
-    const now = new Date();
-    const batchId = formData.get('batchId') as string;
-    const distributorId = formData.get('distributorId') as string;
-    const distributor = Object.values(users).find(u => u.id === distributorId);
-    
-    if (!batchId) {
-      toast({
-        variant: "destructive",
-        title: "Creation Failed",
-        description: "Please select a batch to create a shipment.",
-      });
-      return;
-    }
-     if (!distributor) {
-      toast({
-        variant: "destructive",
-        title: "Creation Failed",
-        description: "Please select a distributor.",
-      });
-      return;
-    }
-    
     setShipments(prevShipments => {
-        const existingShipmentIndex = prevShipments.findIndex(s => s.batchId === batchId);
-        const endingPoint = formData.get('endingPoint') as string;
-        
         const historyEntry: ShipmentHistoryEntry = {
             status: 'Pending',
-            holder: manufacturer.name, // Starts with the manufacturer
-            timestamp: now.toISOString(),
-        };
-        const secondHistoryEntry: ShipmentHistoryEntry = {
-            status: 'Pending',
-            holder: distributor.name,
+            holder: startUser.name,
             timestamp: now.toISOString(),
         };
 
-        if (existingShipmentIndex > -1) {
-            const updatedShipments = [...prevShipments];
-            const existingShipment = updatedShipments[existingShipmentIndex];
-            updatedShipments[existingShipmentIndex] = {
-                ...existingShipment,
-                currentHolder: distributor.name,
-                startingPoint: formData.get('startingPoint') as string,
-                endingPoint: endingPoint,
-                status: 'Pending',
-                lastUpdate: now.toISOString(),
-                history: [historyEntry, secondHistoryEntry],
-            };
-            toast({
-              title: 'Shipment Updated',
-              description: `Shipment for ${batchId} has been recreated and assigned to ${distributor.name}.`,
-            });
-            return updatedShipments;
-        } else {
-            const newShipment: Shipment = {
-              batchId: batchId,
-              currentHolder: distributor.name, // Assigned to distributor
-              startingPoint: formData.get('startingPoint') as string,
-              endingPoint: endingPoint,
-              status: 'Pending',
-              createdAt: now.toISOString(),
-              alerts: 0,
-              lastUpdate: now.toISOString(),
-              history: [historyEntry, secondHistoryEntry],
-            };
-            toast({
-              title: 'Shipment Created',
-              description: `Shipment for ${newShipment.batchId} assigned to ${distributor.name}.`,
-            });
-            return [newShipment, ...prevShipments];
-        }
+        const newShipment: Shipment = {
+          batchId: batchId,
+          currentHolder: startUser.name,
+          startingPoint: startUser.location!,
+          endingPoint: endUser.location!,
+          status: 'Pending',
+          createdAt: now.toISOString(),
+          alerts: 0,
+          lastUpdate: now.toISOString(),
+          history: [historyEntry],
+        };
+        toast({
+          title: 'Shipment Created',
+          description: `Shipment for ${newShipment.batchId} from ${startUser.name} to ${endUser.name} has been initiated.`,
+        });
+        return [newShipment, ...prevShipments];
     });
 
     setIsCreateDialogOpen(false);
     setPrefillData({});
   };
 
-  const handleUpdateStatus = (batchId: string, newStatus: ShipmentStatus) => {
+  const handleUpdateStatus = (batchId: string, newStatus: ShipmentStatus, nextHolderName?: string) => {
     const currentUser = userRole ? Object.values(users).find(u => u.role === userRole) : null;
     if (!currentUser) return;
+    
+    let nextHolder = nextHolderName ? Object.values(users).find(u => u.name === nextHolderName) : null;
+    // Determine next holder if not specified
+    if (!nextHolder) {
+        const currentShipment = shipments.find(s => s.batchId === batchId);
+        if (currentShipment) {
+            const currentHolderUser = Object.values(users).find(u => u.name === currentShipment.currentHolder);
+            if (currentHolderUser?.role === 'Ingredient Supplier') nextHolder = Object.values(users).find(u => u.role === 'Manufacturer');
+            else if (currentHolderUser?.role === 'Manufacturer') nextHolder = Object.values(users).find(u => u.role === 'Distributor');
+            else if (currentHolderUser?.role === 'Distributor') nextHolder = Object.values(users).find(u => u.role === 'Pharmacy');
+        }
+    }
+
 
     setShipments(currentShipments =>
       currentShipments.map(s => {
         if (s.batchId === batchId) {
           const newHistoryEntry: ShipmentHistoryEntry = {
             status: newStatus,
-            holder: currentUser.name,
+            holder: nextHolder?.name || currentUser.name,
             timestamp: new Date().toISOString(),
           };
           return { 
             ...s, 
             status: newStatus, 
-            currentHolder: currentUser.name, 
+            currentHolder: nextHolder?.name || currentUser.name, 
             lastUpdate: new Date().toISOString(),
             history: [...(s.history || []), newHistoryEntry]
           };
@@ -222,7 +194,7 @@ export default function ShipmentsPage() {
     );
     toast({
       title: 'Shipment Status Updated',
-      description: `Batch ${batchId} is now ${newStatus.replace('-', ' ')} and held by ${currentUser.name}.`,
+      description: `Batch ${batchId} is now ${newStatus.replace('-', ' ')} and held by ${nextHolder?.name || currentUser.name}.`,
     });
   };
 
@@ -231,12 +203,12 @@ export default function ShipmentsPage() {
     setIsCreateDialogOpen(true);
   };
 
-
-  const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
-  const availableBatches: Batch[] = allBatches;
+  const availableBatches: (Batch | RawMaterial)[] = userRole === 'Ingredient Supplier' ? rawMaterials : allBatches;
+  const manufacturers: User[] = Object.values(users).filter(u => u.role === 'Manufacturer');
   const distributors: User[] = Object.values(users).filter(u => u.role === 'Distributor');
   const pharmacies: User[] = Object.values(users).filter(u => u.role === 'Pharmacy');
-
+  const currentUser = userRole ? Object.values(users).find(u => u.role === userRole) : null;
+  const nextStageUsers = userRole === 'Ingredient Supplier' ? manufacturers : (userRole === 'Manufacturer' ? distributors : pharmacies);
 
   return (
     <>
@@ -296,7 +268,7 @@ export default function ShipmentsPage() {
                   Track and manage all pharmaceutical shipments across the supply chain.
                 </CardDescription>
               </div>
-              {userRole === 'Manufacturer' && (
+              {(userRole === 'Manufacturer' || userRole === 'Ingredient Supplier') && (
                 <Button size="sm" className="gap-1" onClick={() => openCreateShipmentDialog()}>
                   <PlusCircle className="h-3.5 w-3.5" />
                   <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
@@ -310,7 +282,7 @@ export default function ShipmentsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[100px]"></TableHead>
-                    <TableHead>Batch ID</TableHead>
+                    <TableHead>Batch/Lot ID</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="hidden md:table-cell">Current Holder</TableHead>
                     <TableHead className="hidden md:table-cell">Route</TableHead>
@@ -364,34 +336,28 @@ export default function ShipmentsPage() {
                                 <DropdownMenuItem onClick={() => router.push(`/shipments/track/${shipment.batchId}`)}>
                                   Track on Map
                                 </DropdownMenuItem>
-                                {canUpdateStatus && (
-                                <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger>Update Status</DropdownMenuSubTrigger>
-                                    <DropdownMenuPortal>
-                                        <DropdownMenuSubContent>
-                                        {userRole === 'Distributor' && shipment.status === 'Pending' && (
-                                            <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
-                                                Mark as Received
-                                            </DropdownMenuItem>
-                                        )}
-                                        {userRole === 'Pharmacy' && shipment.status === 'In-Transit' && (
-                                            <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Delivered')}>
-                                                Mark as Received
-                                            </DropdownMenuItem>
-                                        )}
-                                        {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
-                                          <>
-                                            <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
-                                              Approve Batch
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Pending')}>
-                                              Reject Batch
-                                            </DropdownMenuItem>
-                                          </>
-                                        )}
-                                        </DropdownMenuSubContent>
-                                    </DropdownMenuPortal>
-                                </DropdownMenuSub>
+                                
+                                {shipment.currentHolder === currentUser?.name && shipment.status === 'Pending' && (
+                                    <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
+                                        Mark as Shipped
+                                    </DropdownMenuItem>
+                                )}
+                                
+                                {shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location && (
+                                     <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Delivered', currentUser.name)}>
+                                        Mark as Received
+                                    </DropdownMenuItem>
+                                )}
+
+                                {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
+                                  <>
+                                    <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
+                                      Approve Batch
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Pending')}>
+                                      Reject Batch
+                                    </DropdownMenuItem>
+                                  </>
                                 )}
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -454,16 +420,16 @@ export default function ShipmentsPage() {
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="batchId" className="text-right">
-                  Batch
+                  Item to Ship
                 </Label>
                 <Select name="batchId" defaultValue={prefillData.batchId}>
                   <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a batch" />
+                    <SelectValue placeholder="Select an item" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableBatches.map(batch => (
-                      <SelectItem key={batch.id} value={batch.id}>
-                        {batch.drugName} ({batch.id}) - Qty: {batch.quantity.toLocaleString()}
+                    {availableBatches.map(item => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.name} ({item.id})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -473,37 +439,20 @@ export default function ShipmentsPage() {
                 <Label htmlFor="startingPoint" className="text-right">
                   Origin
                 </Label>
-                <Input id="startingPoint" name="startingPoint" defaultValue={Object.values(users).find(u => u.role === 'Manufacturer')?.location || 'New York, NY'} className="col-span-3" required />
-              </div>
-               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="distributorId" className="text-right">
-                  Distributed By
-                </Label>
-                <Select name="distributorId" required>
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a distributor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {distributors.map(distributor => (
-                      <SelectItem key={distributor.id} value={distributor.id}>
-                        {distributor.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input id="startingPoint" name="startingPoint" defaultValue={currentUser?.name || ''} className="col-span-3" required readOnly />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="endingPoint" className="text-right">
-                  Distributor/Pharmacy
+                  Destination
                 </Label>
                 <Select name="endingPoint" defaultValue={prefillData.destination} required>
                   <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a pharmacy" />
+                    <SelectValue placeholder="Select a destination" />
                   </SelectTrigger>
                   <SelectContent>
-                    {pharmacies.map(pharmacy => (
-                      <SelectItem key={pharmacy.id} value={pharmacy.location!}>
-                        {pharmacy.name} ({pharmacy.location})
+                    {nextStageUsers.map(user => (
+                      <SelectItem key={user.id} value={user.name}>
+                        {user.name} ({user.location})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -519,3 +468,4 @@ export default function ShipmentsPage() {
     </>
   );
 }
+

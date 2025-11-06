@@ -59,11 +59,27 @@ const navItems = {
     { href: '/raw-materials', icon: Beaker, label: 'Raw Materials' },
     { href: '/shipments', icon: Truck, label: 'Shipments' },
   ],
-  Manufacturer: [{ href: '/batches', icon: FlaskConical, label: 'Batches' }],
+  Manufacturer: [
+    { href: '/dashboard', icon: Home, label: 'Dashboard' },
+    { href: '/raw-materials', icon: Beaker, label: 'Raw Materials' },
+    { href: '/batches', icon: FlaskConical, label: 'Batches' },
+    { href: '/shipments', icon: Truck, label: 'Shipments' },
+    { href: '/billing', icon: CreditCard, label: 'Billing' },
+  ],
   FDA: [{ href: '/approvals', icon: Package, label: 'Approvals' }],
   Patient: [
     { href: '/my-prescriptions', icon: FileText, label: 'My Prescriptions' },
   ],
+  Distributor: [
+    { href: '/dashboard', icon: Home, label: 'Dashboard' },
+    { href: '/shipments', icon: Truck, label: 'Shipments' },
+    { href: '/billing', icon: CreditCard, label: 'Billing' },
+  ],
+  Pharmacy: [
+      { href: '/dashboard', icon: Home, label: 'Dashboard' },
+      { href: '/shipments', icon: Truck, label: 'Shipments' },
+      { href: '/billing', icon: CreditCard, label: 'Billing' },
+  ]
 };
 
 export default function AppSidebar() {
@@ -82,20 +98,12 @@ export default function AppSidebar() {
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
   
   const visibleNavItems = useMemo(() => {
-    if (userRole === 'Ingredient Supplier') {
-      return navItems['Ingredient Supplier'];
+    if (!userRole) return [];
+    if (userRole === 'Patient') return navItems.Patient;
+    if (navItems[userRole]) {
+      return navItems[userRole as keyof typeof navItems];
     }
-    if (userRole === 'Patient') {
-        return navItems['Patient'];
-    }
-    
-    const roleNav = userRole ? navItems[userRole as keyof typeof navItems] || [] : [];
-    const combinedNav = [...navItems.all, ...roleNav].filter((item, index, self) =>
-      index === self.findIndex((t) => (
-        t.href === item.href
-      ))
-    );
-    return combinedNav;
+    return navItems.all;
   }, [userRole]);
 
 

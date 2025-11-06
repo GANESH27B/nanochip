@@ -101,7 +101,7 @@ export type RawMaterial = {
   lotNumber: string;
   quantity: number;
   units: 'kg' | 'g' | 'L' | 'mL';
-  status: 'In-Stock' | 'Low-Stock' | 'Out-of-Stock';
+  status: 'In-Stock' | 'Low-Stock' | 'Out-of-Stock' | 'Shipped';
 };
 
 export type SupplyChainStage = 'Ingredient Supplier' | 'Manufacturer' | 'Distributor' | 'Pharmacy' | 'Patient';
