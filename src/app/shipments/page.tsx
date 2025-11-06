@@ -270,6 +270,8 @@ export default function ShipmentsPage() {
       availableItems = rawMaterials.filter(rm => rm.status === 'In-Stock' || rm.status === 'Low-Stock');
     } else if (userRole === 'Manufacturer') {
       availableItems = allBatches.filter(b => b.status === 'Ready-for-Shipment');
+    } else if (userRole === 'Distributor') {
+      availableItems = shipments.filter(s => s.status === 'Delivered' && s.currentHolder === currentUser?.name).map(s => ({id: s.batchId, name: s.productName, lotNumber: s.batchId, quantity: 0, units: 'kg', status: 'In-Stock'}));
     }
     setPrefillData({ batchId, destination, availableItems });
     setIsCreateDialogOpen(true);
@@ -458,7 +460,8 @@ export default function ShipmentsPage() {
                     const currentHolderUser = shipment ? Object.values(users).find(u => u.name === shipment.currentHolder) : currentUser;
                     
                     const canShip = item.status === 'Ready-for-Shipment' && userRole === 'Manufacturer';
-                    
+                    const canShipToPharmacy = isShipment && shipment.status === 'Delivered' && userRole === 'Distributor' && isCurrentUserHolder;
+
                     const canReceive = isShipment && shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location;
 
                     return (
@@ -527,6 +530,25 @@ export default function ShipmentsPage() {
                                         </DropdownMenuSubContent>
                                     </DropdownMenuPortal>
                                 </DropdownMenuSub>
+                                )}
+
+                                {canShipToPharmacy && (
+                                  <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger>Ship to Pharmacy</DropdownMenuSubTrigger>
+                                    <DropdownMenuPortal>
+                                      <DropdownMenuSubContent>
+                                        <DropdownMenuLabel>Select Pharmacy</DropdownMenuLabel>
+                                        {pharmacies.map(pharmacy => (
+                                          <DropdownMenuItem
+                                            key={pharmacy.id}
+                                            onClick={() => openCreateShipmentDialog(item.batchId, pharmacy.name)}
+                                          >
+                                            {pharmacy.name}
+                                          </DropdownMenuItem>
+                                        ))}
+                                      </DropdownMenuSubContent>
+                                    </DropdownMenuPortal>
+                                  </DropdownMenuSub>
                                 )}
                                 
                                 {canReceive && (
