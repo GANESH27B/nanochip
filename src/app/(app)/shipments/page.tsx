@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { shipments as initialShipments } from '@/lib/data';
+import { shipments as initialShipments, users } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -98,14 +98,17 @@ export default function ShipmentsPage() {
   };
 
   const handleUpdateStatus = (batchId: string, newStatus: ShipmentStatus) => {
+    const currentUser = userRole ? users[userRole] : null;
+    if (!currentUser) return;
+
     setShipments(currentShipments =>
       currentShipments.map(s =>
-        s.batchId === batchId ? { ...s, status: newStatus } : s
+        s.batchId === batchId ? { ...s, status: newStatus, currentHolder: currentUser.name, lastUpdate: new Date().toISOString() } : s
       )
     );
     toast({
       title: 'Shipment Status Updated',
-      description: `Batch ${batchId} is now ${newStatus.replace('-', ' ')}.`,
+      description: `Batch ${batchId} is now ${newStatus.replace('-', ' ')} and held by ${currentUser.name}.`,
     });
   };
 
