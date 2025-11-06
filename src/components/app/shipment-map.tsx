@@ -35,13 +35,14 @@ interface ShipmentMapProps {
 
 export default function ShipmentMap({ start, end }: ShipmentMapProps) {
   const mapRef = useRef<L.Map | null>(null);
+  const { theme } = useTheme();
+  
   const positions: [number, number][] = [
     [start.lat, start.lng],
     [end.lat, end.lng],
   ];
 
   const bounds = L.latLngBounds(positions);
-  const { theme } = useTheme();
 
   return (
     <MapContainer
@@ -49,7 +50,10 @@ export default function ShipmentMap({ start, end }: ShipmentMapProps) {
       style={{ height: '100%', width: '100%', borderRadius: 'var(--radius)' }}
       className="z-0"
       whenCreated={(map) => {
-        mapRef.current = map;
+        // Only set the map instance if it hasn't been set, to avoid re-initialization errors
+        if (!mapRef.current) {
+          mapRef.current = map;
+        }
       }}
     >
       <TileLayer
