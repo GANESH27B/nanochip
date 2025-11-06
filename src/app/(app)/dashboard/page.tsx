@@ -4,7 +4,7 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recha
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { alerts, shipments, neededDrugs } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Siren, Package, Truck, CheckCircle, ShieldCheck, AlertTriangle, ShieldX, FlaskConical, CreditCard } from 'lucide-react';
+import { Siren, Package, Truck, CheckCircle, ShieldCheck, AlertTriangle, ShieldX, FlaskConical, CreditCard, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -38,12 +38,12 @@ const actionCategories = [
         imageHint: 'cargo truck'
     },
     {
-        href: '/billing',
-        label: 'View Billing',
-        icon: CreditCard,
-        description: 'Track invoices & payments',
+        href: '/my-products',
+        label: 'My Products',
+        icon: ShoppingBag,
+        description: 'Manage your product listings',
         image: 'https://picsum.photos/seed/cat3/200/200',
-        imageHint: 'payment transaction'
+        imageHint: 'product display'
     },
      {
         href: '/alerts',
@@ -292,3 +292,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+    

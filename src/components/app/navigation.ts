@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Beaker,
   FileText,
+  ShoppingBag,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -39,6 +40,7 @@ export const navItems = {
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/batches', icon: FlaskConical, label: 'Batches' },
     { href: '/shipments', icon: Truck, label: 'Shipments' },
+    { href: '/my-products', icon: ShoppingBag, label: 'My Products' },
     { href: '/billing', icon: CreditCard, label: 'Billing' },
   ],
   FDA: [
@@ -95,3 +97,5 @@ export function useAppNavigation() {
 
   return { userRole, userName, user, handleLogout, visibleNavItems };
 }
+
+    
