@@ -619,7 +619,7 @@ export default function ShipmentsPage() {
                   <SelectContent>
                     {prefillData.availableItems?.map(item => (
                       <SelectItem key={item.id} value={item.id}>
-                        {item.name} ({'lotNumber' in item ? item.lotNumber : item.id})
+                        {item.name} ({'status' in item && item.status === 'Ready-for-Shipment' ? (item as Batch).id : ('lotNumber' in item ? item.lotNumber : item.id)})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -658,6 +658,7 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
 
 
 
