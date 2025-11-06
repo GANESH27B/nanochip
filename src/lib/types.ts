@@ -1,4 +1,4 @@
-export type Role = 'Manufacturer' | 'Distributor' | 'Pharmacy' | 'FDA' | 'Ingredient Supplier';
+export type Role = 'Manufacturer' | 'Distributor' | 'Pharmacy' | 'FDA' | 'Ingredient Supplier' | 'Patient';
 
 export interface User {
   id: string;
@@ -104,4 +104,4 @@ export type RawMaterial = {
   status: 'In-Stock' | 'Low-Stock' | 'Out-of-Stock';
 };
 
-export type SupplyChainStage = 'Ingredient Supplier' | 'Manufacturer' | 'Distributor' | 'Pharmacy';
+export type SupplyChainStage = 'Ingredient Supplier' | 'Manufacturer' | 'Distributor' | 'Pharmacy' | 'Patient';

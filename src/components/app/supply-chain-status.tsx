@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import type { Shipment, SupplyChainStage } from '@/lib/types';
-import { Factory, Truck, Store, PackageCheck, Beaker } from 'lucide-react';
+import { Factory, Truck, Store, PackageCheck, Beaker, Smile } from 'lucide-react';
 import { users } from '@/lib/data';
 
 const stageIcons: { [key in SupplyChainStage]: React.ElementType } = {
@@ -10,9 +10,10 @@ const stageIcons: { [key in SupplyChainStage]: React.ElementType } = {
   Manufacturer: Factory,
   Distributor: Truck,
   Pharmacy: Store,
+  Patient: Smile,
 };
 
-const STAGES: SupplyChainStage[] = ['Ingredient Supplier', 'Manufacturer', 'Distributor', 'Pharmacy'];
+const STAGES: SupplyChainStage[] = ['Ingredient Supplier', 'Manufacturer', 'Distributor', 'Pharmacy', 'Patient'];
 
 export default function SupplyChainStatus({ shipment }: { shipment: Shipment }) {
   const getActiveStageIndex = () => {
@@ -23,6 +24,15 @@ export default function SupplyChainStatus({ shipment }: { shipment: Shipment }) 
     const lastEntry = shipment.history[shipment.history.length - 1];
     const holder = Object.values(users).find(u => u.name === lastEntry.holder);
     if (!holder) return 0;
+    
+    if (shipment.status === 'Delivered') {
+      const pharmacyIndex = STAGES.indexOf('Pharmacy');
+      const holderRole = holder.role as SupplyChainStage;
+      if (holderRole === 'Pharmacy') {
+        return pharmacyIndex;
+      }
+    }
+
 
     switch (holder.role) {
       case 'Ingredient Supplier':
@@ -33,6 +43,8 @@ export default function SupplyChainStatus({ shipment }: { shipment: Shipment }) 
         return 2;
       case 'Pharmacy':
         return 3;
+      case 'Patient':
+        return 4;
       default:
         // For roles like FDA, find the last non-regulatory holder
         for (let i = shipment.history.length - 2; i >= 0; i--) {
@@ -64,22 +76,24 @@ export default function SupplyChainStatus({ shipment }: { shipment: Shipment }) 
         {STAGES.map((stage, index) => {
           const Icon = stageIcons[stage];
           const isActive = index === activeStageIndex && !isCompleted;
-          const isPassed = index < activeStageIndex || isCompleted;
+          const isPassed = index < activeStageIndex || (isCompleted && index < STAGES.length -1);
+          const isFinalDelivered = isCompleted && index === STAGES.length - 1;
+
           return (
             <div key={stage} className="flex flex-col items-center gap-2 text-center w-20">
               <div
                 className={cn(
                   'flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background transition-colors',
-                  isPassed ? 'border-primary bg-primary/10 text-primary' : 'border-muted-foreground/50 text-muted-foreground',
+                  (isPassed || isFinalDelivered) ? 'border-primary bg-primary/10 text-primary' : 'border-muted-foreground/50 text-muted-foreground',
                   isActive && 'animate-pulse'
                 )}
               >
-                {isCompleted && index === STAGES.length - 1 ? <PackageCheck className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                {isFinalDelivered ? <PackageCheck className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
               </div>
               <p
                 className={cn(
                   'text-xs font-medium',
-                  isPassed ? 'text-primary' : 'text-muted-foreground',
+                  (isPassed || isFinalDelivered) ? 'text-primary' : 'text-muted-foreground',
                   isActive && 'font-bold'
                 )}
               >

@@ -30,7 +30,7 @@ const formSchema = z.object({
   password: z.string().min(8, {
     message: 'Password must be at least 8 characters.',
   }),
-  role: z.enum(['Manufacturer', 'Distributor', 'Pharmacy', 'FDA', 'Ingredient Supplier']),
+  role: z.enum(['Manufacturer', 'Distributor', 'Pharmacy', 'FDA', 'Ingredient Supplier', 'Patient']),
 });
 
 export function LoginForm() {
@@ -56,11 +56,15 @@ export function LoginForm() {
       if (values.email && values.password) {
         toast({
           title: 'Login Successful',
-          description: `Redirecting to ${values.role} dashboard.`,
+          description: `Redirecting to your portal.`,
         });
         // Store role in local storage for demo purposes
         localStorage.setItem('userRole', values.role);
-        router.push('/dashboard');
+        if (values.role === 'Patient') {
+          router.push('/my-prescriptions');
+        } else {
+          router.push('/dashboard');
+        }
       } else {
         toast({
           variant: 'destructive',
@@ -130,6 +134,7 @@ export function LoginForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="Patient">Patient</SelectItem>
                       <SelectItem value="Ingredient Supplier">Ingredient Supplier</SelectItem>
                       <SelectItem value="Manufacturer">Manufacturer</SelectItem>
                       <SelectItem value="Distributor">Distributor</SelectItem>

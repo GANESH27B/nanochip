@@ -14,6 +14,7 @@ import {
   MessageSquare,
   ShieldCheck,
   Beaker,
+  FileText,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
@@ -60,6 +61,9 @@ const navItems = {
   ],
   Manufacturer: [{ href: '/batches', icon: FlaskConical, label: 'Batches' }],
   FDA: [{ href: '/approvals', icon: Package, label: 'Approvals' }],
+  Patient: [
+    { href: '/my-prescriptions', icon: FileText, label: 'My Prescriptions' },
+  ],
 };
 
 export default function AppSidebar() {
@@ -80,6 +84,9 @@ export default function AppSidebar() {
   const visibleNavItems = useMemo(() => {
     if (userRole === 'Ingredient Supplier') {
       return navItems['Ingredient Supplier'];
+    }
+    if (userRole === 'Patient') {
+        return navItems['Patient'];
     }
     
     const roleNav = userRole ? navItems[userRole as keyof typeof navItems] || [] : [];
@@ -115,7 +122,7 @@ export default function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith(item.href) && (item.href !== '/shipments' || pathname.includes('/shipments'))}
+                isActive={pathname === item.href}
                 tooltip={{ children: item.label, side: 'right' }}
               >
                 <a href={item.href}>
