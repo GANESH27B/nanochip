@@ -92,12 +92,6 @@ const manufacturerActionCategories = [
         description: 'Manage raw material suppliers',
     },
     {
-        href: '/approvals',
-        label: 'Compliance & Documentation',
-        icon: FileBadge,
-        description: 'Handle regulatory approvals',
-    },
-    {
         href: '/alerts',
         label: 'Review Alerts',
         icon: Siren,
