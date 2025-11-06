@@ -3,11 +3,15 @@
 
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { shipments as initialShipments } from '@/lib/data';
+import { shipments as initialShipments, users } from '@/lib/data';
 import { useMemo, useState, useEffect } from 'react';
-import type { Shipment } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Map } from 'lucide-react';
+import type { Shipment, User } from '@/lib/types';
+import dynamic from 'next/dynamic';
+
+const ShipmentMap = dynamic(() => import('@/components/app/shipment-map'), {
+  ssr: false,
+  loading: () => <div className="h-full w-full bg-muted animate-pulse" />,
+});
 
 const statusColors: { [key: string]: string } = {
   'In-Transit': 'text-blue-500',
@@ -35,12 +39,13 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
     return () => clearInterval(interval);
   }, [id, shipments, shipment]);
 
-  const handleOpenMap = () => {
-    if (shipment?.startingPoint && shipment?.endingPoint) {
-      const url = `https://www.google.com/maps/dir/${encodeURIComponent(shipment.startingPoint)}/${encodeURIComponent(shipment.endingPoint)}`;
-      window.open(url, '_blank');
-    }
-  };
+  const { startUser, endUser } = useMemo(() => {
+    if (!shipment) return { startUser: null, endUser: null };
+    const start = Object.values(users).find(u => u.location === shipment.startingPoint);
+    const end = Object.values(users).find(u => u.location === shipment.endingPoint);
+    return { startUser: start, endUser: end };
+  }, [shipment]);
+
 
   if (!shipment) {
     return (
@@ -64,28 +69,22 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
             <div>
               <CardTitle>Live Shipment Tracking</CardTitle>
               <CardDescription>
-                Track the journey from {shipment.startingPoint} to {shipment.endingPoint}.
+                Visualizing the route from {shipment.startingPoint} to {shipment.endingPoint}.
               </CardDescription>
             </div>
-            <Button onClick={handleOpenMap} variant="outline">
-              <Map className="mr-2 h-4 w-4" />
-              Open in Google Maps
-            </Button>
+             <div className="bg-background/80 p-4 rounded-md shadow-lg text-left">
+                  <h3 className="font-bold text-lg">{shipment.batchId}</h3>
+                  <p className="text-sm">Status: <span className={`font-semibold ${statusColor}`}>{shipment.status.replace('-', ' ')}</span></p>
+                  <p className="text-sm text-muted-foreground">{shipment.currentHolder}</p>
+              </div>
           </CardHeader>
-          <CardContent className="h-[calc(100%-100px)]">
-            <div className="relative h-full w-full overflow-hidden rounded-lg bg-muted flex flex-col items-center justify-center text-center p-8">
-               <div className="absolute top-4 left-4 bg-background/80 p-4 rounded-md shadow-lg text-left">
-                    <h3 className="font-bold text-lg">{shipment.batchId}</h3>
-                    <p className="text-sm">Status: <span className={`font-semibold ${statusColor}`}>{shipment.status.replace('-', ' ')}</span></p>
-                    <p className="text-sm text-muted-foreground">{shipment.currentHolder}</p>
-                </div>
-
-                <Map className="h-24 w-24 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold">Ready to Track</h3>
-                <p className="text-muted-foreground max-w-sm">
-                    Click the button above to open the live route in Google Maps for detailed directions and real-time traffic information.
-                </p>
-            </div>
+          <CardContent className="h-[calc(100%-120px)]">
+            {startUser && endUser && startUser.latitude && startUser.longitude && endUser.latitude && endUser.longitude && (
+              <ShipmentMap
+                start={{ lat: startUser.latitude, lng: startUser.longitude, label: startUser.name }}
+                end={{ lat: endUser.latitude, lng: endUser.longitude, label: endUser.name }}
+              />
+            )}
           </CardContent>
         </Card>
       </main>

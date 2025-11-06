@@ -7,6 +7,8 @@ export interface User {
   role: Role;
   avatarUrl?: string;
   location?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export type ShipmentStatus = 'Pending' | 'In-Transit' | 'Delivered' | 'Requires-Approval';
