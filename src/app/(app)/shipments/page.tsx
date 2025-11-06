@@ -77,10 +77,10 @@ export default function ShipmentsPage() {
 
   const handleCreateShipment = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const formData = new FormData(event.currentTarget);
     const manufacturer = Object.values(users).find(u => u.role === 'Manufacturer');
-    const pharmacy = Object.values(users).find(u => u.role === 'Pharmacy');
     
-    if (!manufacturer || !pharmacy || userRole !== 'Manufacturer') {
+    if (!manufacturer || userRole !== 'Manufacturer') {
         toast({
             variant: "destructive",
             title: "Creation Failed",
@@ -91,10 +91,10 @@ export default function ShipmentsPage() {
 
     const now = new Date();
     const newShipment: Shipment = {
-      batchId: `B-NEW-${Math.floor(Math.random() * 90000) + 10000}`,
+      batchId: formData.get('batchId') as string,
       currentHolder: manufacturer.name,
-      startingPoint: manufacturer.location,
-      endingPoint: pharmacy.location,
+      startingPoint: formData.get('startingPoint') as string,
+      endingPoint: formData.get('endingPoint') as string,
       status: 'Pending',
       createdAt: now.toISOString(),
       alerts: 0,
@@ -153,11 +153,30 @@ export default function ShipmentsPage() {
                     <DialogHeader>
                       <DialogTitle>Create New Shipment</DialogTitle>
                       <DialogDescription>
-                        Click create to generate a new shipment from your location to the primary pharmacy. A batch ID will be generated.
+                        Manually enter the details for the new shipment.
                       </DialogDescription>
                     </DialogHeader>
-                    
-                    <DialogFooter className="pt-4">
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="batchId" className="text-right">
+                          Batch ID
+                        </Label>
+                        <Input id="batchId" name="batchId" defaultValue={`B-NEW-${Math.floor(Math.random() * 90000) + 10000}`} className="col-span-3" required />
+                      </div>
+                       <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="startingPoint" className="text-right">
+                          Origin
+                        </Label>
+                        <Input id="startingPoint" name="startingPoint" defaultValue="New York, NY" className="col-span-3" required />
+                      </div>
+                       <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="endingPoint" className="text-right">
+                          Destination
+                        </Label>
+                        <Input id="endingPoint" name="endingPoint" defaultValue="Los Angeles, CA" className="col-span-3" required />
+                      </div>
+                    </div>
+                    <DialogFooter>
                       <Button type="submit">Create Shipment</Button>
                     </DialogFooter>
                   </form>
