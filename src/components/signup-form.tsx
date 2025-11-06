@@ -127,7 +127,7 @@ export function SignUpForm() {
                       <SelectItem value="Patient">Patient</SelectItem>
                       <SelectItem value="Ingredient Supplier">Ingredient Supplier</SelectItem>
                       <SelectItem value="Manufacturer">Manufacturer</SelectItem>
-                      <SelectItem value="Distributor">Distributor</Moverwrite>
+                      <SelectItem value="Distributor">Distributor</SelectItem>
                       <SelectItem value="Pharmacy">Pharmacy</SelectItem>
                       <SelectItem value="FDA">FDA</SelectItem>
                     </SelectContent>
