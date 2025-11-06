@@ -40,6 +40,7 @@ import {
 import { useEffect, useState } from 'react';
 import type { Role } from '@/lib/types';
 import { ThemeSwitcher } from '../theme-switcher';
+import Link from 'next/link';
 
 const navItems = {
   all: [
@@ -73,6 +74,11 @@ export default function AppSidebar() {
       t.href === item.href
     ))
   );
+
+  const handleLogout = () => {
+    localStorage.removeItem('userRole');
+    window.location.href = '/';
+  };
 
   return (
     <Sidebar
@@ -123,16 +129,20 @@ export default function AppSidebar() {
           <DropdownMenuContent side="right" align="start">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>Profile</span>
+            <DropdownMenuItem asChild>
+              <Link href="/profile">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Bell className="mr-2 h-4 w-4" />
-              <span>Notifications</span>
+            <DropdownMenuItem asChild>
+               <Link href="/alerts">
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Notifications</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => (window.location.href = '/')}>
+            <DropdownMenuItem onClick={handleLogout}>
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>
