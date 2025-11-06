@@ -1,6 +1,17 @@
 'use client';
 
-import { Bell, Search, User, CreditCard, LogOut } from 'lucide-react';
+import {
+  Bell,
+  ChevronDown,
+  LogIn,
+  MapPin,
+  Menu,
+  Percent,
+  Search,
+  ShoppingCart,
+  Sparkles,
+  User,
+} from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import {
@@ -11,64 +22,130 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SidebarTrigger } from '../ui/sidebar';
-import { useSearch } from '@/hooks/use-search';
-import { useAppNavigation } from './navigation';
+import { ThemeSwitcher } from '../theme-switcher';
+import { Logo } from '../logo';
 import Link from 'next/link';
+import { useAppNavigation } from './navigation';
+import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+
+const navLinks = [
+  { label: 'Medicine', href: '#' },
+  { label: 'Healthcare', href: '#', dropdown: true },
+  { label: 'Doctor Consult', href: '#' },
+  { label: 'Lab Tests', href: '#', dropdown: true },
+  { label: 'PLUS', href: '#' },
+  { label: 'Health Insights', href: '#', dropdown: true },
+  { label: 'Offers', href: '/offers' },
+];
 
 export default function AppHeader() {
-  const { searchTerm, setSearchTerm } = useSearch();
-  const { handleLogout, userName } = useAppNavigation();
+  const { userName, handleLogout } = useAppNavigation();
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-      <SidebarTrigger className="sm:hidden" />
-      <div className="relative flex-1 md:grow-0">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search..."
-          className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-      <div className="flex items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Bell className="h-5 w-5" />
-          <span className="sr-only">Toggle notifications</span>
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <User />
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 shadow-sm backdrop-blur-sm">
+      <div className="container mx-auto">
+        <div className="flex h-20 items-center gap-6">
+          <div className="hidden items-center gap-2 md:flex">
+            <Logo />
+          </div>
+
+          {/* Mobile Menu & Logo */}
+          <div className="flex items-center md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left">
+                <div className="flex flex-col gap-6 p-4">
+                  <Logo />
+                  <nav className="flex flex-col gap-4">
+                    {navLinks.map((link) => (
+                      <Link
+                        key={link.label}
+                        href={link.href}
+                        className="flex items-center justify-between font-medium text-foreground/80 hover:text-foreground"
+                      >
+                        {link.label}
+                        {link.dropdown && <ChevronDown className="h-4 w-4" />}
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
+             <div className="ml-4">
+               <Logo />
+             </div>
+          </div>
+          
+          <div className="hidden items-center gap-2 text-sm md:flex">
+             <Sparkles className="h-5 w-5 text-yellow-400" />
+             <div className="flex flex-col">
+                <span className="text-xs">Express delivery to</span>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" className="h-auto p-0 text-sm font-bold">
+                            400001 Mumbai <ChevronDown className="ml-1 h-4 w-4" />
+                         </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <DropdownMenuItem>Select Location</DropdownMenuItem>
+                    </DropdownMenuContent>
+                 </DropdownMenu>
+             </div>
+          </div>
+
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Search for Medicine"
+              className="h-12 w-full rounded-full bg-muted pl-10 pr-28"
+            />
+            <Button className="absolute right-1 top-1/2 h-10 -translate-y-1/2 rounded-full px-6">
+              Search
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>
-              <p>Signed in as</p>
-              <p className="font-semibold">{userName}</p>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/profile">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/billing">
-                <CreditCard className="mr-2 h-4 w-4" />
-                <span>Billing</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-               <LogOut className="mr-2 h-4 w-4" />
-               <span>Logout</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </div>
+
+          <div className="hidden items-center gap-6 text-sm md:flex">
+             <Link href="/login" className="flex items-center gap-1.5 font-medium">
+                <User className="h-5 w-5" />
+                Hello, Log in
+             </Link>
+             <Link href="#" className="flex items-center gap-1.5 font-medium">
+                <Percent className="h-5 w-5" />
+                Offers
+             </Link>
+             <Link href="#" className="flex items-center gap-1.5 font-medium">
+                <ShoppingCart className="h-5 w-5" />
+                Cart
+             </Link>
+             <ThemeSwitcher />
+          </div>
+        </div>
+
+        <div className="hidden border-t md:block">
+            <div className="container mx-auto">
+                <nav className="flex h-12 items-center justify-between">
+                    <div className="flex gap-8">
+                         {navLinks.map((link) => (
+                            <Link
+                                key={link.label}
+                                href={link.href}
+                                className={cn(
+                                    "flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
+                                )}
+                            >
+                                {link.label}
+                                {link.dropdown && <ChevronDown className="h-4 w-4" />}
+                            </Link>
+                        ))}
+                    </div>
+                </nav>
+            </div>
+        </div>
       </div>
     </header>
   );

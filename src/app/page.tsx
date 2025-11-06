@@ -1,19 +1,11 @@
-import { LoginForm } from '@/components/login-form';
-import { Logo } from '@/components/logo';
 
-export default function LoginPage() {
+export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm animate-fade-in-up">
-        <div className="mb-8 flex justify-center text-center flex-col items-center gap-2">
-          <Logo />
-          <p className="text-muted-foreground">Take it easy</p>
-        </div>
-        <LoginForm />
-      </div>
-      <footer className="mt-8 text-center text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-        © {new Date().getFullYear()} PharmaChain. All Rights Reserved.
-      </footer>
+    <div className="container mx-auto py-8">
+      <h1 className="text-4xl font-bold">Welcome to PharmEasy</h1>
+      <p className="mt-4 text-lg text-muted-foreground">
+        Your one-stop shop for all your healthcare needs.
+      </p>
     </div>
   );
 }
