@@ -4,7 +4,7 @@ import L from 'leaflet';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
 import type { ShipmentStatus } from '@/lib/types';
-import 'leaflet-moving-marker/dist/leaflet.movingmarker.min.js';
+import 'leaflet-moving-marker';
 
 // Fix for default icon path issue with webpack
 if (L.Icon.Default.prototype) {
