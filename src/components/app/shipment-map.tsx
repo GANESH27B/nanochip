@@ -69,7 +69,7 @@ export default function ShipmentMap({ start, end }: ShipmentMapProps) {
         
         L.polyline(positions, { color: "hsl(var(--primary))", weight: 3, dashArray: "5, 10" }).addTo(map);
 
-        map.fitBounds(L.latLngBounds(positions));
+        map.fitBounds(L.latLngBounds(positions), { padding: [50, 50] });
     }
 
     return () => {
