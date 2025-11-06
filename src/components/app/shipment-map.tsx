@@ -3,6 +3,8 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useTheme } from 'next-themes';
 import { useEffect, useRef } from 'react';
+import type { ShipmentStatus } from '@/lib/types';
+import 'leaflet-moving-marker/dist/leaflet.movingmarker.min.js';
 
 // Fix for default icon path issue with webpack
 if (L.Icon.Default.prototype) {
@@ -22,6 +24,11 @@ const customIcon = new L.Icon({
     popupAnchor: [0, -12],
 });
 
+const truckIcon = new L.Icon({
+    iconUrl: 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--primary))" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>'),
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+});
 
 type MapPoint = {
   lat: number;
@@ -32,13 +39,14 @@ type MapPoint = {
 interface ShipmentMapProps {
   start: MapPoint;
   end: MapPoint;
+  status: ShipmentStatus;
 }
 
-export default function ShipmentMap({ start, end }: ShipmentMapProps) {
+export default function ShipmentMap({ start, end, status }: ShipmentMapProps) {
   const { theme } = useTheme();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-  
+
   const positions: [number, number][] = [
     [start.lat, start.lng],
     [end.lat, end.lng],
@@ -67,18 +75,33 @@ export default function ShipmentMap({ start, end }: ShipmentMapProps) {
             .addTo(map)
             .bindTooltip(`Destination: ${end.label}`, { permanent: true, direction: 'top', offset: [0, -12] });
         
-        L.polyline(positions, { color: "hsl(var(--primary))", weight: 3, dashArray: "5, 10" }).addTo(map);
+        const routeLine = L.polyline(positions, { color: "hsl(var(--primary))", weight: 3, dashArray: "5, 10" }).addTo(map);
+
+        if (status === 'In-Transit') {
+          // @ts-ignore
+          const movingMarker = L.Marker.movingMarker(positions, [10000], {
+            autostart: true,
+            loop: true,
+            icon: truckIcon,
+          }).addTo(map);
+        } else if (status === 'Delivered') {
+           L.marker([end.lat, end.lng], { icon: truckIcon }).addTo(map);
+        } else {
+           L.marker([start.lat, start.lng], { icon: truckIcon }).addTo(map);
+        }
+
 
         map.fitBounds(L.latLngBounds(positions), { padding: [50, 50] });
     }
 
+    // Cleanup function to remove the map instance
     return () => {
         if (mapRef.current) {
             mapRef.current.remove();
             mapRef.current = null;
         }
     };
-  }, [start, end, theme, positions]);
+  }, [start, end, theme, status, positions]); // Rerun effect if these change
 
 
   return (

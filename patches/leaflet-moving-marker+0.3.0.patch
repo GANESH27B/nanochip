@@ -1,0 +1,12 @@
+diff --git a/node_modules/leaflet-moving-marker/package.json b/node_modules/leaflet-moving-marker/package.json
+index 544c9b1..e209825 100644
+--- a/node_modules/leaflet-moving-marker/package.json
++++ b/node_modules/leaflet-moving-marker/package.json
+@@ -19,6 +19,6 @@
+   },
+   "peerDependencies": {
+-    "leaflet": "1.0.2"
++    "leaflet": ">=1.0.2"
+   }
+ }
+ 
