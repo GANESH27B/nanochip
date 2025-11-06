@@ -58,17 +58,19 @@ export default function NeededDrugsPage() {
     const drugName = formData.get('drug-name') as string;
     const quantity = parseInt(formData.get('quantity') as string, 10);
 
-    const newDrugRequest: Drug = {
-      id: `DRUG-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-      name: drugName,
-      currentStock: parseInt(formData.get('current-stock') as string, 10) || 0,
-      reorderLevel: parseInt(formData.get('reorder-level') as string, 10) || 50,
-      priority: (formData.get('priority') as 'High' | 'Medium' | 'Low') || 'Medium',
-      requestedBy: (formData.get('requested-by') as string) || 'Internal Request',
-    };
+    const isNewDrug = !neededDrugs.find(d => d.name.toLowerCase() === (selectedDrugName || drugName).toLowerCase());
 
-    // Add to the list
-    setNeededDrugs(prevDrugs => [newDrugRequest, ...prevDrugs]);
+    if (isNewDrug) {
+        const newDrugRequest: Drug = {
+          id: `DRUG-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          name: drugName,
+          currentStock: parseInt(formData.get('current-stock') as string, 10) || 0,
+          reorderLevel: parseInt(formData.get('reorder-level') as string, 10) || 50,
+          priority: (formData.get('priority') as 'High' | 'Medium' | 'Low') || 'Medium',
+          requestedBy: (formData.get('requested-by') as string) || 'Internal Request',
+        };
+        setNeededDrugs(prevDrugs => [newDrugRequest, ...prevDrugs]);
+    }
     
     // Simulate invoice generation
     const invoiceItems = [{
@@ -84,6 +86,7 @@ export default function NeededDrugsPage() {
     });
 
     setIsDialogOpen(false);
+    setSelectedDrugName('');
     router.push('/billing');
   };
 
@@ -221,7 +224,7 @@ export default function NeededDrugsPage() {
         </Card>
       </main>
 
-       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+       <Dialog open={isDialogOpen} onOpenChange={(isOpen) => { setIsDialogOpen(isOpen); if (!isOpen) setSelectedDrugName('') }}>
         <DialogContent>
           <form onSubmit={handleOrderSubmit}>
             <DialogHeader>
@@ -256,7 +259,7 @@ export default function NeededDrugsPage() {
                   required
                 />
               </div>
-              {!neededDrugs.find(d => d.name === selectedDrugName) && (
+              {!selectedDrugName && (
                 <>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="requested-by" className="text-right">
