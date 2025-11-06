@@ -82,23 +82,6 @@ export default function AppHeader() {
              </div>
           </div>
           
-          <div className="hidden items-center gap-2 text-sm md:flex">
-             <Sparkles className="h-5 w-5 text-yellow-400" />
-             <div className="flex flex-col">
-                <span className="text-xs">Express delivery to</span>
-                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                         <Button variant="ghost" className="h-auto p-0 text-sm font-bold">
-                            400001 Mumbai <ChevronDown className="ml-1 h-4 w-4" />
-                         </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <DropdownMenuItem>Select Location</DropdownMenuItem>
-                    </DropdownMenuContent>
-                 </DropdownMenu>
-             </div>
-          </div>
-          
           <div className="flex-1" />
 
 
