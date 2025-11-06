@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { MoreHorizontal, PlusCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, ChevronDown } from 'lucide-react';
 import AppHeader from '@/components/app/header';
 import {
   Table,
@@ -52,7 +51,6 @@ import { useSearch } from '@/hooks/use-search';
 import type { Shipment, ShipmentStatus, Role, User, Batch, ShipmentHistoryEntry } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 
@@ -148,6 +146,11 @@ export default function ShipmentsPage() {
         
         const historyEntry: ShipmentHistoryEntry = {
             status: 'Pending',
+            holder: manufacturer.name, // Starts with the manufacturer
+            timestamp: now.toISOString(),
+        };
+        const secondHistoryEntry: ShipmentHistoryEntry = {
+            status: 'Pending',
             holder: distributor.name,
             timestamp: now.toISOString(),
         };
@@ -162,7 +165,7 @@ export default function ShipmentsPage() {
                 endingPoint: endingPoint,
                 status: 'Pending',
                 lastUpdate: now.toISOString(),
-                history: [historyEntry],
+                history: [historyEntry, secondHistoryEntry],
             };
             toast({
               title: 'Shipment Updated',
@@ -179,7 +182,7 @@ export default function ShipmentsPage() {
               createdAt: now.toISOString(),
               alerts: 0,
               lastUpdate: now.toISOString(),
-              history: [historyEntry],
+              history: [historyEntry, secondHistoryEntry],
             };
             toast({
               title: 'Shipment Created',
@@ -365,16 +368,16 @@ export default function ShipmentsPage() {
                                     <DropdownMenuSubTrigger>Update Status</DropdownMenuSubTrigger>
                                     <DropdownMenuPortal>
                                         <DropdownMenuSubContent>
-                                        {(userRole === 'Distributor' || userRole === 'Pharmacy') &&
-                                          (['In-Transit', 'Delivered'] as ShipmentStatus[]).map(status => (
-                                            <DropdownMenuItem 
-                                                key={status}
-                                                onClick={() => handleUpdateStatus(shipment.batchId, status)}
-                                                disabled={shipment.status === status}
-                                            >
-                                                Mark as {status.replace('-', ' ')}
+                                        {userRole === 'Distributor' && shipment.status === 'Pending' && (
+                                            <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
+                                                Mark as Received
                                             </DropdownMenuItem>
-                                        ))}
+                                        )}
+                                        {userRole === 'Pharmacy' && shipment.status === 'In-Transit' && (
+                                            <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Delivered')}>
+                                                Mark as Received
+                                            </DropdownMenuItem>
+                                        )}
                                         {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
                                           <>
                                             <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>

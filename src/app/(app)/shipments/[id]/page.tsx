@@ -1,3 +1,4 @@
+
 'use client';
 
 import AppHeader from '@/components/app/header';
@@ -23,8 +24,14 @@ import SupplyChainStatus from '@/components/app/supply-chain-status';
 export default function ShipmentDetailPage({ params }: { params: { id: string } }) {
   const [shipments, setShipments] = useState(initialShipments);
   const router = useRouter();
-  const id = params.id;
-  
+  const [id, setId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (params.id) {
+      setId(params.id);
+    }
+  }, [params.id]);
+
   const shipment = useMemo(() => shipments.find(s => s.batchId === id), [shipments, id]);
 
   const [userRole, setUserRole] = useState<Role | null>(null);
@@ -80,7 +87,8 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
       <div className="flex min-h-screen w-full flex-col">
         <AppHeader title="Shipment Not Found" />
         <main className="flex flex-1 flex-col items-center justify-center gap-4 p-4 md:gap-8 md:p-8">
-            <p>The shipment you are looking for does not exist.</p>
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <p>Loading shipment details...</p>
         </main>
       </div>
     );
@@ -202,21 +210,14 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-2">
-              {(userRole === 'Distributor' || userRole === 'Pharmacy') &&
-                (['In-Transit', 'Delivered'] as ShipmentStatus[]).map(status => (
-                  <Button 
-                    key={status} 
-                    onClick={() => handleUpdateStatus(status)}
-                    variant={shipment.status === status ? 'default' : 'outline'}
-                    disabled={shipment.status === status}
-                  >
-                    Mark as {status.replace('-', ' ')}
-                  </Button>
-              ))}
-            </div>
+             {userRole === 'Distributor' && shipment.status === 'Pending' && (
+                <Button onClick={() => handleUpdateStatus('In-Transit')}>Mark as Received</Button>
+             )}
+             {userRole === 'Pharmacy' && shipment.status === 'In-Transit' && (
+                <Button onClick={() => handleUpdateStatus('Delivered')}>Mark as Received</Button>
+             )}
              {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
-              <div className="mt-4 flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
                 <p className='text-sm text-muted-foreground'>As an FDA agent, you can approve or reject this batch.</p>
                 <div className="flex gap-2">
                     <Button onClick={() => handleUpdateStatus('In-Transit')}>Approve Batch</Button>
