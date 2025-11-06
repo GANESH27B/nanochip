@@ -4,7 +4,7 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recha
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { alerts, shipments, neededDrugs } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Siren, Package, Truck, CheckCircle, ShieldCheck, AlertTriangle, ShieldX, FlaskConical, CreditCard, ShoppingBag, FileCheck } from 'lucide-react';
+import { Siren, Package, Truck, CheckCircle, ShieldCheck, AlertTriangle, ShieldX, FlaskConical, ShoppingBag, FileCheck } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -26,32 +26,24 @@ const actionCategories = [
         label: 'Manage Batches',
         icon: FlaskConical,
         description: 'Create & view production batches',
-        image: 'https://picsum.photos/seed/cat1/200/200',
-        imageHint: 'laboratory glassware'
     },
     {
         href: '/shipments',
         label: 'Create Shipments',
         icon: Truck,
         description: 'Ship products to distributors',
-        image: 'https://picsum.photos/seed/cat2/200/200',
-        imageHint: 'cargo truck'
     },
     {
         href: '/my-products',
         label: 'My Products',
         icon: ShoppingBag,
         description: 'Manage your product listings',
-        image: 'https://picsum.photos/seed/cat3/200/200',
-        imageHint: 'product display'
     },
      {
         href: '/alerts',
         label: 'Review Alerts',
         icon: Siren,
         description: 'Address supply chain issues',
-        image: 'https://picsum.photos/seed/cat4/200/200',
-        imageHint: 'warning sign'
     }
 ];
 
@@ -213,7 +205,7 @@ export default function DashboardPage() {
                  <Card className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">High-Severity Alerts</CardTitle>
-                    <Siren className="h-4 w-4 text-muted-foreground text-destructive" />
+                    <Siren className="h-4 w-4 text-destructive" />
                     </CardHeader>
                     <CardContent>
                     <div className="text-2xl font-bold text-destructive">{recentAlerts.length}</div>
@@ -241,8 +233,8 @@ export default function DashboardPage() {
                     <CardContent className="pl-2">
                         <ResponsiveContainer width="100%" height={350}>
                         <BarChart data={chartData}>
-                            <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
                             <Tooltip cursor={{fill: 'hsl(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
                             <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                         </BarChart>
@@ -343,8 +335,8 @@ export default function DashboardPage() {
           <CardContent className="pl-2">
             <ResponsiveContainer width="100%" height={350}>
               <BarChart data={chartData}>
-                <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
+                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
                 <Tooltip cursor={{fill: 'hsl(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
                 <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
