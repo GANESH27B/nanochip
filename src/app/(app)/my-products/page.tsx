@@ -25,22 +25,16 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import type { Product, ApprovalStatus } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
 
-// In a real app, this would be a more complex type
-type Product = {
-  id: string;
-  name: string;
-  description: string;
-  dosageForm?: string;
-  routeOfAdministration?: string;
-  activeIngredients?: string;
-  manufacturerInfo?: string;
-  processDescription?: string;
-  stabilityData?: string;
-  clinicalSummary?: string;
-  labelingDetails?: string;
-  applicantInfo?: string;
+const approvalStatusStyles: { [key: string]: string } = {
+  'Not Submitted': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+  'Pending': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
+  'Approved': 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+  'Rejected': 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
 };
 
 export default function MyProductsPage() {
@@ -66,6 +60,8 @@ export default function MyProductsPage() {
       clinicalSummary: formData.get('clinical-summary') as string,
       labelingDetails: formData.get('labeling-details') as string,
       applicantInfo: formData.get('applicant-info') as string,
+      ideaStatus: 'Not Submitted',
+      productStatus: 'Not Submitted',
     };
 
     setProducts(prev => [...prev, newProduct]);
@@ -81,6 +77,23 @@ export default function MyProductsPage() {
     setIsDetailDialogOpen(true);
   };
   
+  const handleUpdateApprovalStatus = (productId: string, type: 'idea' | 'product', status: ApprovalStatus) => {
+    setProducts(prev => prev.map(p => {
+      if (p.id === productId) {
+        if (type === 'idea') {
+          return { ...p, ideaStatus: status };
+        } else {
+          return { ...p, productStatus: status };
+        }
+      }
+      return p;
+    }));
+    toast({
+      title: 'Submission Sent (Simulated)',
+      description: `Product ${productId} has been submitted for ${type} approval.`,
+    });
+  };
+
   const DetailItem = ({ label, value }: { label: string, value?: string }) => (
     value ? (
         <div className="grid grid-cols-3 gap-2 py-2 border-b">
@@ -98,7 +111,7 @@ export default function MyProductsPage() {
             <div>
               <CardTitle>My Products</CardTitle>
               <CardDescription>
-                Manage your product listings and inventory.
+                Manage your product listings, inventory, and FDA approval status.
               </CardDescription>
             </div>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -192,6 +205,8 @@ export default function MyProductsPage() {
                   <TableRow>
                     <TableHead>Product Name</TableHead>
                     <TableHead>Dosage Form</TableHead>
+                    <TableHead>Idea Approval</TableHead>
+                    <TableHead>Final Product Approval</TableHead>
                     <TableHead>
                       <span className="sr-only">Actions</span>
                     </TableHead>
@@ -202,6 +217,16 @@ export default function MyProductsPage() {
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">{product.name}</TableCell>
                       <TableCell>{product.dosageForm}</TableCell>
+                       <TableCell>
+                        <Badge className={`border-transparent ${approvalStatusStyles[product.ideaStatus]}`}>
+                          {product.ideaStatus}
+                        </Badge>
+                      </TableCell>
+                       <TableCell>
+                        <Badge className={`border-transparent ${approvalStatusStyles[product.productStatus]}`}>
+                          {product.productStatus}
+                        </Badge>
+                      </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -214,6 +239,19 @@ export default function MyProductsPage() {
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem onClick={() => handleViewDetails(product)}>
                                 View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                                disabled={product.ideaStatus !== 'Not Submitted'}
+                                onClick={() => handleUpdateApprovalStatus(product.id, 'idea', 'Pending')}
+                            >
+                                Submit for Idea Approval
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                disabled={product.ideaStatus !== 'Approved' || product.productStatus !== 'Not Submitted'}
+                                onClick={() => handleUpdateApprovalStatus(product.id, 'product', 'Pending')}
+                            >
+                                Submit for Final Product Approval
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -105,3 +105,22 @@ export type RawMaterial = {
 };
 
 export type SupplyChainStage = 'Ingredient Supplier' | 'Manufacturer' | 'Distributor' | 'Pharmacy' | 'Patient';
+
+export type ApprovalStatus = 'Not Submitted' | 'Pending' | 'Approved' | 'Rejected';
+
+export type Product = {
+  id: string;
+  name: string;
+  description: string;
+  dosageForm?: string;
+  routeOfAdministration?: string;
+  activeIngredients?: string;
+  manufacturerInfo?: string;
+  processDescription?: string;
+  stabilityData?: string;
+  clinicalSummary?: string;
+  labelingDetails?: string;
+  applicantInfo?: string;
+  ideaStatus: ApprovalStatus;
+  productStatus: ApprovalStatus;
+};
