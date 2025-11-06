@@ -24,13 +24,7 @@ import SupplyChainStatus from '@/components/app/supply-chain-status';
 export default function ShipmentDetailPage({ params }: { params: { id: string } }) {
   const [shipments, setShipments] = useState(initialShipments);
   const router = useRouter();
-  const [id, setId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (params.id) {
-      setId(params.id);
-    }
-  }, [params.id]);
+  const { id } = params;
 
   const shipment = useMemo(() => shipments.find(s => s.batchId === id), [shipments, id]);
 
