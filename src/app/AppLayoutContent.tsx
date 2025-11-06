@@ -1,7 +1,5 @@
-
 'use client';
 
-import AppSidebar from '@/components/app/sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { SearchProvider } from '@/hooks/use-search';
 import AppHeader from '@/components/app/header';
@@ -17,17 +15,14 @@ export default function AppLayoutContent({ children }: { children: React.ReactNo
   }
 
   return (
-    <SidebarProvider>
       <SearchProvider>
         <div className="flex min-h-screen w-full flex-col">
           <AppHeader />
           <div className="flex flex-1">
-            <AppSidebar />
-            <main className="flex-1 bg-muted/30">{children}</main>
+            <main className="flex-1 bg-background">{children}</main>
           </div>
           <AppFooter />
         </div>
       </SearchProvider>
-    </SidebarProvider>
   );
 }
