@@ -242,7 +242,7 @@ export default function ShipmentsPage() {
     if (userRole === 'Ingredient Supplier') {
       availableItems = rawMaterials.filter(rm => rm.status === 'In-Stock' || rm.status === 'Low-Stock');
     } else if (userRole === 'Manufacturer') {
-      availableItems = allBatches.filter(b => b.status === 'Ready-for-Shipment');
+      availableItems = allBatches;
     }
     setPrefillData({ batchId, destination, availableItems });
     setIsCreateDialogOpen(true);
@@ -458,86 +458,77 @@ export default function ShipmentsPage() {
                           </TableCell>
                           <TableCell className="text-right">{shipment ? shipment.alerts : 'N/A'}</TableCell>
                           <TableCell>
-                             {item.status === 'Ready-for-Shipment' ? (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="outline" size="sm">
-                                            Create Shipment <ChevronDown className="ml-2 h-4 w-4" />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        {userRole === 'Manufacturer' && (
-                                          <DropdownMenuSub>
-                                              <DropdownMenuSubTrigger>Ship to Distributor</DropdownMenuSubTrigger>
-                                              <DropdownMenuPortal>
-                                                  <DropdownMenuSubContent>
-                                                      <DropdownMenuLabel>Select Distributor</DropdownMenuLabel>
-                                                      {distributors.map(distributor => (
-                                                          <DropdownMenuItem 
-                                                              key={distributor.id} 
-                                                              onClick={() => openCreateShipmentDialog(item.batchId, distributor.name)}
-                                                          >
-                                                              {distributor.name}
-                                                          </DropdownMenuItem>
-                                                      ))}
-                                                  </DropdownMenuSubContent>
-                                              </DropdownMenuPortal>
-                                          </DropdownMenuSub>
-                                        )}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                             ) : (
-                                <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button aria-haspopup="true" size="icon" variant="ghost">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">Toggle menu</span>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem asChild>
-                                    <Link href={`/shipments/${item.batchId}`}>View Details</Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => router.push(`/shipments/track/${item.batchId}`)}>
-                                    Track on Map
-                                    </DropdownMenuItem>
-                                    
-                                    {canShip && nextPossibleUsers.length > 0 && (
-                                    <DropdownMenuSub>
-                                        <DropdownMenuSubTrigger>Ship to Next</DropdownMenuSubTrigger>
-                                        <DropdownMenuPortal>
-                                        <DropdownMenuSubContent>
-                                            <DropdownMenuLabel>Select Recipient</DropdownMenuLabel>
-                                            {nextPossibleUsers.map(user => (
-                                            <DropdownMenuItem key={user.id} onClick={() => handleUpdateStatus(item.batchId, 'In-Transit', user.name)}>
-                                                {user.name} ({user.role})
-                                            </DropdownMenuItem>
-                                            ))}
-                                        </DropdownMenuSubContent>
-                                        </DropdownMenuPortal>
-                                    </DropdownMenuSub>
-                                    )}
-                                    
-                                    {shipment && shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location && (
-                                        <DropdownMenuItem onClick={() => handleUpdateStatus(item.batchId, 'Delivered', currentUser!.name)}>
-                                            Mark as Received
-                                        </DropdownMenuItem>
-                                    )}
-
-                                    {userRole === 'FDA' && item.status === 'Requires-Approval' && (
+                            <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                {isShipment && (
                                     <>
-                                        <DropdownMenuItem onClick={() => handleUpdateStatus(item.batchId, 'In-Transit')}>
-                                        Approve Batch
+                                        <DropdownMenuItem asChild>
+                                            <Link href={`/shipments/${item.batchId}`}>View Details</Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => handleUpdateStatus(item.batchId, 'Pending')}>
-                                        Reject Batch
+                                        <DropdownMenuItem onClick={() => router.push(`/shipments/track/${item.batchId}`)}>
+                                            Track on Map
                                         </DropdownMenuItem>
                                     </>
-                                    )}
-                                </DropdownMenuContent>
-                                </DropdownMenu>
-                            )}
+                                )}
+
+                                <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger>Create Shipment</DropdownMenuSubTrigger>
+                                    <DropdownMenuPortal>
+                                        <DropdownMenuSubContent>
+                                            <DropdownMenuLabel>Ship to Distributor</DropdownMenuLabel>
+                                            {distributors.map(distributor => (
+                                                <DropdownMenuItem 
+                                                    key={distributor.id} 
+                                                    onClick={() => openCreateShipmentDialog(item.batchId, distributor.name)}
+                                                >
+                                                    {distributor.name}
+                                                </DropdownMenuItem>
+                                            ))}
+                                        </DropdownMenuSubContent>
+                                    </DropdownMenuPortal>
+                                </DropdownMenuSub>
+
+                                {canShip && nextPossibleUsers.length > 0 && (
+                                <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger>Ship to Next</DropdownMenuSubTrigger>
+                                    <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                        <DropdownMenuLabel>Select Recipient</DropdownMenuLabel>
+                                        {nextPossibleUsers.map(user => (
+                                        <DropdownMenuItem key={user.id} onClick={() => handleUpdateStatus(item.batchId, 'In-Transit', user.name)}>
+                                            {user.name} ({user.role})
+                                        </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuSubContent>
+                                    </DropdownMenuPortal>
+                                </DropdownMenuSub>
+                                )}
+                                
+                                {shipment && shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location && (
+                                    <DropdownMenuItem onClick={() => handleUpdateStatus(item.batchId, 'Delivered', currentUser!.name)}>
+                                        Mark as Received
+                                    </DropdownMenuItem>
+                                )}
+
+                                {userRole === 'FDA' && item.status === 'Requires-Approval' && (
+                                <>
+                                    <DropdownMenuItem onClick={() => handleUpdateStatus(item.batchId, 'In-Transit')}>
+                                    Approve Batch
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleUpdateStatus(item.batchId, 'Pending')}>
+                                    Reject Batch
+                                    </DropdownMenuItem>
+                                </>
+                                )}
+                            </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
                         {isShipment && (
@@ -647,6 +638,7 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
 
 
 
