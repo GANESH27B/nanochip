@@ -5,15 +5,16 @@ import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, CreditCard, QrCode, Landmark, Wallet, ReceiptText } from 'lucide-react';
+import { Download, CreditCard, QrCode, Landmark, Wallet, ReceiptText, Video, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { Transaction } from '@/lib/types';
 import { transactions as initialTransactions } from '@/lib/data';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type InvoiceItem = {
     name: string;
@@ -28,11 +29,41 @@ export default function BillingPage() {
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
   const { toast } = useToast();
   
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState('card');
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+      }
+    };
+
+    if (activeTab === 'qr') {
+      getCameraPermission();
+    } else {
+      // Stop camera stream when not on QR tab
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+    }
+  }, [activeTab]);
+
+
   useEffect(() => {
     const storedInvoice = localStorage.getItem('currentInvoice');
     if (storedInvoice) {
       setInvoiceItems(JSON.parse(storedInvoice));
-      // Do not remove from local storage immediately, clear it after payment
     }
   }, []);
 
@@ -53,23 +84,18 @@ export default function BillingPage() {
       return;
     }
 
-    // Create a new transaction from the invoice
     const newTransaction: Transaction = {
       id: `TRX-${Date.now()}`,
       date: new Date().toISOString(),
       description: `Payment for ${totalUnits} units (${invoiceItems.map(i => i.name).join(', ')})`,
-      amount: -invoiceTotal, // Payment is a deduction
+      amount: -invoiceTotal,
       status: 'Completed',
     };
 
-    // Add to history
     setTransactions(prev => [newTransaction, ...prev]);
-
-    // Clear the invoice
     setInvoiceItems([]);
     localStorage.removeItem('currentInvoice');
 
-    // Show confirmation
     toast({
       title: 'Payment Successful',
       description: `Your payment of $${invoiceTotal.toFixed(2)} has been processed.`,
@@ -121,7 +147,7 @@ export default function BillingPage() {
                         <CardDescription>Select a payment method to settle your invoice.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue="card">
+                        <Tabs defaultValue="card" onValueChange={setActiveTab}>
                             <TabsList className="grid w-full grid-cols-4">
                                 <TabsTrigger value="card"><CreditCard className="mr-2 h-4 w-4" />Card</TabsTrigger>
                                 <TabsTrigger value="upi"><Wallet className="mr-2 h-4 w-4" />UPI</TabsTrigger>
@@ -170,10 +196,26 @@ export default function BillingPage() {
                                 </div>
                             </TabsContent>
                              <TabsContent value="qr" className="mt-6 flex flex-col items-center justify-center gap-4">
-                               <div className="rounded-md border p-2">
-                                 <QrCode size={128} />
-                               </div>
-                                <p className="text-sm text-muted-foreground">Scan this QR code with your payment app.</p>
+                                <div className="relative w-full max-w-sm aspect-square bg-muted rounded-md overflow-hidden flex items-center justify-center">
+                                    <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                                    {hasCameraPermission === false && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 text-center p-4">
+                                            <Alert variant="destructive">
+                                                <AlertCircle className="h-4 w-4" />
+                                                <AlertTitle>Camera Access Required</AlertTitle>
+                                                <AlertDescription>
+                                                   Please allow camera access in your browser to use this feature.
+                                                </AlertDescription>
+                                            </Alert>
+                                        </div>
+                                    )}
+                                     {hasCameraPermission === null && (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <p className="text-muted-foreground">Requesting camera access...</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <p className="text-sm text-muted-foreground">Point your camera at a QR code to scan it.</p>
                             </TabsContent>
                         </Tabs>
                     </CardContent>
@@ -267,3 +309,5 @@ export default function BillingPage() {
     </div>
   );
 }
+
+    
