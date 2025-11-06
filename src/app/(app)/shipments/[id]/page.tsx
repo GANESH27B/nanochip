@@ -3,7 +3,7 @@
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Siren, Sparkles, Loader2 } from 'lucide-react';
+import { Siren, Sparkles, Loader2, Thermometer, Droplets, Gauge, MapPin } from 'lucide-react';
 import { shipments as initialShipments, alerts as allAlerts } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useMemo } from 'react';
@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
+import SupplyChainStatus from '@/components/app/supply-chain-status';
 
 export default function ShipmentDetailPage({ params }: { params: { id: string } }) {
   const [shipments, setShipments] = useState(initialShipments);
@@ -99,55 +100,98 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
                <Button onClick={() => router.push(`/shipments/track/${shipment.batchId}`)}>Track on map</Button>
             </CardHeader>
             <CardContent className="grid gap-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Batch ID</p>
-                <p>{shipment.batchId}</p>
-              </div>
-               <div>
-                <p className="text-sm font-medium text-muted-foreground">Current Holder</p>
-                <p>{shipment.currentHolder}</p>
-              </div>
-               <div>
-                <p className="text-sm font-medium text-muted-foreground">Status</p>
-                <p>{shipment.status.replace('-', ' ')}</p>
-              </div>
+               <div className="space-y-2">
+                 <p className="text-sm font-medium text-muted-foreground">Status</p>
+                 <p>{shipment.status.replace('-', ' ')}</p>
+               </div>
+               <div className="space-y-4">
+                 <p className="text-sm font-medium text-muted-foreground">Supply Chain Status</p>
+                 <SupplyChainStatus shipment={shipment} />
+               </div>
+               <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Batch ID</p>
+                  <p>{shipment.batchId}</p>
+                </div>
+                 <div>
+                  <p className="text-sm font-medium text-muted-foreground">Current Holder</p>
+                  <p>{shipment.currentHolder}</p>
+                </div>
+               </div>
                <div>
                 <p className="text-sm font-medium text-muted-foreground">Route</p>
                 <p>{shipment.startingPoint} to {shipment.endingPoint}</p>
               </div>
             </CardContent>
           </Card>
-          <Card className="lg:col-span-3">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Alerts</CardTitle>
-                <CardDescription>Alerts triggered for this shipment.</CardDescription>
-              </div>
-               {shipmentAlerts.length > 0 && (
-                <Button onClick={handleSummarize} disabled={isSummaryLoading} size="sm">
-                  {isSummaryLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="mr-2 h-4 w-4" />
+          <div className="lg:col-span-3 flex flex-col gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Live Conditions</CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-2 gap-6">
+                  <div className="flex items-center gap-3">
+                    <Thermometer className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Temperature</p>
+                      <p className="font-semibold">6.2°C</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Droplets className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Humidity</p>
+                      <p className="font-semibold">58%</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Gauge className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Pressure</p>
+                      <p className="font-semibold">1012 hPa</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <MapPin className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Location</p>
+                      <p className="font-semibold">En route</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle>Alerts</CardTitle>
+                    <CardDescription>Alerts triggered for this shipment.</CardDescription>
+                  </div>
+                  {shipmentAlerts.length > 0 && (
+                    <Button onClick={handleSummarize} disabled={isSummaryLoading} size="sm">
+                      {isSummaryLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="mr-2 h-4 w-4" />
+                      )}
+                      AI Summary
+                    </Button>
                   )}
-                  AI Summary
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent className="grid gap-4">
-                {shipmentAlerts.length > 0 ? (
-                    shipmentAlerts.map(alert => (
-                        <Alert key={alert.alertId} variant={alert.severity === "High" ? "destructive" : "default"}>
-                            <Siren className="h-4 w-4" />
-                            <AlertTitle>{alert.type}</AlertTitle>
-                            <AlertDescription>{alert.details}</AlertDescription>
-                        </Alert>
-                    ))
-                ) : (
-                    <p className="text-sm text-muted-foreground">No alerts for this shipment.</p>
-                )}
-            </CardContent>
-          </Card>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                    {shipmentAlerts.length > 0 ? (
+                        shipmentAlerts.map(alert => (
+                            <Alert key={alert.alertId} variant={alert.severity === "High" ? "destructive" : "default"}>
+                                <Siren className="h-4 w-4" />
+                                <AlertTitle>{alert.type}</AlertTitle>
+                                <AlertDescription>{alert.details}</AlertDescription>
+                            </Alert>
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground">No alerts for this shipment.</p>
+                    )}
+                </CardContent>
+              </Card>
+          </div>
         </div>
         {canUpdateStatus && (
          <Card>

@@ -93,3 +93,5 @@ export type Drug = {
   priority: 'High' | 'Medium' | 'Low';
   requestedBy: string;
 };
+
+export type SupplyChainStage = 'Manufacturer' | 'Distributor' | 'Pharmacy';
