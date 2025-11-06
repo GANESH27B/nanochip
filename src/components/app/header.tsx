@@ -79,10 +79,6 @@ export default function AppHeader({ title }: { title?: string }) {
                  <Button variant="ghost" className="gap-2">
                     <User className="h-5 w-5" /> Hello, {userName.split(' ')[0]}
                 </Button>
-
-                <Button variant="ghost" className="gap-2">
-                    <ShoppingCart className="h-5 w-5" /> Cart
-                </Button>
               </>
           )}
 
@@ -104,13 +100,6 @@ export default function AppHeader({ title }: { title?: string }) {
                   <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
-              {isMobile && (
-                 <>
-                    <DropdownMenuItem>
-                        <ShoppingCart className="mr-2 h-4 w-4" /> Cart
-                    </DropdownMenuItem>
-                 </>
-              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                  <LogOut className="mr-2 h-4 w-4" />
