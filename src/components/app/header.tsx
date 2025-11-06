@@ -24,7 +24,7 @@ import {
 
 
 export default function AppHeader() {
-  const { handleLogout, userName, visibleNavItems } = useAppNavigation();
+  const { handleLogout, userName, visibleNavItems, isClient } = useAppNavigation();
 
   return (
     <header className="sticky top-0 z-30 flex w-full flex-col border-b bg-background shadow-sm">
@@ -41,7 +41,7 @@ export default function AppHeader() {
                 <div className="flex flex-col gap-4 p-4">
                   <Logo />
                   <nav className="flex flex-col gap-2">
-                    {visibleNavItems.map((item, index) => (
+                    {isClient && visibleNavItems.map((item, index) => (
                       <Link
                         key={index}
                         href={item.href}
@@ -61,25 +61,6 @@ export default function AppHeader() {
 
           <div className="hidden md:flex">
              <Logo />
-          </div>
-
-          <div className="hidden items-center gap-2 text-sm md:flex">
-             <div className='flex items-center'>
-                <Zap className="h-5 w-5 text-yellow-500" />
-                <div className="ml-2">
-                    <p className="font-semibold">Express delivery to</p>
-                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="link" className="h-auto p-0 text-muted-foreground">
-                                400001 Mumbai <ChevronDown className="ml-1 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem>Select Location</DropdownMenuItem>
-                        </DropdownMenuContent>
-                     </DropdownMenu>
-                </div>
-            </div>
           </div>
           
           <div className="flex-1">
@@ -125,7 +106,7 @@ export default function AppHeader() {
       <div className="hidden border-t md:block">
         <div className="container mx-auto px-4">
             <nav className="flex h-12 items-center justify-center gap-8">
-                 {visibleNavItems.map((item, index) => (
+                 {isClient && visibleNavItems.map((item, index) => (
                     <Link
                         key={index}
                         href={item.href}
