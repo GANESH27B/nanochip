@@ -5,9 +5,9 @@ import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { shipments as initialShipments } from '@/lib/data';
 import { useMemo, useState, useEffect } from 'react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
-import Image from 'next/image';
 import type { Shipment } from '@/lib/types';
+import { Button } from '@/components/ui/button';
+import { Map } from 'lucide-react';
 
 const statusColors: { [key: string]: string } = {
   'In-Transit': 'text-blue-500',
@@ -35,7 +35,12 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
     return () => clearInterval(interval);
   }, [id, shipments, shipment]);
 
-  const mapImage = PlaceHolderImages.find(img => img.id === 'shipment-map');
+  const handleOpenMap = () => {
+    if (shipment?.startingPoint && shipment?.endingPoint) {
+      const url = `https://www.google.com/maps/dir/${encodeURIComponent(shipment.startingPoint)}/${encodeURIComponent(shipment.endingPoint)}`;
+      window.open(url, '_blank');
+    }
+  };
 
   if (!shipment) {
     return (
@@ -55,33 +60,31 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
       <AppHeader title={`Tracking: ${shipment.batchId}`} />
       <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 flex">
         <Card className="flex-1">
-          <CardHeader>
-            <CardTitle>Live Shipment Tracking</CardTitle>
-            <CardDescription>
-              Visualizing the route from {shipment.startingPoint} to {shipment.endingPoint}.
-            </CardDescription>
+           <CardHeader className="flex flex-row items-start justify-between gap-4">
+            <div>
+              <CardTitle>Live Shipment Tracking</CardTitle>
+              <CardDescription>
+                Track the journey from {shipment.startingPoint} to {shipment.endingPoint}.
+              </CardDescription>
+            </div>
+            <Button onClick={handleOpenMap} variant="outline">
+              <Map className="mr-2 h-4 w-4" />
+              Open in Google Maps
+            </Button>
           </CardHeader>
           <CardContent className="h-[calc(100%-100px)]">
-            <div className="relative h-full w-full overflow-hidden rounded-lg">
-              {mapImage ? (
-                <Image
-                  src={mapImage.imageUrl}
-                  alt="Shipment map"
-                  fill
-                  style={{objectFit: 'cover'}}
-                  data-ai-hint={mapImage.imageHint}
-                  priority
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-muted">
-                  <p>Map could not be loaded.</p>
-                </div>
-              )}
-               <div className="absolute top-4 left-4 bg-background/80 p-4 rounded-md shadow-lg">
+            <div className="relative h-full w-full overflow-hidden rounded-lg bg-muted flex flex-col items-center justify-center text-center p-8">
+               <div className="absolute top-4 left-4 bg-background/80 p-4 rounded-md shadow-lg text-left">
                     <h3 className="font-bold text-lg">{shipment.batchId}</h3>
                     <p className="text-sm">Status: <span className={`font-semibold ${statusColor}`}>{shipment.status.replace('-', ' ')}</span></p>
                     <p className="text-sm text-muted-foreground">{shipment.currentHolder}</p>
                 </div>
+
+                <Map className="h-24 w-24 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold">Ready to Track</h3>
+                <p className="text-muted-foreground max-w-sm">
+                    Click the button above to open the live route in Google Maps for detailed directions and real-time traffic information.
+                </p>
             </div>
           </CardContent>
         </Card>

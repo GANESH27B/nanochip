@@ -232,7 +232,7 @@ export default function ShipmentsPage() {
                                         </DropdownMenuItem>
                                         <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Pending')}>
                                           Reject Batch
-                                        </DropdownMenuItem>
+                                        </MenuItem>
                                       </>
                                     )}
                                     </DropdownMenuSubContent>
