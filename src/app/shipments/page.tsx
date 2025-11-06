@@ -288,11 +288,9 @@ export default function ShipmentsPage() {
   };
 
   const nextStageUsers = useMemo(() => {
-    if (userRole === 'Ingredient Supplier') return manufacturers;
-    if (userRole === 'Manufacturer') return distributors;
-    if (userRole === 'Distributor') return pharmacies;
-    return [];
-  }, [userRole]);
+    if (!userRole) return [];
+    return getNextStageUsers(userRole);
+}, [userRole, manufacturers, distributors, pharmacies]);
 
   const distributorDrugRequests = useMemo(() => {
     const distributorNames = distributors.map(d => d.name);
@@ -658,12 +656,3 @@ export default function ShipmentsPage() {
     </>
   );
 }
-
-
-
-
-
-
-
-
-
