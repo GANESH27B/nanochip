@@ -143,6 +143,7 @@ export default function ShipmentsPage() {
     }
     
     setShipments(prevShipments => {
+        const existingShipmentIndex = prevShipments.findIndex(s => s.batchId === batchId);
         const endingPoint = formData.get('endingPoint') as string;
         
         const historyEntry: ShipmentHistoryEntry = {
@@ -151,22 +152,41 @@ export default function ShipmentsPage() {
             timestamp: now.toISOString(),
         };
 
-        const newShipment: Shipment = {
-          batchId: batchId,
-          currentHolder: distributor.name, // Assigned to distributor
-          startingPoint: formData.get('startingPoint') as string,
-          endingPoint: endingPoint,
-          status: 'Pending',
-          createdAt: now.toISOString(),
-          alerts: 0,
-          lastUpdate: now.toISOString(),
-          history: [historyEntry],
-        };
-        toast({
-          title: 'Shipment Created',
-          description: `Shipment for ${newShipment.batchId} assigned to ${distributor.name}.`,
-        });
-        return [newShipment, ...prevShipments];
+        if (existingShipmentIndex > -1) {
+            const updatedShipments = [...prevShipments];
+            const existingShipment = updatedShipments[existingShipmentIndex];
+            updatedShipments[existingShipmentIndex] = {
+                ...existingShipment,
+                currentHolder: distributor.name,
+                startingPoint: formData.get('startingPoint') as string,
+                endingPoint: endingPoint,
+                status: 'Pending',
+                lastUpdate: now.toISOString(),
+                history: [historyEntry],
+            };
+            toast({
+              title: 'Shipment Updated',
+              description: `Shipment for ${batchId} has been recreated and assigned to ${distributor.name}.`,
+            });
+            return updatedShipments;
+        } else {
+            const newShipment: Shipment = {
+              batchId: batchId,
+              currentHolder: distributor.name, // Assigned to distributor
+              startingPoint: formData.get('startingPoint') as string,
+              endingPoint: endingPoint,
+              status: 'Pending',
+              createdAt: now.toISOString(),
+              alerts: 0,
+              lastUpdate: now.toISOString(),
+              history: [historyEntry],
+            };
+            toast({
+              title: 'Shipment Created',
+              description: `Shipment for ${newShipment.batchId} assigned to ${distributor.name}.`,
+            });
+            return [newShipment, ...prevShipments];
+        }
     });
 
     setIsCreateDialogOpen(false);
