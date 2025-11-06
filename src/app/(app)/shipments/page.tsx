@@ -210,6 +210,13 @@ export default function ShipmentsPage() {
   const currentUser = userRole ? Object.values(users).find(u => u.role === userRole) : null;
   const nextStageUsers = userRole === 'Ingredient Supplier' ? manufacturers : (userRole === 'Manufacturer' ? distributors : pharmacies);
 
+  const getNextStageUsers = (currentHolderRole: Role): User[] => {
+    if (currentHolderRole === 'Ingredient Supplier') return manufacturers;
+    if (currentHolderRole === 'Manufacturer') return distributors;
+    if (currentHolderRole === 'Distributor') return pharmacies;
+    return [];
+  };
+
   return (
     <>
       <div className="flex min-h-screen w-full flex-col">
@@ -294,7 +301,12 @@ export default function ShipmentsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredShipments.map((shipment, index) => (
+                  {filteredShipments.map((shipment, index) => {
+                     const isCurrentUserHolder = shipment.currentHolder === currentUser?.name;
+                     const currentHolderUser = Object.values(users).find(u => u.name === shipment.currentHolder);
+                     const canShip = isCurrentUserHolder && (shipment.status === 'Pending' || (shipment.status === 'Delivered' && currentHolderUser?.role !== 'Pharmacy' && currentHolderUser?.role !== 'Patient'));
+                     const nextPossibleUsers = canShip && currentHolderUser ? getNextStageUsers(currentHolderUser.role) : [];
+                    return (
                     <Collapsible asChild key={`${shipment.batchId}-${shipment.createdAt}`}>
                       <>
                         <TableRow className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
@@ -337,10 +349,20 @@ export default function ShipmentsPage() {
                                   Track on Map
                                 </DropdownMenuItem>
                                 
-                                {shipment.currentHolder === currentUser?.name && shipment.status === 'Pending' && (
-                                    <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
-                                        Mark as Shipped
-                                    </DropdownMenuItem>
+                                {canShip && nextPossibleUsers.length > 0 && (
+                                  <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger>Ship to Next</DropdownMenuSubTrigger>
+                                    <DropdownMenuPortal>
+                                      <DropdownMenuSubContent>
+                                        <DropdownMenuLabel>Select Recipient</DropdownMenuLabel>
+                                        {nextPossibleUsers.map(user => (
+                                          <DropdownMenuItem key={user.id} onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit', user.name)}>
+                                            {user.name} ({user.role})
+                                          </DropdownMenuItem>
+                                        ))}
+                                      </DropdownMenuSubContent>
+                                    </DropdownMenuPortal>
+                                  </DropdownMenuSub>
                                 )}
                                 
                                 {shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location && (
@@ -401,7 +423,7 @@ export default function ShipmentsPage() {
                         </CollapsibleContent>
                       </>
                     </Collapsible>
-                  ))}
+                  )})}
                 </TableBody>
               </Table>
             </CardContent>
