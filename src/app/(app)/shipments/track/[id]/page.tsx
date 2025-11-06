@@ -25,20 +25,25 @@ const statusColors: { [key: string]: string } = {
 
 export default function TrackShipmentPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const [shipment, setShipment] = useState<Shipment | undefined>(() => initialShipments.find(s => s.batchId === id));
+  const [shipment, setShipment] = useState<Shipment | undefined>();
 
   useEffect(() => {
-    // This effect simulates real-time updates for the shipment status
-    const interval = setInterval(() => {
-      // In a real app, you would fetch this from a server
-      const updatedShipment = initialShipments.find(s => s.batchId === id);
-      if (updatedShipment && updatedShipment.status !== shipment?.status) {
-        setShipment(updatedShipment);
-      }
-    }, 2000); // Check for updates every 2 seconds
+    const currentShipment = initialShipments.find(s => s.batchId === id);
+    setShipment(currentShipment);
 
-    return () => clearInterval(interval);
-  }, [id, shipment?.status]);
+    if (currentShipment) {
+        // This effect simulates real-time updates for the shipment status
+        const interval = setInterval(() => {
+        // In a real app, you would fetch this from a server
+        const updatedShipment = initialShipments.find(s => s.batchId === id);
+        if (updatedShipment && updatedShipment.status !== currentShipment?.status) {
+            setShipment(updatedShipment);
+        }
+        }, 2000); // Check for updates every 2 seconds
+
+        return () => clearInterval(interval);
+    }
+  }, [id]);
 
   const { startUser, endUser } = useMemo(() => {
     if (!shipment) return { startUser: null, endUser: null };
@@ -58,9 +63,9 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
   if (!shipment) {
     return (
       <div className="flex min-h-screen w-full flex-col">
-        <AppHeader title="Shipment Not Found" />
+        <AppHeader title="Loading Shipment..." />
         <main className="flex flex-1 flex-col items-center justify-center gap-4 p-4 md:gap-8 md:p-8">
-          <p>The shipment you are looking for does not exist.</p>
+          <Loader2 className="h-8 w-8 animate-spin" />
         </main>
       </div>
     );
