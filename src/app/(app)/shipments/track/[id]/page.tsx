@@ -3,7 +3,8 @@
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { shipments as initialShipments, users } from '@/lib/data';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, use } from 'react';
+import { useParams } from 'next/navigation';
 import type { Shipment } from '@/lib/types';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
@@ -23,10 +24,11 @@ const statusColors: { [key: string]: string } = {
 };
 
 
-export default function TrackShipmentPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function TrackShipmentPage() {
+  const params = use(Promise.resolve(useParams() as { id: string }));
+  const id = params.id;
   const [shipments, setShipments] = useState(initialShipments);
-  const [shipment, setShipment] = useState<Shipment | undefined>(() => initialShipments.find(s => s.batchId === id));
+  const [shipment, setShipment] = useState<Shipment | undefined>(initialShipments.find(s => s.batchId === id));
 
   useEffect(() => {
     // This effect simulates real-time updates for the shipment status
