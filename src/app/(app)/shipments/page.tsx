@@ -64,6 +64,17 @@ const priorityStyles: { [key: string]: string } = {
   Low: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
 };
 
+// Component to safely render dates on the client
+const ClientOnlyDate = ({ isoDate }: { isoDate: string }) => {
+  const [date, setDate] = useState('');
+
+  useEffect(() => {
+    setDate(format(new Date(isoDate), 'dd/MM/yyyy p'));
+  }, [isoDate]);
+
+  return <>{date}</>;
+};
+
 
 export default function ShipmentsPage() {
   const { searchTerm } = useSearch();
@@ -106,6 +117,8 @@ export default function ShipmentsPage() {
 
     const now = new Date();
     const batchId = formData.get('batchId') as string;
+    const distributorId = formData.get('distributorId') as string;
+    const distributor = Object.values(users).find(u => u.id === distributorId);
     
     if (!batchId) {
       toast({
@@ -115,33 +128,42 @@ export default function ShipmentsPage() {
       });
       return;
     }
+     if (!distributor) {
+      toast({
+        variant: "destructive",
+        title: "Creation Failed",
+        description: "Please select a distributor.",
+      });
+      return;
+    }
     
     setShipments(prevShipments => {
         const existingShipmentIndex = prevShipments.findIndex(s => s.batchId === batchId);
+        const endingPoint = formData.get('endingPoint') as string;
         
         if (existingShipmentIndex !== -1) {
           // Update existing shipment
           const updatedShipments = [...prevShipments];
           updatedShipments[existingShipmentIndex] = {
             ...updatedShipments[existingShipmentIndex],
-            currentHolder: manufacturer.name,
+            currentHolder: distributor.name,
             startingPoint: formData.get('startingPoint') as string,
-            endingPoint: formData.get('endingPoint') as string,
+            endingPoint: endingPoint,
             status: 'Pending',
             lastUpdate: now.toISOString(),
           };
           toast({
             title: 'Shipment Updated',
-            description: `Shipment for batch ${batchId} has been updated.`,
+            description: `Shipment for batch ${batchId} has been updated and assigned to ${distributor.name}.`,
           });
           return updatedShipments;
         } else {
           // Create new shipment
           const newShipment: Shipment = {
             batchId: batchId,
-            currentHolder: manufacturer.name,
+            currentHolder: distributor.name, // Assigned to distributor
             startingPoint: formData.get('startingPoint') as string,
-            endingPoint: formData.get('endingPoint') as string,
+            endingPoint: endingPoint,
             status: 'Pending',
             createdAt: now.toISOString(),
             alerts: 0,
@@ -149,7 +171,7 @@ export default function ShipmentsPage() {
           };
           toast({
             title: 'Shipment Created',
-            description: `Shipment for batch ${newShipment.batchId} has been created.`,
+            description: `Shipment for ${newShipment.batchId} assigned to ${distributor.name}.`,
           });
           return [newShipment, ...prevShipments];
         }
@@ -182,6 +204,8 @@ export default function ShipmentsPage() {
 
   const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
   const availableBatches: Batch[] = allBatches;
+  const distributors = Object.values(users).filter(u => u.role === 'Distributor');
+
 
   return (
     <>
@@ -267,7 +291,7 @@ export default function ShipmentsPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredShipments.map((shipment, index) => (
-                    <TableRow key={shipment.batchId} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
+                    <TableRow key={`${shipment.batchId}-${shipment.lastUpdate}`} className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
                       <TableCell className="font-medium">{shipment.batchId}</TableCell>
                       <TableCell>
                         <Badge
@@ -279,7 +303,7 @@ export default function ShipmentsPage() {
                       <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
                       <TableCell className="hidden md:table-cell">{shipment.startingPoint} to {shipment.endingPoint}</TableCell>
                        <TableCell className="hidden md:table-cell">
-                        {format(new Date(shipment.lastUpdate), 'dd/MM/yyyy p')}
+                        <ClientOnlyDate isoDate={shipment.lastUpdate} />
                       </TableCell>
                       <TableCell className="text-right">{shipment.alerts}</TableCell>
                       <TableCell>
@@ -372,8 +396,25 @@ export default function ShipmentsPage() {
                 <Input id="startingPoint" name="startingPoint" defaultValue={Object.values(users).find(u => u.role === 'Manufacturer')?.location || 'New York, NY'} className="col-span-3" required />
               </div>
                <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="distributorId" className="text-right">
+                  Distributed By
+                </Label>
+                <Select name="distributorId" required>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a distributor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {distributors.map(distributor => (
+                      <SelectItem key={distributor.id} value={distributor.id}>
+                        {distributor.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="endingPoint" className="text-right">
-                  Destination
+                  Distributor/Pharmacy
                 </Label>
                 <Input id="endingPoint" name="endingPoint" defaultValue={prefillData.destination || 'Los Angeles, CA'} className="col-span-3" required />
               </div>
