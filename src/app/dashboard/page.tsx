@@ -90,7 +90,7 @@ const fdaActionCategories = [
     },
     {
         id: 'submission-tracking',
-        href: '#',
+        href: '/shipments',
         label: 'Submission Tracking',
         icon: FileText,
         description: 'FDA forms, status, documents',
