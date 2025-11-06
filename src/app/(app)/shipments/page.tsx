@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { shipments as initialShipments, users } from '@/lib/data';
+import { shipments as initialShipments, users, batches as allBatches } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,6 +39,13 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useSearch } from '@/hooks/use-search';
 import type { Shipment, ShipmentStatus, Role, User } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -90,8 +97,19 @@ export default function ShipmentsPage() {
     }
 
     const now = new Date();
+    const batchId = formData.get('batchId') as string;
+    
+    if (!batchId) {
+      toast({
+        variant: "destructive",
+        title: "Creation Failed",
+        description: "Please select a batch to create a shipment.",
+      });
+      return;
+    }
+
     const newShipment: Shipment = {
-      batchId: formData.get('batchId') as string,
+      batchId: batchId,
       currentHolder: manufacturer.name,
       startingPoint: formData.get('startingPoint') as string,
       endingPoint: formData.get('endingPoint') as string,
@@ -124,6 +142,7 @@ export default function ShipmentsPage() {
   };
 
   const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
+  const availableBatches = allBatches.filter(b => b.status === 'Ready-for-Shipment' && !shipments.find(s => s.batchId === b.id));
 
   return (
     <>
@@ -159,9 +178,20 @@ export default function ShipmentsPage() {
                     <div className="grid gap-4 py-4">
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="batchId" className="text-right">
-                          Batch ID
+                          Batch
                         </Label>
-                        <Input id="batchId" name="batchId" defaultValue={`B-NEW-${Math.floor(Math.random() * 90000) + 10000}`} className="col-span-3" required />
+                        <Select name="batchId">
+                          <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select a batch" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableBatches.map(batch => (
+                              <SelectItem key={batch.id} value={batch.id}>
+                                {batch.drugName} ({batch.id})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                        <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="startingPoint" className="text-right">
