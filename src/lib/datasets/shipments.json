@@ -1,2 +1,43 @@
 
-[]
+[
+  {
+    "batchId": "B-ASP-12345",
+    "currentHolder": "Bob Distributor",
+    "status": "In-Transit",
+    "createdAt": "2024-07-28T09:00:00Z",
+    "alerts": 1,
+    "lastUpdate": "2024-07-29T14:00:00Z",
+    "startingPoint": "New York, NY",
+    "endingPoint": "Los Angeles, CA"
+  },
+  {
+    "batchId": "B-IBU-67890",
+    "currentHolder": "Alice Manufacturer",
+    "status": "Pending",
+    "createdAt": "2024-07-27T11:00:00Z",
+    "alerts": 1,
+    "lastUpdate": "2024-07-27T11:00:00Z",
+    "startingPoint": "Chicago, IL",
+    "endingPoint": "Miami, FL"
+  },
+  {
+    "batchId": "B-AMOX-98765",
+    "currentHolder": "Diana Regulator",
+    "status": "Requires-Approval",
+    "createdAt": "2024-07-26T15:00:00Z",
+    "alerts": 1,
+    "lastUpdate": "2024-07-29T09:00:00Z",
+    "startingPoint": "Houston, TX",
+    "endingPoint": "Seattle, WA"
+  },
+  {
+    "batchId": "B-LIP-45678",
+    "currentHolder": "Charlie Pharmacist",
+    "status": "Delivered",
+    "createdAt": "2024-07-20T08:00:00Z",
+    "alerts": 0,
+    "lastUpdate": "2024-07-25T16:00:00Z",
+    "startingPoint": "Phoenix, AZ",
+    "endingPoint": "Denver, CO"
+  }
+]

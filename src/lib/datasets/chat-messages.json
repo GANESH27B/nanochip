@@ -1,2 +1,27 @@
 
-[]
+[
+  {
+    "id": "MSG-001",
+    "conversationId": "CONV-001",
+    "sender": "Bob Distributor",
+    "text": "Hi Alice, the shipment for B-ASP-12345 has been dispatched.",
+    "timestamp": "2024-07-28T09:05:00Z",
+    "isRead": false
+  },
+  {
+    "id": "MSG-002",
+    "conversationId": "CONV-001",
+    "sender": "You",
+    "text": "Thanks, Bob. I see it's In-Transit now.",
+    "timestamp": "2024-07-28T09:10:00Z",
+    "isRead": true
+  },
+  {
+    "id": "MSG-003",
+    "conversationId": "CONV-002",
+    "sender": "Diana Regulator",
+    "text": "We've received the request for approval for batch B-AMOX-98765. There's a high-severity alert we need to discuss.",
+    "timestamp": "2024-07-29T11:00:00Z",
+    "isRead": false
+  }
+]

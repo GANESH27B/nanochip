@@ -1,2 +1,27 @@
 
-[]
+[
+  {
+    "id": "DRUG-001",
+    "name": "Metformin",
+    "currentStock": 45,
+    "reorderLevel": 50,
+    "priority": "High",
+    "requestedBy": "General Hospital"
+  },
+  {
+    "id": "DRUG-002",
+    "name": "Lisinopril",
+    "currentStock": 120,
+    "reorderLevel": 100,
+    "priority": "Medium",
+    "requestedBy": "City Clinic"
+  },
+  {
+    "id": "DRUG-003",
+    "name": "Atorvastatin",
+    "currentStock": 80,
+    "reorderLevel": 75,
+    "priority": "Low",
+    "requestedBy": "Internal Stock"
+  }
+]

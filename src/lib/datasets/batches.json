@@ -1,2 +1,27 @@
 
-[]
+[
+  {
+    "id": "B-ASP-12345",
+    "drugName": "Aspirin 81mg",
+    "quantity": 50000,
+    "manufactureDate": "2024-07-01T00:00:00Z",
+    "expiryDate": "2026-07-01T00:00:00Z",
+    "status": "Shipped"
+  },
+  {
+    "id": "B-IBU-67890",
+    "drugName": "Ibuprofen 200mg",
+    "quantity": 75000,
+    "manufactureDate": "2024-06-15T00:00:00Z",
+    "expiryDate": "2026-06-15T00:00:00Z",
+    "status": "Ready-for-Shipment"
+  },
+  {
+    "id": "B-PARA-54321",
+    "drugName": "Paracetamol 500mg",
+    "quantity": 100000,
+    "manufactureDate": "2024-07-20T00:00:00Z",
+    "expiryDate": "2026-07-20T00:00:00Z",
+    "status": "In-Production"
+  }
+]

@@ -1,2 +1,35 @@
 
-[]
+[
+  {
+    "alertId": "ALERT-001",
+    "batchId": "B-ASP-12345",
+    "timestamp": "2024-07-28T10:00:00Z",
+    "type": "Temperature",
+    "details": "Temperature exceeded 8°C for 15 minutes.",
+    "severity": "High"
+  },
+  {
+    "alertId": "ALERT-002",
+    "batchId": "B-IBU-67890",
+    "timestamp": "2024-07-28T12:30:00Z",
+    "type": "Tamper",
+    "details": "Package seal was broken and then resealed.",
+    "severity": "High"
+  },
+  {
+    "alertId": "ALERT-003",
+    "batchId": "B-PARA-54321",
+    "timestamp": "2024-07-27T18:45:00Z",
+    "type": "Humidity",
+    "details": "Humidity levels dropped below 30% in warehouse.",
+    "severity": "Medium"
+  },
+  {
+    "alertId": "ALERT-004",
+    "batchId": "B-AMOX-98765",
+    "timestamp": "2024-07-29T02:15:00Z",
+    "type": "Pressure",
+    "details": "Unexpected pressure drop during air freight.",
+    "severity": "Low"
+  }
+]

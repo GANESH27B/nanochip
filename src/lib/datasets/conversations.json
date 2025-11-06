@@ -1,2 +1,30 @@
 
-[]
+[
+  {
+    "id": "CONV-001",
+    "participantName": "Bob Distributor",
+    "participantRole": "Distributor",
+    "lastMessage": "Thanks, Bob. I see it's In-Transit now.",
+    "lastMessageTimestamp": "2024-07-28T09:10:00Z",
+    "unreadCount": 0,
+    "avatarUrl": "https://picsum.photos/seed/user-dist/100/100"
+  },
+  {
+    "id": "CONV-002",
+    "participantName": "Diana Regulator",
+    "participantRole": "FDA",
+    "lastMessage": "We've received the request for approval for batch B-AMOX-98765.",
+    "lastMessageTimestamp": "2024-07-29T11:00:00Z",
+    "unreadCount": 1,
+    "avatarUrl": "https://picsum.photos/seed/user-fda/100/100"
+  },
+  {
+    "id": "CONV-003",
+    "participantName": "Charlie Pharmacist",
+    "participantRole": "Pharmacy",
+    "lastMessage": "Can I get an ETA on the Ibuprofen shipment?",
+    "lastMessageTimestamp": "2024-07-27T15:00:00Z",
+    "unreadCount": 0,
+    "avatarUrl": "https://picsum.photos/seed/user-pharma/100/100"
+  }
+]

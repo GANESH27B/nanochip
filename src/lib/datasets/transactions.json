@@ -1,2 +1,24 @@
 
-[]
+[
+  {
+    "id": "TRX-001",
+    "date": "2024-07-25T10:30:00Z",
+    "description": "Payment for Shipment B-LIP-45678",
+    "amount": -1500.50,
+    "status": "Completed"
+  },
+  {
+    "id": "TRX-002",
+    "date": "2024-07-28T14:00:00Z",
+    "description": "Incoming fund from General Hospital",
+    "amount": 10000.00,
+    "status": "Completed"
+  },
+  {
+    "id": "TRX-003",
+    "date": "2024-07-29T11:00:00Z",
+    "description": "Monthly Subscription Fee",
+    "amount": -500.00,
+    "status": "Pending"
+  }
+]
