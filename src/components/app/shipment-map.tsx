@@ -1,11 +1,10 @@
 'use client';
-import { MapContainer, TileLayer, Marker, Polyline, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useTheme } from 'next-themes';
+import { useEffect, useRef } from 'react';
 
 // Fix for default icon path issue with webpack
-// This is a common workaround for issues with Leaflet's default icon paths in module bundlers.
 if (L.Icon.Default.prototype) {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
 }
@@ -37,37 +36,56 @@ interface ShipmentMapProps {
 
 export default function ShipmentMap({ start, end }: ShipmentMapProps) {
   const { theme } = useTheme();
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
   
   const positions: [number, number][] = [
     [start.lat, start.lng],
     [end.lat, end.lng],
   ];
 
-  const bounds = L.latLngBounds(positions);
+  useEffect(() => {
+    if (mapContainerRef.current && !mapRef.current) {
+        const map = L.map(mapContainerRef.current, {
+            scrollWheelZoom: false,
+        });
+        mapRef.current = map;
+
+        L.tileLayer(
+            'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+            {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+              className: theme === 'dark' ? 'dark-map-tiles' : ''
+            }
+        ).addTo(map);
+        
+        L.marker([start.lat, start.lng], { icon: customIcon })
+          .addTo(map)
+          .bindTooltip(`Origin: ${start.label}`, { permanent: true, direction: 'top', offset: [0, -12] });
+
+        L.marker([end.lat, end.lng], { icon: customIcon })
+            .addTo(map)
+            .bindTooltip(`Destination: ${end.label}`, { permanent: true, direction: 'top', offset: [0, -12] });
+        
+        L.polyline(positions, { color: "hsl(var(--primary))", weight: 3, dashArray: "5, 10" }).addTo(map);
+
+        map.fitBounds(L.latLngBounds(positions));
+    }
+
+    return () => {
+        if (mapRef.current) {
+            mapRef.current.remove();
+            mapRef.current = null;
+        }
+    };
+  }, [start, end, theme, positions]);
+
 
   return (
-    <MapContainer
-      bounds={bounds}
+    <div
+      ref={mapContainerRef}
       style={{ height: '100%', width: '100%', borderRadius: 'var(--radius)' }}
       className="z-0"
-      scrollWheelZoom={false} // Disable scroll wheel zoom for better user experience
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-        className={theme === 'dark' ? 'dark-map-tiles' : ''}
-      />
-      <Marker position={[start.lat, start.lng]} icon={customIcon}>
-        <Tooltip permanent direction="top" offset={[0, -12]}>
-          Origin: {start.label}
-        </Tooltip>
-      </Marker>
-      <Marker position={[end.lat, end.lng]} icon={customIcon}>
-        <Tooltip permanent direction="top" offset={[0, -12]}>
-          Destination: {end.label}
-        </Tooltip>
-      </Marker>
-      <Polyline positions={positions} color="hsl(var(--primary))" weight={3} dashArray="5, 10" />
-    </MapContainer>
+    />
   );
 }
