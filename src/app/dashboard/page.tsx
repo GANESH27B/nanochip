@@ -62,10 +62,10 @@ const manufacturerActionCategories = [
         description: 'Manage your product listings',
     },
     {
-        href: '/batches',
-        label: 'Batch Tracking',
-        icon: FlaskConical,
-        description: 'Create & view production batches',
+        href: '/needed-drugs',
+        label: 'Needed Drugs',
+        icon: ClipboardList,
+        description: 'View drug stock levels and requests',
     },
      {
         href: '/shipments',
