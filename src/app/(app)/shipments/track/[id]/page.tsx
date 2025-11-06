@@ -4,15 +4,16 @@ import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { shipments as initialShipments, users } from '@/lib/data';
 import { useMemo, useState, useEffect, use } from 'react';
-import type { Shipment, User } from '@/lib/types';
+import type { Shipment } from '@/lib/types';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import { MapPin } from 'lucide-react';
+import { MapPin, Loader2 } from 'lucide-react';
 
-const ShipmentMap = dynamic(() => import('@/components/app/shipment-map'), {
+const GoogleShipmentMap = dynamic(() => import('@/components/app/google-shipment-map'), {
   ssr: false,
-  loading: () => <div className="h-full w-full bg-muted animate-pulse" />,
+  loading: () => <div className="h-full w-full bg-muted animate-pulse flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>,
 });
+
 
 const statusColors: { [key: string]: string } = {
   'In-Transit': 'text-blue-500',
@@ -22,9 +23,9 @@ const statusColors: { [key: string]: string } = {
 };
 
 
-export default function TrackShipmentPage({ params }: { params: { id: string } }) {
-  const resolvedParams = use(params);
-  const id = resolvedParams.id;
+export default function TrackShipmentPage() {
+  const params = use(Promise.resolve(useParams() as { id: string }));
+  const id = params.id;
   const [shipments, setShipments] = useState(initialShipments);
   const [shipment, setShipment] = useState<Shipment | undefined>(initialShipments.find(s => s.batchId === id));
 
@@ -95,10 +96,9 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
           </CardHeader>
           <CardContent className="h-[calc(100%-120px)]">
             {startUser && endUser && startUser.latitude && startUser.longitude && endUser.latitude && endUser.longitude && (
-              <ShipmentMap
-                key={shipment.status}
-                start={{ lat: startUser.latitude, lng: startUser.longitude, label: startUser.name }}
-                end={{ lat: endUser.latitude, lng: endUser.longitude, label: endUser.name }}
+              <GoogleShipmentMap
+                origin={{ lat: startUser.latitude, lng: startUser.longitude }}
+                destination={{ lat: endUser.latitude, lng: endUser.longitude }}
                 status={shipment.status}
               />
             )}
@@ -107,4 +107,14 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
       </main>
     </div>
   );
+}
+
+function useParams() {
+    const [params, setParams] = useState<null | { id: string }>(null);
+    useEffect(() => {
+        const pathParts = window.location.pathname.split('/');
+        const id = pathParts[pathParts.length - 1];
+        setParams({ id });
+    }, []);
+    return params;
 }

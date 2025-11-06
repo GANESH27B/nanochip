@@ -33,10 +33,6 @@ const nextConfig: NextConfig = {
   experimental: {
     // All experimental features go here
   },
-  // Add allowedDevOrigins at the root level of the config
-  allowedDevOrigins: [
-      "https://6000-firebase-studio-1762347655114.cluster-axf5tvtfjjfekvhwxwkkkzsk2y.cloudworkstations.dev"
-  ]
 };
 
 export default nextConfig;
