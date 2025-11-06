@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -205,6 +206,7 @@ export default function ShipmentsPage() {
   const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
   const availableBatches: Batch[] = allBatches;
   const distributors: User[] = Object.values(users).filter(u => u.role === 'Distributor');
+  const pharmacies: User[] = Object.values(users).filter(u => u.role === 'Pharmacy');
 
 
   return (
@@ -416,7 +418,18 @@ export default function ShipmentsPage() {
                 <Label htmlFor="endingPoint" className="text-right">
                   Distributor/Pharmacy
                 </Label>
-                <Input id="endingPoint" name="endingPoint" defaultValue={prefillData.destination || 'Los Angeles, CA'} className="col-span-3" required />
+                <Select name="endingPoint" defaultValue={prefillData.destination} required>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a pharmacy" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pharmacies.map(pharmacy => (
+                      <SelectItem key={pharmacy.id} value={pharmacy.location!}>
+                        {pharmacy.name} ({pharmacy.location})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
             <DialogFooter>
@@ -428,3 +441,5 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
+    
