@@ -10,8 +10,17 @@ import neededDrugsData from './datasets/needed-drugs.json';
 import transactionsData from './datasets/transactions.json';
 
 
-export const users: Record<Role, User> = usersData;
-export const shipments: Shipment[] = shipmentsData;
+export const users: Record<string, User> = usersData;
+export const shipments: Shipment[] = shipmentsData.map(shipment => {
+    // For sample data, let's assume Manufacturer is the start and Pharmacy is the end.
+    const manufacturer = Object.values(users).find(u => u.role === 'Manufacturer');
+    const pharmacy = Object.values(users).find(u => u.role === 'Pharmacy');
+    return {
+        ...shipment,
+        startingPoint: shipment.startingPoint || manufacturer?.location,
+        endingPoint: shipment.endingPoint || pharmacy?.location,
+    };
+});
 export const alerts: Alert[] = alertsData;
 export const batches: Batch[] = batchesData;
 export const conversations: Conversation[] = conversationsData;

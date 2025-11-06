@@ -40,7 +40,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
-import type { Shipment, ShipmentStatus, Role } from '@/lib/types';
+import type { Shipment, ShipmentStatus, Role, User } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -77,13 +77,24 @@ export default function ShipmentsPage() {
 
   const handleCreateShipment = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+    const manufacturer = Object.values(users).find(u => u.role === 'Manufacturer');
+    const pharmacy = Object.values(users).find(u => u.role === 'Pharmacy');
+    
+    if (!manufacturer || !pharmacy || userRole !== 'Manufacturer') {
+        toast({
+            variant: "destructive",
+            title: "Creation Failed",
+            description: "Could not create shipment. Required user roles not found.",
+        });
+        return;
+    }
+
     const now = new Date();
     const newShipment: Shipment = {
       batchId: `B-NEW-${Math.floor(Math.random() * 90000) + 10000}`,
-      currentHolder: 'Alice Manufacturer',
-      startingPoint: formData.get('startingPoint') as string,
-      endingPoint: formData.get('endingPoint') as string,
+      currentHolder: manufacturer.name,
+      startingPoint: manufacturer.location,
+      endingPoint: pharmacy.location,
       status: 'Pending',
       createdAt: now.toISOString(),
       alerts: 0,
@@ -98,7 +109,7 @@ export default function ShipmentsPage() {
   };
 
   const handleUpdateStatus = (batchId: string, newStatus: ShipmentStatus) => {
-    const currentUser = userRole ? users[userRole] : null;
+    const currentUser = userRole ? Object.values(users).find(u => u.role === userRole) : null;
     if (!currentUser) return;
 
     setShipments(currentShipments =>
@@ -142,24 +153,11 @@ export default function ShipmentsPage() {
                     <DialogHeader>
                       <DialogTitle>Create New Shipment</DialogTitle>
                       <DialogDescription>
-                        Fill in the details for the new shipment. A batch ID will be generated.
+                        Click create to generate a new shipment from your location to the primary pharmacy. A batch ID will be generated.
                       </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                       <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="startingPoint" className="text-right">
-                              Starting Point
-                          </Label>
-                          <Input id="startingPoint" name="startingPoint" placeholder="e.g. New York, NY" required className="col-span-3" />
-                      </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="endingPoint" className="text-right">
-                              Ending Point
-                          </Label>
-                          <Input id="endingPoint" name="endingPoint" placeholder="e.g. Los Angeles, CA" required className="col-span-3" />
-                      </div>
-                    </div>
-                    <DialogFooter>
+                    
+                    <DialogFooter className="pt-4">
                       <Button type="submit">Create Shipment</Button>
                     </DialogFooter>
                   </form>
@@ -174,7 +172,7 @@ export default function ShipmentsPage() {
                     <TableHead>Batch ID</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="hidden md:table-cell">Current Holder</TableHead>
-                    <TableHead className="hidden md:table-cell">Created At</TableHead>
+                    <TableHead className="hidden md:table-cell">Route</TableHead>
                     <TableHead className="text-right">Alerts</TableHead>
                     <TableHead>
                       <span className="sr-only">Actions</span>
@@ -193,9 +191,7 @@ export default function ShipmentsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
-                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{shipment.startingPoint} to {shipment.endingPoint}</TableCell>
                       <TableCell className="text-right">{shipment.alerts}</TableCell>
                       <TableCell>
                         <DropdownMenu>
