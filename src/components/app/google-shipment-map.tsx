@@ -22,8 +22,8 @@ const containerStyle = {
   borderRadius: 'var(--radius)',
 };
 
-const lightMapStyle = [];
-const darkMapStyle = [
+const lightMapStyle: google.maps.MapTypeStyle[] = [];
+const darkMapStyle: google.maps.MapTypeStyle[] = [
     { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
     { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
     { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
@@ -129,10 +129,12 @@ export default function GoogleShipmentMap({ origin, destination, status }: Googl
       let step = 0;
       const interval = setInterval(() => {
         if (step >= route.length) {
-          step = 0; // Loop animation
+          clearInterval(interval);
+           setTruckPosition(destination); // Snap to destination at the end
+        } else {
+            setTruckPosition({ lat: route[step].lat(), lng: route[step].lng() });
+            step++;
         }
-        setTruckPosition({ lat: route[step].lat(), lng: route[step].lng() });
-        step++;
       }, 200); // Adjust speed of the animation
       return () => clearInterval(interval);
     } else if (status === 'Delivered') {
@@ -193,7 +195,7 @@ export default function GoogleShipmentMap({ origin, destination, status }: Googl
       )}
       <MarkerF position={origin} label="A" />
       <MarkerF position={destination} label="B" />
-      <MarkerF position={truckPosition} icon={truckIcon} />
+      {status !== 'Delivered' && <MarkerF position={truckPosition} icon={truckIcon} />}
     </GoogleMap>
   );
 }
