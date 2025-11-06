@@ -3,10 +3,12 @@ import { MapContainer, TileLayer, Marker, Polyline, Tooltip } from 'react-leafle
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useTheme } from 'next-themes';
-import { useEffect, useRef } from 'react';
 
 // Fix for default icon path issue with webpack
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+// This is a common workaround for issues with Leaflet's default icon paths in module bundlers.
+if (L.Icon.Default.prototype) {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+}
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -34,7 +36,6 @@ interface ShipmentMapProps {
 }
 
 export default function ShipmentMap({ start, end }: ShipmentMapProps) {
-  const mapRef = useRef<L.Map | null>(null);
   const { theme } = useTheme();
   
   const positions: [number, number][] = [
@@ -49,12 +50,7 @@ export default function ShipmentMap({ start, end }: ShipmentMapProps) {
       bounds={bounds}
       style={{ height: '100%', width: '100%', borderRadius: 'var(--radius)' }}
       className="z-0"
-      whenCreated={(map) => {
-        // Only set the map instance if it hasn't been set, to avoid re-initialization errors
-        if (!mapRef.current) {
-          mapRef.current = map;
-        }
-      }}
+      scrollWheelZoom={false} // Disable scroll wheel zoom for better user experience
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
