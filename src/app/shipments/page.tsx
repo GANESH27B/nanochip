@@ -292,7 +292,7 @@ export default function ShipmentsPage() {
   const nextStageUsers = useMemo(() => {
     if (!userRole) return [];
     return getNextStageUsers(userRole);
-}, [userRole, manufacturers, distributors, pharmacies]);
+}, [userRole]);
 
   const distributorDrugRequests = useMemo(() => {
     const distributorNames = distributors.map(d => d.name);
@@ -457,7 +457,6 @@ export default function ShipmentsPage() {
                     const isShipment = 'startingPoint' in item;
                     const shipment = isShipment ? item as Shipment : null;
                     const isCurrentUserHolder = shipment?.currentHolder === currentUser?.name;
-                    const currentHolderUser = shipment ? Object.values(users).find(u => u.name === shipment.currentHolder) : currentUser;
                     
                     const canShip = item.status === 'Ready-for-Shipment' && userRole === 'Manufacturer';
                     const canShipToPharmacy = isShipment && shipment.status === 'Delivered' && userRole === 'Distributor' && isCurrentUserHolder;
@@ -639,7 +638,7 @@ export default function ShipmentsPage() {
                   <SelectContent>
                     {prefillData.availableItems?.map(item => (
                       <SelectItem key={item.id} value={item.id}>
-                        {item.name} ({'status' in item && item.status === 'Ready-for-Shipment' ? (item as Batch).id : ('lotNumber' in item ? item.lotNumber : item.id)})
+                        {item.name} ({'lotNumber' in item ? item.lotNumber : item.id})
                       </SelectItem>
                     ))}
                   </SelectContent>
