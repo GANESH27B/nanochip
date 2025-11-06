@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle, Package, MoreHorizontal, Check, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -36,6 +36,8 @@ import type { Product, ApprovalStatus, Role } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { products as allProducts } from '@/lib/data';
 import { format } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 
 const approvalStatusStyles: { [key: string]: string } = {
   'Not Submitted': 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
@@ -50,6 +52,7 @@ export default function MyProductsPage() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [userRole, setUserRole] = useState<Role | null>(null);
+  const [activeTab, setActiveTab] = useState('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -125,13 +128,20 @@ export default function MyProductsPage() {
   );
 
   const manufacturerProducts = products.filter(p => p.manufacturerInfo === 'Alice Manufacturer');
-  const displayedProducts = userRole === 'Manufacturer' ? manufacturerProducts : products;
+  
+  const filteredProducts = useMemo(() => {
+    const baseProducts = userRole === 'Manufacturer' ? manufacturerProducts : products;
+    if (userRole === 'FDA' && activeTab === 'pending') {
+      return baseProducts.filter(p => p.ideaStatus === 'Pending' || p.productStatus === 'Pending');
+    }
+    return baseProducts;
+  }, [products, manufacturerProducts, userRole, activeTab]);
 
   return (
     <>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row items-start justify-between">
             <div>
               <CardTitle>{userRole === 'FDA' ? 'Product Submissions' : 'My Products'}</CardTitle>
               <CardDescription>
@@ -214,17 +224,25 @@ export default function MyProductsPage() {
                 </DialogContent>
                 </Dialog>
             )}
+            {userRole === 'FDA' && (
+              <Tabs defaultValue="all" onValueChange={setActiveTab}>
+                <TabsList>
+                  <TabsTrigger value="all">All Submissions</TabsTrigger>
+                  <TabsTrigger value="pending">Pending Review</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
           </CardHeader>
           <CardContent>
-            {displayedProducts.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm h-96">
                 <div className="flex flex-col items-center gap-1 text-center">
                   <Package className="h-12 w-12 text-muted-foreground" />
                   <h3 className="text-2xl font-bold tracking-tight">
-                    You have no products yet.
+                    {userRole === 'FDA' && activeTab === 'pending' ? 'No pending submissions.' : 'You have no products yet.'}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Start by adding a new product to your inventory.
+                    {userRole === 'FDA' && activeTab === 'pending' ? 'All submissions have been reviewed.' : 'Start by adding a new product to your inventory.'}
                   </p>
                 </div>
               </div>
@@ -243,7 +261,7 @@ export default function MyProductsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {displayedProducts.map((product) => (
+                  {filteredProducts.map((product) => (
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">{product.name}</TableCell>
                       {userRole === 'FDA' && <TableCell>{product.manufacturerInfo}</TableCell>}
@@ -341,7 +359,7 @@ export default function MyProductsPage() {
                     <DetailItem label="Stability Data" value={selectedProduct.stabilityData} />
                     <DetailItem label="Clinical Summary" value={selectedProduct.clinicalSummary} />
                     <DetailItem label="Labeling Details" value={selectedProduct.labelingDetails} />
-                    <DetailItem label="Applicant Info" value={selectedProduct.applicantInfo} />
+                    <DetailItem label="Applicant Info" value={selected.applicantInfo} />
                     <DetailItem label="Submission Date" value={format(new Date(selectedProduct.submissionDate), 'PPP')} />
                 </dl>
             </ScrollArea>
@@ -354,3 +372,5 @@ export default function MyProductsPage() {
     </>
   );
 }
+
+    
