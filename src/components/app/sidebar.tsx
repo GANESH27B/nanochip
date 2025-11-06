@@ -12,7 +12,7 @@ import {
   CreditCard,
   ClipboardList,
   MessageSquare,
-  Map,
+  ShieldCheck,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {

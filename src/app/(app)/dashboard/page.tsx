@@ -4,12 +4,13 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recha
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { alerts, shipments } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Siren, Package, Truck, CheckCircle } from 'lucide-react';
+import { Siren, Package, Truck, CheckCircle, ShieldCheck, AlertTriangle, ShieldX } from 'lucide-react';
 import AppHeader from '@/components/app/header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { Role } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const [userRole, setUserRole] = useState<Role | null>(null);
@@ -36,12 +37,52 @@ export default function DashboardPage() {
   }));
 
   const recentAlerts = alerts.slice(0, 3);
+  
+  const supplyChainStatus = useMemo(() => {
+    const highSeverityAlerts = alerts.filter(a => a.severity === 'High').length;
+    if (activeAlerts === 0) {
+      return {
+        level: 'Normal',
+        label: 'All Systems Normal',
+        icon: ShieldCheck,
+        color: 'text-green-500',
+        description: 'The supply chain is operating without any issues.'
+      };
+    }
+    if (highSeverityAlerts > 0) {
+      return {
+        level: 'Critical',
+        label: 'Action Required',
+        icon: ShieldX,
+        color: 'text-destructive',
+        description: `${highSeverityAlerts} high-severity alerts require attention.`
+      };
+    }
+    return {
+      level: 'Warning',
+      label: 'Minor Disruptions',
+      icon: AlertTriangle,
+      color: 'text-yellow-500',
+      description: `${activeAlerts} low/medium alerts are active.`
+    };
+  }, [activeAlerts]);
+
 
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader title={userRole ? `${userRole} Dashboard` : 'Dashboard'} />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+           <Card className={cn("animate-fade-in-up", supplyChainStatus.color)} style={{ animationDelay: '0s' }}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Supply Chain Status</CardTitle>
+                <supplyChainStatus.icon className="h-4 w-4 text-current" />
+              </CardHeader>
+              <CardContent>
+                <div className={cn("text-2xl font-bold", supplyChainStatus.color)}>{supplyChainStatus.label}</div>
+                <p className="text-xs text-muted-foreground">{supplyChainStatus.description}</p>
+              </CardContent>
+            </Card>
           <Link href="/shipments">
             <Card className="animate-fade-in-up hover:bg-muted/50" style={{ animationDelay: '0.1s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
