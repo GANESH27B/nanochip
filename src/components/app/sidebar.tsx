@@ -62,7 +62,6 @@ const navItems = {
   ],
   Manufacturer: [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
-    { href: '/raw-materials', icon: Beaker, label: 'Raw Materials' },
     { href: '/batches', icon: FlaskConical, label: 'Batches' },
     { href: '/shipments', icon: Truck, label: 'Shipments' },
     { href: '/billing', icon: CreditCard, label: 'Billing' },
