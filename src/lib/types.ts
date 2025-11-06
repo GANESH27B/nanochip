@@ -13,6 +13,12 @@ export interface User {
 
 export type ShipmentStatus = 'Pending' | 'In-Transit' | 'Delivered' | 'Requires-Approval';
 
+export interface ShipmentHistoryEntry {
+  status: ShipmentStatus;
+  holder: string;
+  timestamp: string;
+}
+
 export interface Shipment {
   batchId: string;
   currentHolder: string;
@@ -22,6 +28,7 @@ export interface Shipment {
   lastUpdate: string;
   startingPoint?: string;
   endingPoint?: string;
+  history?: ShipmentHistoryEntry[];
 }
 
 export type AlertType = 'Temperature' | 'Tamper' | 'Fake-Transfer' | 'Pressure' | 'Humidity';

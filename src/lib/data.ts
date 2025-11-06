@@ -1,4 +1,4 @@
-import type { Shipment, Alert, User, Role, TelemetryData, Batch, Conversation, ChatMessage, Drug, Transaction } from './types';
+import type { Shipment, Alert, User, Role, TelemetryData, Batch, Conversation, ChatMessage, Drug, Transaction, ShipmentHistoryEntry } from './types';
 
 import usersData from './datasets/users.json';
 import shipmentsData from './datasets/shipments.json';
@@ -15,11 +15,22 @@ export const shipments: Shipment[] = shipmentsData.map(shipment => {
     // For sample data, let's assume Manufacturer is the start and Pharmacy is the end.
     const manufacturer = Object.values(users).find(u => u.role === 'Manufacturer');
     const pharmacy = Object.values(users).find(u => u.role === 'Pharmacy');
-    return {
+    const newShipment = {
         ...shipment,
         startingPoint: shipment.startingPoint || manufacturer?.location,
         endingPoint: shipment.endingPoint || pharmacy?.location,
     };
+
+    if (!newShipment.history) {
+        newShipment.history = [
+            {
+                status: newShipment.status,
+                holder: newShipment.currentHolder,
+                timestamp: newShipment.createdAt,
+            }
+        ];
+    }
+    return newShipment;
 });
 export const alerts: Alert[] = alertsData;
 export const batches: Batch[] = batchesData;
