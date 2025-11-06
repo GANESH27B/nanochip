@@ -30,17 +30,15 @@ import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 
 const navLinks = [
-  { label: 'Medicine', href: '#' },
-  { label: 'Healthcare', href: '#', dropdown: true },
-  { label: 'Doctor Consult', href: '#' },
-  { label: 'Lab Tests', href: '#', dropdown: true },
-  { label: 'PLUS', href: '#' },
-  { label: 'Health Insights', href: '#', dropdown: true },
-  { label: 'Offers', href: '/offers' },
+  { label: 'Dashboard', href: '/dashboard' },
+  { label: 'Shipments', href: '/shipments' },
+  { label: 'Alerts', href: '/alerts' },
+  { label: 'Analytics', href: '/analytics' },
+  { label: 'Approvals', href: '/approvals' },
 ];
 
 export default function AppHeader() {
-  const { userName, handleLogout } = useAppNavigation();
+  const { userName, handleLogout, visibleNavItems } = useAppNavigation();
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 shadow-sm backdrop-blur-sm">
@@ -62,14 +60,13 @@ export default function AppHeader() {
                 <div className="flex flex-col gap-6 p-4">
                   <Logo />
                   <nav className="flex flex-col gap-4">
-                    {navLinks.map((link) => (
+                    {visibleNavItems.map((link) => (
                       <Link
                         key={link.label}
                         href={link.href}
                         className="flex items-center justify-between font-medium text-foreground/80 hover:text-foreground"
                       >
                         {link.label}
-                        {link.dropdown && <ChevronDown className="h-4 w-4" />}
                       </Link>
                     ))}
                   </nav>
@@ -110,17 +107,9 @@ export default function AppHeader() {
           </div>
 
           <div className="hidden items-center gap-6 text-sm md:flex">
-             <Link href="/login" className="flex items-center gap-1.5 font-medium">
+             <Link href="/" className="flex items-center gap-1.5 font-medium">
                 <User className="h-5 w-5" />
                 Hello, Log in
-             </Link>
-             <Link href="#" className="flex items-center gap-1.5 font-medium">
-                <Percent className="h-5 w-5" />
-                Offers
-             </Link>
-             <Link href="#" className="flex items-center gap-1.5 font-medium">
-                <ShoppingCart className="h-5 w-5" />
-                Cart
              </Link>
              <ThemeSwitcher />
           </div>
@@ -130,7 +119,7 @@ export default function AppHeader() {
             <div className="container mx-auto">
                 <nav className="flex h-12 items-center justify-between">
                     <div className="flex gap-8">
-                         {navLinks.map((link) => (
+                         {visibleNavItems.map((link) => (
                             <Link
                                 key={link.label}
                                 href={link.href}
@@ -138,8 +127,8 @@ export default function AppHeader() {
                                     "flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
                                 )}
                             >
+                                <link.icon className="h-4 w-4" />
                                 {link.label}
-                                {link.dropdown && <ChevronDown className="h-4 w-4" />}
                             </Link>
                         ))}
                     </div>

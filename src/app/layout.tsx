@@ -5,11 +5,12 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 import AppLayoutContent from './AppLayoutContent';
+import { SearchProvider } from '@/hooks/use-search';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'PharmaChain',
+  title: 'PharmaTrust',
   description: 'Securing the Pharmaceutical Supply Chain',
   icons: [{ rel: 'icon', url: '/favicon.ico' }],
 };
@@ -28,7 +29,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppLayoutContent>{children}</AppLayoutContent>
+          <SearchProvider>
+            <AppLayoutContent>{children}</AppLayoutContent>
+          </SearchProvider>
           <Toaster />
         </ThemeProvider>
       </body>

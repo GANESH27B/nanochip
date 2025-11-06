@@ -17,7 +17,7 @@ import {
   ShoppingBag,
   FileCheck,
 } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
 import type { Role } from '@/lib/types';
 import { users } from '@/lib/data';
@@ -61,8 +61,9 @@ export const navItems = {
 
 export function useAppNavigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const [userRole, setUserRole] = useState<Role | null>(null);
-  const [userName, setUserName] = useState('PharmaChain User');
+  const [userName, setUserName] = useState('PharmaTrust User');
   const [user, setUser] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
 
@@ -73,7 +74,7 @@ export function useAppNavigation() {
       setUserRole(role);
       const currentUser =
         users[role as keyof typeof users] || {
-          name: 'PharmaChain User',
+          name: 'PharmaTrust User',
           role: role,
         };
       setUser(currentUser);
@@ -82,7 +83,13 @@ export function useAppNavigation() {
   }, [pathname]);
 
   const visibleNavItems = useMemo(() => {
-    if (!isClient || !userRole) return []; // Return empty array if not on client or no role
+    if (!isClient) return []; // Render nothing on the server
+    if (!userRole) {
+      // Default navigation for logged-out users, adjust as needed
+      return [
+        { href: '/', icon: Home, label: 'Home' },
+      ];
+    }
     if (userRole === 'Patient') return navItems.Patient;
     if (navItems[userRole]) {
       return navItems[userRole as keyof typeof navItems];
@@ -92,8 +99,11 @@ export function useAppNavigation() {
 
   const handleLogout = () => {
     localStorage.removeItem('userRole');
-    window.location.href = '/';
+    setUserRole(null);
+    setUserName('PharmaTrust User');
+    setUser(null);
+    router.push('/');
   };
 
-  return { userRole, userName, user, handleLogout, visibleNavItems };
+  return { userRole, userName, user, handleLogout, visibleNavItems, isClient };
 }

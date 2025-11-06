@@ -7,7 +7,7 @@ export default function AppLayoutContent({ children }: { children: React.ReactNo
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader />
-      <main className="flex-1 bg-background">{children}</main>
+      <main className="flex-1">{children}</main>
       <AppFooter />
     </div>
   );
