@@ -466,9 +466,6 @@ export default function ShipmentsPage() {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onClick={() => openCreateShipmentDialog(item.batchId)}>
-                                            Create Generic Shipment
-                                        </DropdownMenuItem>
                                         {userRole === 'Manufacturer' && (
                                           <DropdownMenuSub>
                                               <DropdownMenuSubTrigger>Ship to Distributor</DropdownMenuSubTrigger>
@@ -650,6 +647,7 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
 
 
 
