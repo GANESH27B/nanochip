@@ -19,42 +19,49 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { navItems, useAppNavigation } from './navigation';
+import { useAppNavigation } from './navigation';
 import Link from 'next/link';
 import { Logo } from '../logo';
 import { ThemeSwitcher } from '../theme-switcher';
+import { cn } from '@/lib/utils';
 
 export default function AppHeader() {
   const { searchTerm, setSearchTerm } = useSearch();
   const { isMobile } = useSidebar();
   const pathname = usePathname();
-  const { handleLogout, userName } = useAppNavigation();
+  const { handleLogout, userName, visibleNavItems } = useAppNavigation();
 
   const showSearch = ['/shipments', '/alerts', '/batches', '/raw-materials', '/needed-drugs'].includes(pathname);
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
-  const getPageTitle = () => {
-    for (const role in navItems) {
-      const items = navItems[role as keyof typeof navItems];
-      const item = items.find(i => i.href === pathname);
-      if (item) return item.label;
-    }
-    // Fallbacks for detail pages
-    if (pathname.startsWith('/shipments/')) return 'Shipment Details';
-    if (pathname.startsWith('/profile')) return 'My Profile';
-    return 'Dashboard';
-  }
-
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
       <div className="flex items-center gap-4">
-        {isMobile && <Logo className="h-6" />}
-        <SidebarTrigger />
-        <h1 className="hidden text-lg font-semibold md:block">{getPageTitle()}</h1>
+         <div className="flex items-center gap-4">
+            <Link href="/dashboard" className="flex items-center gap-2">
+                <Logo />
+            </Link>
+        </div>
       </div>
+      
+      <nav className="hidden items-center gap-4 text-sm font-medium md:flex">
+         {visibleNavItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "transition-colors hover:text-foreground/80",
+                pathname === item.href ? "text-foreground" : "text-foreground/60"
+              )}
+            >
+              {item.label}
+            </Link>
+          ))}
+      </nav>
 
-      <div className="ml-auto flex items-center gap-4">
-        {showSearch && (
+      <div className="ml-auto flex items-center gap-2">
+         {isMobile && <SidebarTrigger />}
+        {showSearch && !isMobile && (
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input

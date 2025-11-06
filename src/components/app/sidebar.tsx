@@ -15,11 +15,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { usePathname } from 'next/navigation';
 import { useAppNavigation } from './navigation';
+import { useSidebar } from '../ui/sidebar';
 
 export default function AppSidebar() {
   const { userRole, userName, visibleNavItems } = useAppNavigation();
+  const { isMobile } = useSidebar();
   const pathname = usePathname();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+
+  if (!isMobile) {
+    return null;
+  }
 
   return (
     <Sidebar>
