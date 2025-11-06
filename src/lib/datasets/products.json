@@ -1,0 +1,53 @@
+[
+    {
+        "id": "PROD-1722285116719",
+        "name": "Aspirin 81mg",
+        "description": "Low-dose aspirin for cardiovascular health.",
+        "dosageForm": "Tablet",
+        "routeOfAdministration": "Oral",
+        "activeIngredients": "Acetylsalicylic Acid 81mg",
+        "manufacturerInfo": "Alice Manufacturer",
+        "processDescription": "Standard tablet pressing process.",
+        "stabilityData": "36-month shelf life at room temperature.",
+        "clinicalSummary": "Proven efficacy in secondary prevention of cardiovascular events.",
+        "labelingDetails": "Standard OTC labeling.",
+        "applicantInfo": "Alice Manufacturer",
+        "ideaStatus": "Approved",
+        "productStatus": "Pending",
+        "submissionDate": "2024-07-20T10:00:00Z"
+    },
+    {
+        "id": "PROD-1722285229876",
+        "name": "Ibuprofen 200mg",
+        "description": "Nonsteroidal anti-inflammatory drug (NSAID) for pain relief.",
+        "dosageForm": "Capsule",
+        "routeOfAdministration": "Oral",
+        "activeIngredients": "Ibuprofen 200mg",
+        "manufacturerInfo": "Alice Manufacturer",
+        "processDescription": "Standard capsule filling process.",
+        "stabilityData": "24-month shelf life at room temperature.",
+        "clinicalSummary": "Effective for relief of minor aches and pains.",
+        "labelingDetails": "Standard OTC labeling.",
+        "applicantInfo": "Alice Manufacturer",
+        "ideaStatus": "Not Submitted",
+        "productStatus": "Not Submitted",
+        "submissionDate": "2024-07-22T11:30:00Z"
+    },
+    {
+        "id": "PROD-1722285331245",
+        "name": "Metformin 500mg",
+        "description": "Oral antihyperglycemic drug for the management of type 2 diabetes.",
+        "dosageForm": "Tablet",
+        "routeOfAdministration": "Oral",
+        "activeIngredients": "Metformin Hydrochloride 500mg",
+        "manufacturerInfo": "Another Manufacturer Inc.",
+        "processDescription": "Wet granulation and tablet compression.",
+        "stabilityData": "48-month shelf life under controlled conditions.",
+        "clinicalSummary": "Well-established first-line treatment for type 2 diabetes.",
+        "labelingDetails": "Prescription-only labeling with black box warning.",
+        "applicantInfo": "Another Manufacturer Inc.",
+        "ideaStatus": "Pending",
+        "productStatus": "Not Submitted",
+        "submissionDate": "2024-07-29T09:00:00Z"
+    }
+]

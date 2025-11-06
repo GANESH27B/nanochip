@@ -123,4 +123,5 @@ export type Product = {
   applicantInfo?: string;
   ideaStatus: ApprovalStatus;
   productStatus: ApprovalStatus;
+  submissionDate: string;
 };

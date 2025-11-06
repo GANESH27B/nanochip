@@ -1,4 +1,4 @@
-import type { Shipment, Alert, User, Role, TelemetryData, Batch, Conversation, ChatMessage, Drug, Transaction, ShipmentHistoryEntry, RawMaterial } from './types';
+import type { Shipment, Alert, User, Role, TelemetryData, Batch, Conversation, ChatMessage, Drug, Transaction, ShipmentHistoryEntry, RawMaterial, Product } from './types';
 
 import usersData from './datasets/users.json';
 import shipmentsData from './datasets/shipments.json';
@@ -9,6 +9,7 @@ import chatMessagesData from './datasets/chat-messages.json';
 import neededDrugsData from './datasets/needed-drugs.json';
 import transactionsData from './datasets/transactions.json';
 import rawMaterialsData from './datasets/raw-materials.json';
+import productsData from './datasets/products.json';
 
 
 export const users: Record<string, User> = usersData;
@@ -40,6 +41,7 @@ export const chatMessages: ChatMessage[] = chatMessagesData;
 export const neededDrugs: Drug[] = neededDrugsData;
 export const transactions: Transaction[] = transactionsData;
 export const rawMaterials: RawMaterial[] = rawMaterialsData;
+export const products: Product[] = productsData;
 
 
 const generateRandomValue = (base: number, range: number, factor: number) => {
