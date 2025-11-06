@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,7 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { neededDrugs as initialNeededDrugs } from '@/lib/data';
-import type { Drug } from '@/lib/types';
+import type { Drug, Role } from '@/lib/types';
 
 type SortKey = keyof Drug | '';
 type SortDirection = 'asc' | 'desc';
@@ -41,8 +41,16 @@ export default function NeededDrugsPage() {
   const [selectedDrugName, setSelectedDrugName] = useState('');
   const [filterTerm, setFilterTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: SortDirection }>({ key: 'priority', direction: 'desc' });
+  const [userRole, setUserRole] = useState<Role | null>(null);
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole') as Role;
+    if (role) {
+      setUserRole(role);
+    }
+  }, []);
   
   const handleOrderSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -162,12 +170,14 @@ export default function NeededDrugsPage() {
                 onChange={(e) => setFilterTerm(e.target.value)}
                 className="w-full sm:w-auto"
               />
-              <Button size="sm" className="h-9 gap-1 w-full sm:w-auto" onClick={handleNewOrderClick}>
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  New Order
-                </span>
-              </Button>
+              {userRole === 'Manufacturer' && (
+                <Button size="sm" className="h-9 gap-1 w-full sm:w-auto" onClick={handleNewOrderClick}>
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    New Order
+                  </span>
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent>
@@ -197,10 +207,12 @@ export default function NeededDrugsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" className="gap-1" onClick={() => handleOrderNowClick(drug.name)}>
-                        <ShoppingCart className="h-3.5 w-3.5" />
-                        Order Now
-                      </Button>
+                      {userRole === 'Manufacturer' && (
+                        <Button variant="outline" size="sm" className="gap-1" onClick={() => handleOrderNowClick(drug.name)}>
+                          <ShoppingCart className="h-3.5 w-3.5" />
+                          Order Now
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
