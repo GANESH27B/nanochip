@@ -45,7 +45,9 @@ type Product = {
 
 export default function MyProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { toast } = useToast();
 
   const handleAddProduct = (event: React.FormEvent<HTMLFormElement>) => {
@@ -67,145 +69,192 @@ export default function MyProductsPage() {
     };
 
     setProducts(prev => [...prev, newProduct]);
-    setIsDialogOpen(false);
+    setIsAddDialogOpen(false);
     toast({
       title: 'Product Added',
       description: `${newProduct.name} has been added to your products.`,
     });
   };
 
+  const handleViewDetails = (product: Product) => {
+    setSelectedProduct(product);
+    setIsDetailDialogOpen(true);
+  };
+  
+  const DetailItem = ({ label, value }: { label: string, value?: string }) => (
+    value ? (
+        <div className="grid grid-cols-3 gap-2 py-2 border-b">
+            <dt className="font-semibold text-muted-foreground col-span-1">{label}</dt>
+            <dd className="col-span-2">{value}</dd>
+        </div>
+    ) : null
+  );
+
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>My Products</CardTitle>
-            <CardDescription>
-              Manage your product listings and inventory.
-            </CardDescription>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="gap-1">
-                <PlusCircle className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  New Product
-                </span>
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <form onSubmit={handleAddProduct}>
-                <DialogHeader>
-                  <DialogTitle>Add New Product</DialogTitle>
-                  <DialogDescription>
-                    Fill in the details to add a new product to your catalog.
-                  </DialogDescription>
-                </DialogHeader>
-                <ScrollArea className="h-[60vh] p-1">
-                <div className="grid gap-4 py-4 px-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="product-name">Product Name (Brand & Generic)</Label>
-                    <Input id="product-name" name="product-name" required />
-                  </div>
-                   <div className="grid gap-2">
-                    <Label htmlFor="product-description">Description</Label>
-                    <Textarea id="product-description" name="product-description" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="dosage-form">Dosage Form and Strength</Label>
-                    <Input id="dosage-form" name="dosage-form" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="route-of-administration">Route of Administration</Label>
-                    <Input id="route-of-administration" name="route-of-administration" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="active-ingredients">Active Ingredient(s) and Composition</Label>
-                    <Textarea id="active-ingredients" name="active-ingredients" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="manufacturer-info">Manufacturer Name & Address</Label>
-                    <Textarea id="manufacturer-info" name="manufacturer-info" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="process-description">Manufacturing Process Description</Label>
-                    <Textarea id="process-description" name="process-description" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="stability-data">Stability Data and Shelf Life</Label>
-                    <Input id="stability-data" name="stability-data" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="clinical-summary">Clinical Study Summary (Safety & Efficacy Data)</Label>
-                    <Textarea id="clinical-summary" name="clinical-summary" required />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="labeling-details">Labeling and Packaging Details</Label>
-                    <Textarea id="labeling-details" name="labeling-details" required />
-                  </div>
-                   <div className="grid gap-2">
-                    <Label htmlFor="applicant-info">Applicant / Company Information</Label>
-                    <Input id="applicant-info" name="applicant-info" required />
-                  </div>
-                </div>
-                </ScrollArea>
-                <DialogFooter className="pt-4 border-t">
-                  <Button type="submit">Add Product</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          {products.length === 0 ? (
-            <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm h-96">
-              <div className="flex flex-col items-center gap-1 text-center">
-                <Package className="h-12 w-12 text-muted-foreground" />
-                <h3 className="text-2xl font-bold tracking-tight">
-                  You have no products yet.
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Start by adding a new product to your inventory.
-                </p>
-              </div>
+    <>
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>My Products</CardTitle>
+              <CardDescription>
+                Manage your product listings and inventory.
+              </CardDescription>
             </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product Name</TableHead>
-                  <TableHead>Dosage Form</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products.map((product) => (
-                  <TableRow key={product.id}>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.dosageForm}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="gap-1">
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    New Product
+                  </span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <form onSubmit={handleAddProduct}>
+                  <DialogHeader>
+                    <DialogTitle>Add New Product</DialogTitle>
+                    <DialogDescription>
+                      Fill in the details to add a new product to your catalog.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <ScrollArea className="h-[60vh] p-1">
+                  <div className="grid gap-4 py-4 px-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="product-name">Product Name (Brand & Generic)</Label>
+                      <Input id="product-name" name="product-name" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="product-description">Description</Label>
+                      <Textarea id="product-description" name="product-description" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="dosage-form">Dosage Form and Strength</Label>
+                      <Input id="dosage-form" name="dosage-form" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="route-of-administration">Route of Administration</Label>
+                      <Input id="route-of-administration" name="route-of-administration" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="active-ingredients">Active Ingredient(s) and Composition</Label>
+                      <Textarea id="active-ingredients" name="active-ingredients" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="manufacturer-info">Manufacturer Name & Address</Label>
+                      <Textarea id="manufacturer-info" name="manufacturer-info" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="process-description">Manufacturing Process Description</Label>
+                      <Textarea id="process-description" name="process-description" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="stability-data">Stability Data and Shelf Life</Label>
+                      <Input id="stability-data" name="stability-data" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="clinical-summary">Clinical Study Summary (Safety & Efficacy Data)</Label>
+                      <Textarea id="clinical-summary" name="clinical-summary" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="labeling-details">Labeling and Packaging Details</Label>
+                      <Textarea id="labeling-details" name="labeling-details" required />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="applicant-info">Applicant / Company Information</Label>
+                      <Input id="applicant-info" name="applicant-info" required />
+                    </div>
+                  </div>
+                  </ScrollArea>
+                  <DialogFooter className="pt-4 border-t">
+                    <Button type="submit">Add Product</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            {products.length === 0 ? (
+              <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm h-96">
+                <div className="flex flex-col items-center gap-1 text-center">
+                  <Package className="h-12 w-12 text-muted-foreground" />
+                  <h3 className="text-2xl font-bold tracking-tight">
+                    You have no products yet.
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Start by adding a new product to your inventory.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product Name</TableHead>
+                    <TableHead>Dosage Form</TableHead>
+                    <TableHead>
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {products.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-medium">{product.name}</TableCell>
+                      <TableCell>{product.dosageForm}</TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleViewDetails(product)}>
+                                View Details
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      </main>
+
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>Product Details</DialogTitle>
+            <DialogDescription>{selectedProduct?.name}</DialogDescription>
+          </DialogHeader>
+          {selectedProduct && (
+            <ScrollArea className="h-[70vh] p-1">
+                <dl className="px-4 text-sm">
+                    <DetailItem label="Product ID" value={selectedProduct.id} />
+                    <DetailItem label="Description" value={selectedProduct.description} />
+                    <DetailItem label="Dosage Form" value={selectedProduct.dosageForm} />
+                    <DetailItem label="Route of Administration" value={selectedProduct.routeOfAdministration} />
+                    <DetailItem label="Active Ingredients" value={selectedProduct.activeIngredients} />
+                    <DetailItem label="Manufacturer Info" value={selectedProduct.manufacturerInfo} />
+                    <DetailItem label="Manufacturing Process" value={selectedProduct.processDescription} />
+                    <DetailItem label="Stability Data" value={selectedProduct.stabilityData} />
+                    <DetailItem label="Clinical Summary" value={selectedProduct.clinicalSummary} />
+                    <DetailItem label="Labeling Details" value={selectedProduct.labelingDetails} />
+                    <DetailItem label="Applicant Info" value={selectedProduct.applicantInfo} />
+                </dl>
+            </ScrollArea>
           )}
-        </CardContent>
-      </Card>
-    </main>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDetailDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
