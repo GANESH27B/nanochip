@@ -5,8 +5,9 @@ export default function SignUpPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-md animate-fade-in-up">
-        <div className="mb-8 flex justify-center">
+        <div className="mb-8 flex justify-center text-center flex-col items-center gap-2">
           <Logo />
+           <p className="text-muted-foreground">Take it easy</p>
         </div>
         <SignUpForm />
       </div>
