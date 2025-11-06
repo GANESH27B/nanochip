@@ -1,10 +1,9 @@
-
 'use client';
 
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { shipments as initialShipments, users } from '@/lib/data';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, use } from 'react';
 import type { Shipment, User } from '@/lib/types';
 import dynamic from 'next/dynamic';
 
@@ -22,7 +21,8 @@ const statusColors: { [key: string]: string } = {
 
 
 export default function TrackShipmentPage({ params }: { params: { id: string } }) {
-  const id = params.id;
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
   const [shipments, setShipments] = useState(initialShipments);
   const [shipment, setShipment] = useState<Shipment | undefined>(initialShipments.find(s => s.batchId === id));
 
