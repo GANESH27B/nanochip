@@ -6,7 +6,6 @@ import { useMemo, useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { MoreHorizontal, PlusCircle, ChevronDown } from 'lucide-react';
-import AppHeader from '@/components/app/header';
 import {
   Table,
   TableBody,
@@ -239,215 +238,214 @@ export default function ShipmentsPage() {
 
   return (
     <>
-      <div className="flex min-h-screen w-full flex-col">
-        <AppHeader title="Shipments" />
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-         {userRole === 'Manufacturer' && (
-            <Card className="animate-fade-in-up">
-              <CardHeader>
-                <CardTitle>Open Drug Requests</CardTitle>
-                <CardDescription>
-                  Drug orders from other users that need to be fulfilled.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Drug Name</TableHead>
-                      <TableHead>Requested By</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead className="text-right">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {neededDrugs.map((drug) => (
-                      <TableRow key={drug.id}>
-                        <TableCell className="font-medium">{drug.name}</TableCell>
-                        <TableCell>{drug.requestedBy}</TableCell>
-                        <TableCell>
-                           <Badge className={`border-transparent ${priorityStyles[drug.priority]}`}>
-                            {drug.priority}
-                           </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => openCreateShipmentDialog(undefined, drug.requestedBy)}
-                          >
-                            Create Shipment
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          )}
-
+      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+       {userRole === 'Manufacturer' && (
           <Card className="animate-fade-in-up">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>All Shipments</CardTitle>
-                <CardDescription>
-                  Track and manage all pharmaceutical shipments across the supply chain.
-                </CardDescription>
-              </div>
-              {(userRole === 'Manufacturer' || userRole === 'Ingredient Supplier' || userRole === 'Distributor') && (
-                <Button size="sm" className="gap-1" onClick={() => openCreateShipmentDialog()}>
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    New Shipment
-                  </span>
-                </Button>
-              )}
+            <CardHeader>
+              <CardTitle>Open Drug Requests</CardTitle>
+              <CardDescription>
+                Drug orders from other users that need to be fulfilled.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[50px] p-2"></TableHead>
-                    <TableHead>Batch/Lot ID</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="hidden md:table-cell">Current Holder</TableHead>
-                    <TableHead className="hidden md:table-cell">Route</TableHead>
-                    <TableHead className="hidden md:table-cell">Last Updated</TableHead>
-                    <TableHead className="text-right">Alerts</TableHead>
-                    <TableHead>
-                      <span className="sr-only">Actions</span>
-                    </TableHead>
+                    <TableHead>Drug Name</TableHead>
+                    <TableHead>Requested By</TableHead>
+                    <TableHead>Priority</TableHead>
+                    <TableHead className="text-right">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredShipments.map((shipment, index) => {
-                     const isCurrentUserHolder = shipment.currentHolder === currentUser?.name;
-                     const currentHolderUser = Object.values(users).find(u => u.name === shipment.currentHolder);
-                     const canShip = isCurrentUserHolder && (shipment.status === 'Pending' || (shipment.status === 'Delivered' && currentHolderUser?.role !== 'Pharmacy' && currentHolderUser?.role !== 'Patient'));
-                     const nextPossibleUsers = canShip && currentHolderUser ? getNextStageUsers(currentHolderUser.role) : [];
-                    return (
-                    <Collapsible asChild key={`${shipment.batchId}-${index}`}>
-                      <TableRow className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
-                          <TableCell className="p-2">
-                            <CollapsibleTrigger asChild>
-                              <Button variant="ghost" size="sm" className='w-full'>
-                                <ChevronDown className="h-4 w-4" />
-                                <span className="sr-only">Toggle history</span>
-                              </Button>
-                            </CollapsibleTrigger>
-                          </TableCell>
-                          <TableCell className="font-medium">{shipment.batchId}</TableCell>
-                          <TableCell>
-                            <Badge
-                              className={`border-transparent ${statusStyles[shipment.status]}`}
-                            >
-                              {shipment.status.replace('-', ' ')}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
-                          <TableCell className="hidden md:table-cell">{shipment.startingPoint} to {shipment.endingPoint}</TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            <ClientOnlyDate isoDate={shipment.lastUpdate} />
-                          </TableCell>
-                          <TableCell className="text-right">{shipment.alerts}</TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button aria-haspopup="true" size="icon" variant="ghost">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Toggle menu</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => router.push(`/shipments/track/${shipment.batchId}`)}>
-                                  Track on Map
-                                </DropdownMenuItem>
-                                
-                                {canShip && nextPossibleUsers.length > 0 && (
-                                  <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger>Ship to Next</DropdownMenuSubTrigger>
-                                    <DropdownMenuPortal>
-                                      <DropdownMenuSubContent>
-                                        <DropdownMenuLabel>Select Recipient</DropdownMenuLabel>
-                                        {nextPossibleUsers.map(user => (
-                                          <DropdownMenuItem key={user.id} onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit', user.name)}>
-                                            {user.name} ({user.role})
-                                          </DropdownMenuItem>
-                                        ))}
-                                      </DropdownMenuSubContent>
-                                    </DropdownMenuPortal>
-                                  </DropdownMenuSub>
-                                )}
-                                
-                                {shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location && (
-                                    <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Delivered', currentUser.name)}>
-                                        Mark as Received
-                                    </DropdownMenuItem>
-                                )}
-
-                                {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
-                                  <>
-                                    <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
-                                      Approve Batch
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Pending')}>
-                                      Reject Batch
-                                    </DropdownMenuItem>
-                                  </>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        <CollapsibleContent asChild>
-                            <tr className="bg-muted/50">
-                                <td colSpan={8} className="p-0">
-                                    <div className="p-4">
-                                    <h4 className="font-semibold mb-2">Shipment History</h4>
-                                    <Table>
-                                        <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead>Holder</TableHead>
-                                            <TableHead>Timestamp</TableHead>
-                                        </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                        {shipment.history?.map((entry, i) => (
-                                            <TableRow key={i} className="border-b-0">
-                                            <TableCell>
-                                                <Badge
-                                                variant="outline"
-                                                className={statusStyles[entry.status]}
-                                                >
-                                                {entry.status.replace('-', ' ')}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>{entry.holder}</TableCell>
-                                            <TableCell>
-                                                <ClientOnlyDate isoDate={entry.timestamp} />
-                                            </TableCell>
-                                            </TableRow>
-                                        ))}
-                                        </TableBody>
-                                    </Table>
-                                    </div>
-                                </td>
-                            </tr>
-                        </CollapsibleContent>
-                      </TableRow>
-                    </Collapsible>
-                  )})}
+                  {neededDrugs.map((drug) => (
+                    <TableRow key={drug.id}>
+                      <TableCell className="font-medium">{drug.name}</TableCell>
+                      <TableCell>{drug.requestedBy}</TableCell>
+                      <TableCell>
+                         <Badge className={`border-transparent ${priorityStyles[drug.priority]}`}>
+                          {drug.priority}
+                         </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => openCreateShipmentDialog(undefined, drug.requestedBy)}
+                        >
+                          Create Shipment
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </CardContent>
           </Card>
-        </main>
-      </div>
+        )}
+
+        <Card className="animate-fade-in-up">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>All Shipments</CardTitle>
+              <CardDescription>
+                Track and manage all pharmaceutical shipments across the supply chain.
+              </CardDescription>
+            </div>
+            {(userRole === 'Manufacturer' || userRole === 'Ingredient Supplier' || userRole === 'Distributor') && (
+              <Button size="sm" className="gap-1" onClick={() => openCreateShipmentDialog()}>
+                <PlusCircle className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  New Shipment
+                </span>
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[50px] p-2"></TableHead>
+                  <TableHead>Batch/Lot ID</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden md:table-cell">Current Holder</TableHead>
+                  <TableHead className="hidden md:table-cell">Route</TableHead>
+                  <TableHead className="hidden md:table-cell">Last Updated</TableHead>
+                  <TableHead className="text-right">Alerts</TableHead>
+                  <TableHead>
+                    <span className="sr-only">Actions</span>
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredShipments.map((shipment, index) => {
+                   const isCurrentUserHolder = shipment.currentHolder === currentUser?.name;
+                   const currentHolderUser = Object.values(users).find(u => u.name === shipment.currentHolder);
+                   const canShip = isCurrentUserHolder && (shipment.status === 'Pending' || (shipment.status === 'Delivered' && currentHolderUser?.role !== 'Pharmacy' && currentHolderUser?.role !== 'Patient'));
+                   const nextPossibleUsers = canShip && currentHolderUser ? getNextStageUsers(currentHolderUser.role) : [];
+                  return (
+                  <Collapsible asChild key={`${shipment.batchId}-${index}`}>
+                    <>
+                      <TableRow className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
+                        <TableCell className="p-2">
+                          <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="sm" className='w-full'>
+                              <ChevronDown className="h-4 w-4" />
+                              <span className="sr-only">Toggle history</span>
+                            </Button>
+                          </CollapsibleTrigger>
+                        </TableCell>
+                        <TableCell className="font-medium">{shipment.batchId}</TableCell>
+                        <TableCell>
+                          <Badge
+                            className={`border-transparent ${statusStyles[shipment.status]}`}
+                          >
+                            {shipment.status.replace('-', ' ')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
+                        <TableCell className="hidden md:table-cell">{shipment.startingPoint} to {shipment.endingPoint}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          <ClientOnlyDate isoDate={shipment.lastUpdate} />
+                        </TableCell>
+                        <TableCell className="text-right">{shipment.alerts}</TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem asChild>
+                                <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => router.push(`/shipments/track/${shipment.batchId}`)}>
+                                Track on Map
+                              </DropdownMenuItem>
+                              
+                              {canShip && nextPossibleUsers.length > 0 && (
+                                <DropdownMenuSub>
+                                  <DropdownMenuSubTrigger>Ship to Next</DropdownMenuSubTrigger>
+                                  <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                      <DropdownMenuLabel>Select Recipient</DropdownMenuLabel>
+                                      {nextPossibleUsers.map(user => (
+                                        <DropdownMenuItem key={user.id} onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit', user.name)}>
+                                          {user.name} ({user.role})
+                                        </DropdownMenuItem>
+                                      ))}
+                                    </DropdownMenuSubContent>
+                                  </DropdownMenuPortal>
+                                </DropdownMenuSub>
+                              )}
+                              
+                              {shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location && (
+                                  <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Delivered', currentUser.name)}>
+                                      Mark as Received
+                                  </DropdownMenuItem>
+                              )}
+
+                              {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
+                                <>
+                                  <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
+                                    Approve Batch
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Pending')}>
+                                    Reject Batch
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                      <CollapsibleContent asChild>
+                          <tr className="bg-muted/50">
+                              <td colSpan={8} className="p-0">
+                                  <div className="p-4">
+                                  <h4 className="font-semibold mb-2">Shipment History</h4>
+                                  <Table>
+                                      <TableHeader>
+                                      <TableRow>
+                                          <TableHead>Status</TableHead>
+                                          <TableHead>Holder</TableHead>
+                                          <TableHead>Timestamp</TableHead>
+                                      </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                      {shipment.history?.map((entry, i) => (
+                                          <TableRow key={i} className="border-b-0">
+                                          <TableCell>
+                                              <Badge
+                                              variant="outline"
+                                              className={statusStyles[entry.status]}
+                                              >
+                                              {entry.status.replace('-', ' ')}
+                                              </Badge>
+                                          </TableCell>
+                                          <TableCell>{entry.holder}</TableCell>
+                                          <TableCell>
+                                              <ClientOnlyDate isoDate={entry.timestamp} />
+                                          </TableCell>
+                                          </TableRow>
+                                      ))}
+                                      </TableBody>
+                                  </Table>
+                                  </div>
+                              </td>
+                          </tr>
+                      </CollapsibleContent>
+                    </>
+                  </Collapsible>
+                )})}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </main>
       <Dialog open={isCreateDialogOpen} onOpenChange={(isOpen) => { setIsCreateDialogOpen(isOpen); if (!isOpen) setPrefillData({}); }}>
         <DialogContent className="sm:max-w-[425px]">
           <form onSubmit={handleCreateShipment}>

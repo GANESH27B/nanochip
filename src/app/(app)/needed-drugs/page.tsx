@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -152,8 +151,7 @@ export default function NeededDrugsPage() {
   );
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <AppHeader title="Needed Drugs" />
+    <>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <Card>
           <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -301,6 +299,6 @@ export default function NeededDrugsPage() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

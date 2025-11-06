@@ -15,32 +15,30 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { usePathname } from 'next/navigation';
 import { useAppNavigation } from './navigation';
-import { useSidebar } from '../ui/sidebar';
+import { Button } from '../ui/button';
+import { PanelLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function AppSidebar() {
   const { userRole, userName, visibleNavItems } = useAppNavigation();
-  const { isMobile } = useSidebar();
   const pathname = usePathname();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
-  if (!isMobile) {
-    return null;
-  }
-
   return (
     <Sidebar>
-      <SidebarHeader className="border-b">
-        <div className="flex w-full items-center justify-between p-4">
-          <Logo />
-        </div>
+      <SidebarHeader>
+        <Link href="/dashboard" className="flex items-center gap-2">
+            <Logo />
+        </Link>
       </SidebarHeader>
-      <SidebarContent className="flex-1 p-4">
+      <SidebarContent>
         <SidebarMenu>
           {visibleNavItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
                 isActive={pathname === item.href}
+                tooltip={item.label}
               >
                 <a href={item.href}>
                   <item.icon />
@@ -51,16 +49,16 @@ export default function AppSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarSeparator />
-      <SidebarFooter className="p-4">
-        <div className="flex items-center gap-3">
+      <SidebarFooter>
+        <SidebarSeparator />
+         <div className="flex items-center gap-3 p-2">
           <Avatar className="h-8 w-8">
             <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" />
             <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="text-left">
-            <p className="text-sm font-medium">{userName}</p>
-            <p className="text-xs text-muted-foreground">{userRole}</p>
+          <div className="text-left overflow-hidden whitespace-nowrap">
+            <p className="text-sm font-medium truncate">{userName}</p>
+            <p className="text-xs text-muted-foreground truncate">{userRole}</p>
           </div>
         </div>
       </SidebarFooter>

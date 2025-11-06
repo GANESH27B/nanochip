@@ -1,6 +1,5 @@
 'use client';
 
-import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -25,53 +24,50 @@ export default function MyPrescriptionsPage() {
     const router = useRouter();
 
     return (
-        <div className="flex min-h-screen w-full flex-col">
-            <AppHeader title="My Prescriptions" />
-            <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Welcome, Frank!</CardTitle>
-                        <CardDescription>
-                            Here is a summary of your current and past prescriptions.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Prescription (Batch ID)</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Last Update</TableHead>
-                                    <TableHead className="text-right">Action</TableHead>
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Welcome, Frank!</CardTitle>
+                    <CardDescription>
+                        Here is a summary of your current and past prescriptions.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Prescription (Batch ID)</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Last Update</TableHead>
+                                <TableHead className="text-right">Action</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {patientPrescriptions.map((shipment) => (
+                                <TableRow key={shipment.batchId}>
+                                    <TableCell className="font-medium">{shipment.batchId}</TableCell>
+                                    <TableCell>
+                                        <Badge className={`border-transparent ${statusStyles[shipment.status]}`}>
+                                            {shipment.status.replace('-', ' ')}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>{format(new Date(shipment.lastUpdate), 'PPpp')}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => router.push(`/shipments/track/${shipment.batchId}`)}
+                                        >
+                                            <Truck className="mr-2 h-4 w-4" />
+                                            Track Shipment
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {patientPrescriptions.map((shipment) => (
-                                    <TableRow key={shipment.batchId}>
-                                        <TableCell className="font-medium">{shipment.batchId}</TableCell>
-                                        <TableCell>
-                                            <Badge className={`border-transparent ${statusStyles[shipment.status]}`}>
-                                                {shipment.status.replace('-', ' ')}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>{format(new Date(shipment.lastUpdate), 'PPpp')}</TableCell>
-                                        <TableCell className="text-right">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => router.push(`/shipments/track/${shipment.batchId}`)}
-                                            >
-                                                <Truck className="mr-2 h-4 w-4" />
-                                                Track Shipment
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </main>
-        </div>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </main>
     );
 }

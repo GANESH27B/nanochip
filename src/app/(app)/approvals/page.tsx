@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { MoreHorizontal, Check, X } from 'lucide-react';
-import AppHeader from '@/components/app/header';
 import {
   Table,
   TableBody,
@@ -60,70 +59,67 @@ export default function ApprovalsPage() {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <AppHeader title="Shipment Approvals" />
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Awaiting FDA Review</CardTitle>
-            <CardDescription>
-              These shipments require regulatory approval before proceeding.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Batch ID</TableHead>
-                  <TableHead>Current Holder</TableHead>
-                  <TableHead className="hidden md:table-cell">Created At</TableHead>
-                  <TableHead className="text-right">Alerts</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredShipments.length > 0 ? (
-                  filteredShipments.map((shipment) => (
-                    <TableRow key={shipment.batchId}>
-                      <TableCell className="font-medium">{shipment.batchId}</TableCell>
-                      <TableCell>{shipment.currentHolder}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
-                      </TableCell>
-                      <TableCell className="text-right">{shipment.alerts}</TableCell>
-                      <TableCell>
-                        <div className="flex justify-end gap-2">
-                           <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => router.push(`/shipments/${shipment.batchId}`)}
-                            >
-                              View Details
-                            </Button>
-                           <Button size="sm" onClick={() => handleUpdateStatus(shipment.batchId, 'Delivered')}>
-                                <Check className="mr-2 h-4 w-4" /> Approve
-                            </Button>
-                           <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
-                               <X className="mr-2 h-4 w-4" /> Reject
-                           </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      No shipments currently awaiting approval.
+    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Awaiting FDA Review</CardTitle>
+          <CardDescription>
+            These shipments require regulatory approval before proceeding.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Batch ID</TableHead>
+                <TableHead>Current Holder</TableHead>
+                <TableHead className="hidden md:table-cell">Created At</TableHead>
+                <TableHead className="text-right">Alerts</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredShipments.length > 0 ? (
+                filteredShipments.map((shipment) => (
+                  <TableRow key={shipment.batchId}>
+                    <TableCell className="font-medium">{shipment.batchId}</TableCell>
+                    <TableCell>{shipment.currentHolder}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {format(new Date(shipment.createdAt), 'dd/MM/yyyy')}
+                    </TableCell>
+                    <TableCell className="text-right">{shipment.alerts}</TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-2">
+                         <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => router.push(`/shipments/${shipment.batchId}`)}
+                          >
+                            View Details
+                          </Button>
+                         <Button size="sm" onClick={() => handleUpdateStatus(shipment.batchId, 'Delivered')}>
+                              <Check className="mr-2 h-4 w-4" /> Approve
+                          </Button>
+                         <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
+                             <X className="mr-2 h-4 w-4" /> Reject
+                         </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    No shipments currently awaiting approval.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </main>
   );
 }

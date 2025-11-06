@@ -1,6 +1,5 @@
 'use client';
 
-import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { shipments as initialShipments, users } from '@/lib/data';
 import { useMemo, useState, useEffect } from 'react';
@@ -66,52 +65,46 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
 
   if (!shipment) {
     return (
-      <div className="flex min-h-screen w-full flex-col">
-        <AppHeader title="Loading Shipment..." />
-        <main className="flex flex-1 flex-col items-center justify-center gap-4 p-4 md:gap-8 md:p-8">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </main>
-      </div>
+      <main className="flex flex-1 flex-col items-center justify-center gap-4 p-4 md:gap-8 md:p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </main>
     );
   }
   
   const statusColor = statusColors[shipment.status] || 'text-gray-500';
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <AppHeader title={`Tracking: ${shipment.batchId}`} />
-      <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 flex">
-        <Card className="flex-1">
-           <CardHeader className="flex flex-col sm:flex-row items-start justify-between gap-4">
-            <div>
-              <CardTitle>Live Shipment Tracking</CardTitle>
-              <CardDescription>
-                Visualizing the route from {shipment.startingPoint} to {shipment.endingPoint}.
-              </CardDescription>
+    <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 flex">
+      <Card className="flex-1">
+         <CardHeader className="flex flex-col sm:flex-row items-start justify-between gap-4">
+          <div>
+            <CardTitle>Live Shipment Tracking</CardTitle>
+            <CardDescription>
+              Visualizing the route from {shipment.startingPoint} to {shipment.endingPoint}.
+            </CardDescription>
+          </div>
+           <div className="flex flex-col sm:flex-row items-center gap-4">
+               <div className="bg-background/80 p-4 rounded-md shadow-lg text-left w-full sm:w-auto">
+                    <h3 className="font-bold text-lg">{shipment.batchId}</h3>
+                    <p className="text-sm">Status: <span className={`font-semibold ${statusColor}`}>{shipment.status.replace('-', ' ')}</span></p>
+                    <p className="text-sm text-muted-foreground">{shipment.currentHolder}</p>
+                </div>
+                <Button onClick={handleOpenGoogleMaps} className="w-full sm:w-auto">
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Open in Google Maps
+                </Button>
             </div>
-             <div className="flex flex-col sm:flex-row items-center gap-4">
-                 <div className="bg-background/80 p-4 rounded-md shadow-lg text-left w-full sm:w-auto">
-                      <h3 className="font-bold text-lg">{shipment.batchId}</h3>
-                      <p className="text-sm">Status: <span className={`font-semibold ${statusColor}`}>{shipment.status.replace('-', ' ')}</span></p>
-                      <p className="text-sm text-muted-foreground">{shipment.currentHolder}</p>
-                  </div>
-                  <Button onClick={handleOpenGoogleMaps} className="w-full sm:w-auto">
-                      <MapPin className="mr-2 h-4 w-4" />
-                      Open in Google Maps
-                  </Button>
-              </div>
-          </CardHeader>
-          <CardContent className="h-[calc(100%-120px)]">
-            {startUser && endUser && startUser.latitude && startUser.longitude && endUser.latitude && endUser.longitude && (
-              <GoogleShipmentMap
-                origin={{ lat: startUser.latitude, lng: startUser.longitude }}
-                destination={{ lat: endUser.latitude, lng: endUser.longitude }}
-                status={shipment.status}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </main>
-    </div>
+        </CardHeader>
+        <CardContent className="h-[calc(100%-120px)]">
+          {startUser && endUser && startUser.latitude && startUser.longitude && endUser.latitude && endUser.longitude && (
+            <GoogleShipmentMap
+              origin={{ lat: startUser.latitude, lng: startUser.longitude }}
+              destination={{ lat: endUser.latitude, lng: endUser.longitude }}
+              status={shipment.status}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </main>
   );
 }

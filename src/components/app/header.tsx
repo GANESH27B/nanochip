@@ -25,26 +25,30 @@ import { Logo } from '../logo';
 import { ThemeSwitcher } from '../theme-switcher';
 import { cn } from '@/lib/utils';
 
-export default function AppHeader() {
+export default function AppHeader({ title }: { title?: string }) {
   const { searchTerm, setSearchTerm } = useSearch();
   const { isMobile } = useSidebar();
   const pathname = usePathname();
-  const { handleLogout, userName, visibleNavItems } = useAppNavigation();
+  const { handleLogout, userName, visibleNavItems, userRole, user } = useAppNavigation();
 
   const showSearch = ['/shipments', '/alerts', '/batches', '/raw-materials', '/needed-drugs'].includes(pathname);
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-      <div className="flex items-center gap-4">
-         <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
+         {isMobile && <SidebarTrigger />}
+         <div className="hidden md:flex items-center gap-4">
             <Link href="/dashboard" className="flex items-center gap-2">
                 <Logo />
             </Link>
-        </div>
+          </div>
+          <div className='hidden md:block'>
+            <h1 className="text-xl font-semibold">{title}</h1>
+          </div>
       </div>
       
-      <nav className="hidden items-center gap-4 text-sm font-medium md:flex">
+      <nav className="hidden items-center gap-4 text-sm font-medium md:flex ml-6">
          {visibleNavItems.map((item) => (
             <Link
               key={item.href}
@@ -60,7 +64,6 @@ export default function AppHeader() {
       </nav>
 
       <div className="ml-auto flex items-center gap-2">
-         {isMobile && <SidebarTrigger />}
         {showSearch && !isMobile && (
           <div className="relative w-full max-w-sm">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -80,10 +83,16 @@ export default function AppHeader() {
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" />
-              <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-            </Avatar>
+            <Button variant="ghost" className='gap-2 p-2 h-10'>
+              <Avatar className="h-8 w-8 cursor-pointer">
+                <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" />
+                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div className='hidden md:flex flex-col items-start'>
+                  <span className='font-semibold text-sm'>{userName}</span>
+                  <span className='text-xs text-muted-foreground'>{userRole}</span>
+              </div>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>

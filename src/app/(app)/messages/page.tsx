@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import AppHeader from '@/components/app/header';
 import {
   conversations as initialConversations,
   chatMessages as initialChatMessages,
@@ -88,8 +87,7 @@ export default function MessagesPage() {
   const currentMessages = messages.filter((m) => m.conversationId === selectedConversation?.id);
 
   return (
-    <div className="flex h-screen w-full flex-col bg-background">
-      <AppHeader title="Messages" />
+    <div className="flex h-[calc(100vh-4rem)] w-full flex-col bg-background">
       <div className="flex flex-1 overflow-hidden">
         {/* Conversations Sidebar */}
         <aside className="w-1/4 min-w-[250px] max-w-[350px] border-r">
