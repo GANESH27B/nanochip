@@ -105,9 +105,7 @@ export default function ShipmentsPage() {
   }, []);
 
   const combinedLogistics = useMemo(() => {
-    const manufacturerBatches = allBatches
-      .filter(b => b.status === 'Ready-for-Shipment')
-      .map(b => ({
+    const manufacturerBatches = allBatches.map(b => ({
         batchId: b.id,
         productName: b.drugName,
         status: b.status,
@@ -654,4 +652,5 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
 
