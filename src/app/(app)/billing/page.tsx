@@ -33,6 +33,7 @@ export default function BillingPage() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [activeTab, setActiveTab] = useState('card');
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     const role = localStorage.getItem('userRole') as Role;
@@ -43,6 +44,7 @@ export default function BillingPage() {
     if (storedInvoice) {
       setInvoiceItems(JSON.parse(storedInvoice));
     }
+    setIsClient(true);
   }, []);
 
   const stopCamera = useCallback(() => {
@@ -173,6 +175,9 @@ export default function BillingPage() {
     return transactions;
   }, [userRole, transactions]);
 
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

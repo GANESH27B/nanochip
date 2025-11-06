@@ -57,12 +57,15 @@ const actionCategories = [
 
 export default function DashboardPage() {
   const [userRole, setUserRole] = useState<Role | null>(null);
+  const [isClient, setIsClient] = useState(false);
+
 
   useEffect(() => {
     const role = localStorage.getItem('userRole') as Role;
     if (role) {
       setUserRole(role);
     }
+    setIsClient(true);
   }, []);
   
   const carouselImage1 = PlaceHolderImages.find(p => p.id === 'promo-carousel-1');
@@ -112,6 +115,10 @@ export default function DashboardPage() {
       description: `${activeAlerts} low/medium alerts are active.`
     };
   }, [activeAlerts]);
+
+  if (!isClient) {
+    return null;
+  }
 
   if (userRole === 'Manufacturer') {
     return (
