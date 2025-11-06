@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Bell, Search, User, MapPin, ChevronDown, ShoppingCart, Percent, LogOut } from 'lucide-react';
@@ -25,7 +26,7 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-export default function AppHeader({ title }: { title?: string }) {
+export default function AppHeader() {
   const { searchTerm, setSearchTerm } = useSearch();
   const { isMobile } = useSidebar();
   const pathname = usePathname();
@@ -46,7 +47,7 @@ export default function AppHeader({ title }: { title?: string }) {
         </div>
         
         <div className='flex items-center gap-4'>
-           <h1 className="text-xl font-semibold md:text-2xl">{title}</h1>
+           <h1 className="text-xl font-semibold md:text-2xl">Dashboard</h1>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
