@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -128,7 +129,7 @@ export default function MyProductsPage() {
 
   return (
     <>
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <main className="flex flex-1 flex-col gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
@@ -353,3 +354,5 @@ export default function MyProductsPage() {
     </>
   );
 }
+
+    

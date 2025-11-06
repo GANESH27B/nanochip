@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
@@ -25,6 +26,7 @@ import {
     Users,
     Bell,
     AreaChart,
+    ArrowLeft,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -40,6 +42,9 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import MyProductsPage from '@/app/my-products/page';
+import { useRouter } from 'next/navigation';
+
 
 const manufacturerActionCategories = [
     {
@@ -70,60 +75,70 @@ const manufacturerActionCategories = [
 
 const fdaActionCategories = [
     {
+        id: 'dashboard-overview',
         href: '#',
         label: 'Dashboard Overview',
         icon: LayoutGrid,
         description: 'Summary, charts, key metrics',
     },
     {
-        href: '/my-products',
+        id: 'product-management',
+        href: '#',
         label: 'Product Management',
         icon: Package,
         description: 'Add/edit products, basic details',
     },
     {
+        id: 'submission-tracking',
         href: '#',
         label: 'Submission Tracking',
         icon: FileText,
         description: 'FDA forms, status, documents',
     },
     {
+        id: 'clinical-study-data',
         href: '#',
         label: 'Clinical & Study Data',
         icon: Beaker,
         description: 'Test results, safety, efficacy',
     },
     {
+        id: 'manufacturer-info',
         href: '#',
         label: 'Manufacturer Info',
         icon: Factory,
         description: 'Facility, GMP, contact',
     },
     {
+        id: 'labeling-packaging',
         href: '#',
         label: 'Labeling & Packaging',
         icon: Tags,
         description: 'Labels, artwork, inserts',
     },
     {
+        id: 'compliance-certificates',
         href: '#',
         label: 'Compliance & Certificates',
         icon: Shield,
         description: 'GMP, CoA, approvals',
     },
     {
+        id: 'user-management',
         href: '#',
         label: 'User Management',
         icon: Users,
         description: 'Roles, access control',
     },
     {
+        id: 'notifications-alerts',
         href: '/alerts',
         label: 'Notifications & Alerts',
         icon: Bell,
         description: 'Deadlines, updates',
     },
     {
+        id: 'reports-analytics',
         href: '/analytics',
         label: 'Reports & Analytics',
         icon: AreaChart,
@@ -131,9 +146,14 @@ const fdaActionCategories = [
     },
 ];
 
+type ActiveFdaModule = 'dashboard-overview' | 'product-management' | null;
+
+
 export default function DashboardPage() {
   const [userRole, setUserRole] = useState<Role | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [activeFdaModule, setActiveFdaModule] = useState<ActiveFdaModule>('dashboard-overview');
+  const router = useRouter();
 
 
   useEffect(() => {
@@ -191,6 +211,16 @@ export default function DashboardPage() {
       description: `${activeAlerts} low/medium alerts are active.`
     };
   }, [activeAlerts]);
+
+  const handleFdaModuleClick = (moduleId: string, href: string) => {
+    if (moduleId === 'product-management') {
+      setActiveFdaModule('product-management');
+    } else if (moduleId === 'dashboard-overview') {
+      setActiveFdaModule('dashboard-overview');
+    } else if (href !== '#') {
+      router.push(href);
+    }
+  };
 
   if (!isClient) {
     return null;
@@ -275,27 +305,41 @@ export default function DashboardPage() {
   if (userRole === 'FDA') {
      return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle>FDA Regulatory Dashboard</CardTitle>
-                    <CardDescription>A central hub for managing and monitoring pharmaceutical submissions and compliance.</CardDescription>
-                </CardHeader>
-            </Card>
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 animate-fade-in-up">
-                {fdaActionCategories.map((cat, index) => (
-                    <Link href={cat.href} key={index}>
-                         <Card className="h-full hover:shadow-lg transition-shadow">
-                            <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
-                                 <div className="flex items-center justify-center bg-primary/10 rounded-full p-3 mb-2">
-                                    <cat.icon className="h-6 w-6 text-primary" />
-                                 </div>
-                                 <p className="font-semibold">{cat.label}</p>
-                                 <p className="text-xs text-muted-foreground">{cat.description}</p>
-                            </CardContent>
-                        </Card>
-                    </Link>
-                ))}
-            </div>
+            {activeFdaModule !== 'dashboard-overview' && (
+                <Button variant="outline" className="self-start gap-2" onClick={() => setActiveFdaModule('dashboard-overview')}>
+                    <ArrowLeft className="h-4 w-4" />
+                    Back to Dashboard Overview
+                </Button>
+            )}
+
+            {activeFdaModule === 'dashboard-overview' && (
+                <>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>FDA Regulatory Dashboard</CardTitle>
+                        <CardDescription>A central hub for managing and monitoring pharmaceutical submissions and compliance.</CardDescription>
+                    </CardHeader>
+                </Card>
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 animate-fade-in-up">
+                    {fdaActionCategories.map((cat, index) => (
+                        <button key={index} className="w-full h-full text-left" onClick={() => handleFdaModuleClick(cat.id, cat.href)}>
+                             <Card className="h-full hover:shadow-lg transition-shadow">
+                                <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
+                                     <div className="flex items-center justify-center bg-primary/10 rounded-full p-3 mb-2">
+                                        <cat.icon className="h-6 w-6 text-primary" />
+                                     </div>
+                                     <p className="font-semibold">{cat.label}</p>
+                                     <p className="text-xs text-muted-foreground">{cat.description}</p>
+                                </CardContent>
+                            </Card>
+                        </button>
+                    ))}
+                </div>
+                </>
+            )}
+             {activeFdaModule === 'product-management' && (
+                <MyProductsPage />
+            )}
         </main>
      );
   }
@@ -396,3 +440,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+    
