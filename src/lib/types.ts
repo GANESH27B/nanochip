@@ -11,7 +11,7 @@ export interface User {
   longitude?: number;
 }
 
-export type ShipmentStatus = 'Pending' | 'In-Transit' | 'Delivered' | 'Requires-Approval';
+export type ShipmentStatus = 'Pending' | 'In-Transit' | 'Delivered' | 'Requires-Approval' | 'In-Review' | 'Approved' | 'Rejected';
 
 export interface ShipmentHistoryEntry {
   status: ShipmentStatus;
@@ -21,6 +21,9 @@ export interface ShipmentHistoryEntry {
 
 export interface Shipment {
   batchId: string;
+  productName: string;
+  submissionType: 'NDA' | 'ANDA' | 'IND';
+  assignedReviewer: string;
   currentHolder: string;
   status: ShipmentStatus;
   createdAt: string;

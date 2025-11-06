@@ -2,6 +2,9 @@
 [
   {
     "batchId": "B-ASP-12345",
+    "productName": "Aspirin 81mg",
+    "submissionType": "NDA",
+    "assignedReviewer": "Dr. Emily Carter",
     "currentHolder": "Bob Distributor",
     "status": "In-Transit",
     "createdAt": "2024-07-28T09:00:00Z",
@@ -12,6 +15,9 @@
   },
   {
     "batchId": "B-IBU-67890",
+    "productName": "Ibuprofen 200mg",
+    "submissionType": "ANDA",
+    "assignedReviewer": "Dr. Ben Adams",
     "currentHolder": "Alice Manufacturer",
     "status": "Pending",
     "createdAt": "2024-07-27T11:00:00Z",
@@ -22,6 +28,9 @@
   },
   {
     "batchId": "B-AMOX-98765",
+    "productName": "Amoxicillin 500mg",
+    "submissionType": "IND",
+    "assignedReviewer": "Diana Regulator",
     "currentHolder": "Diana Regulator",
     "status": "Requires-Approval",
     "createdAt": "2024-07-26T15:00:00Z",
@@ -32,6 +41,9 @@
   },
   {
     "batchId": "B-LIP-45678",
+    "productName": "Lipitor 20mg",
+    "submissionType": "NDA",
+    "assignedReviewer": "Dr. Emily Carter",
     "currentHolder": "Charlie Pharmacist",
     "status": "Delivered",
     "createdAt": "2024-07-20T08:00:00Z",
@@ -39,5 +51,18 @@
     "lastUpdate": "2024-07-25T16:00:00Z",
     "startingPoint": "Phoenix, AZ",
     "endingPoint": "Denver, CO"
+  },
+   {
+    "batchId": "B-MET-11223",
+    "productName": "Metformin 500mg",
+    "submissionType": "ANDA",
+    "assignedReviewer": "Dr. Ben Adams",
+    "currentHolder": "Diana Regulator",
+    "status": "In-Review",
+    "createdAt": "2024-07-25T10:00:00Z",
+    "alerts": 0,
+    "lastUpdate": "2024-07-30T10:00:00Z",
+    "startingPoint": "San Francisco, CA",
+    "endingPoint": "Boston, MA"
   }
 ]
