@@ -30,7 +30,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <AppHeader title={getTitleForPath(pathname)} />
           <div className="flex flex-1">
             <AppSidebar />
-            <div className="flex-1 bg-muted/20">{children}</div>
+            <main className="flex-1 bg-muted/20">{children}</main>
           </div>
         </div>
       </SearchProvider>
