@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
@@ -90,7 +89,7 @@ const fdaActionCategories = [
     },
     {
         id: 'manufacturer-info',
-        href: '#',
+        href: '/manufacturers',
         label: 'Manufacturer Info',
         icon: Factory,
         description: 'Facility, GMP, contact',
@@ -424,3 +423,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+    
