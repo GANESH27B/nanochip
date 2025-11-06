@@ -86,7 +86,7 @@ export function useAppNavigation() {
   }, [pathname]);
 
   const visibleNavItems = useMemo(() => {
-    if (!isClient || !userRole) return [];
+    if (!isClient || !userRole) return []; // Return empty array if not on client or no role
     if (userRole === 'Patient') return navItems.Patient;
     if (navItems[userRole]) {
       return navItems[userRole as keyof typeof navItems];
