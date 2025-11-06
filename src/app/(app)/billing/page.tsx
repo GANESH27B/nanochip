@@ -5,12 +5,12 @@ import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, CreditCard, QrCode, Landmark, Wallet, ReceiptText, Video, AlertCircle } from 'lucide-react';
+import { Download, CreditCard, QrCode, Landmark, Wallet, ReceiptText, Video, AlertCircle, VideoOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { Transaction } from '@/lib/types';
 import { transactions as initialTransactions } from '@/lib/data';
@@ -31,33 +31,52 @@ export default function BillingPage() {
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [isCameraOn, setIsCameraOn] = useState(false);
   const [activeTab, setActiveTab] = useState('card');
 
-  useEffect(() => {
-    const getCameraPermission = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-      }
-    };
-
-    if (activeTab === 'qr') {
-      getCameraPermission();
-    } else {
-      // Stop camera stream when not on QR tab
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-      }
+  const stopCamera = useCallback(() => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+      setIsCameraOn(false);
     }
-  }, [activeTab]);
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setHasCameraPermission(true);
+      setIsCameraOn(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setHasCameraPermission(false);
+      setIsCameraOn(false);
+       toast({
+        variant: 'destructive',
+        title: 'Camera Access Denied',
+        description: 'Please enable camera permissions in your browser settings.',
+      });
+    }
+  }, [toast]);
+
+  const handleToggleCamera = () => {
+    if (isCameraOn) {
+      stopCamera();
+    } else {
+      startCamera();
+    }
+  };
+
+  // Stop camera when switching away from QR tab
+  useEffect(() => {
+    if (activeTab !== 'qr') {
+      stopCamera();
+    }
+  }, [activeTab, stopCamera]);
 
 
   useEffect(() => {
@@ -198,6 +217,12 @@ export default function BillingPage() {
                              <TabsContent value="qr" className="mt-6 flex flex-col items-center justify-center gap-4">
                                 <div className="relative w-full max-w-sm aspect-square bg-muted rounded-md overflow-hidden flex items-center justify-center">
                                     <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+                                    {!isCameraOn && hasCameraPermission !== false && (
+                                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 text-center p-4">
+                                         <QrCode className="h-16 w-16 text-muted-foreground mb-4" />
+                                         <p className="text-muted-foreground">Click the button below to start scanning.</p>
+                                       </div>
+                                     )}
                                     {hasCameraPermission === false && (
                                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 text-center p-4">
                                             <Alert variant="destructive">
@@ -209,13 +234,11 @@ export default function BillingPage() {
                                             </Alert>
                                         </div>
                                     )}
-                                     {hasCameraPermission === null && (
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <p className="text-muted-foreground">Requesting camera access...</p>
-                                        </div>
-                                    )}
                                 </div>
-                                <p className="text-sm text-muted-foreground">Point your camera at a QR code to scan it.</p>
+                                <Button onClick={handleToggleCamera} variant="outline">
+                                  {isCameraOn ? <VideoOff className="mr-2 h-4 w-4" /> : <Video className="mr-2 h-4 w-4" />}
+                                  {isCameraOn ? 'Turn Off Camera' : 'Turn On Camera'}
+                                </Button>
                             </TabsContent>
                         </Tabs>
                     </CardContent>
