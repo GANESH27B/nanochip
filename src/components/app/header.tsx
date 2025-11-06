@@ -117,16 +117,6 @@ export default function AppHeader() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-             <Link href="#" className="flex items-center gap-2">
-                <Percent className="h-5 w-5" />
-                Offers
-            </Link>
-
-            <Link href="#" className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5" />
-                Cart
-            </Link>
             <ThemeSwitcher />
           </div>
         </div>
