@@ -15,6 +15,7 @@ import {
   Beaker,
   FileText,
   ShoppingBag,
+  FileCheck,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -45,8 +46,9 @@ export const navItems = {
   ],
   FDA: [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
-    { href: '/approvals', icon: Package, label: 'Approvals' },
+    { href: '/approvals', icon: FileCheck, label: 'Approvals' },
     { href: '/alerts', icon: Siren, label: 'Alerts' },
+    { href: '/shipments', icon: Truck, label: 'Shipments' },
   ],
   Patient: [{ href: '/my-prescriptions', icon: FileText, label: 'My Prescriptions' }],
   Distributor: [
@@ -97,5 +99,3 @@ export function useAppNavigation() {
 
   return { userRole, userName, user, handleLogout, visibleNavItems };
 }
-
-    
