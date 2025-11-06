@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { format } from 'date-fns';
-import { PlusCircle, MoreHorizontal } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import AppHeader from '@/components/app/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -67,10 +66,12 @@ export default function RawMaterialsPage() {
   };
 
   const handleShipMaterial = (materialId: string) => {
+    // This logic should now likely open a shipment creation dialog
+    // For now, it will mark as shipped and redirect
     setRawMaterials(prev => prev.map(m => m.id === materialId ? {...m, status: 'Shipped'} : m));
     toast({
         title: 'Material Shipped',
-        description: 'The material has been marked as shipped.',
+        description: 'The material has been marked as shipped. You can now create the shipment.',
     });
     router.push('/shipments');
   };
