@@ -14,7 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { shipments as initialShipments, users, batches as allBatches } from '@/lib/data';
+import { shipments as initialShipments, users, batches as allBatches, neededDrugs } from '@/lib/data';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -58,11 +58,19 @@ const statusStyles: { [key: string]: string } = {
   Pending: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
 };
 
+const priorityStyles: { [key: string]: string } = {
+  High: 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
+  Medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
+  Low: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
+};
+
+
 export default function ShipmentsPage() {
   const { searchTerm } = useSearch();
   const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [userRole, setUserRole] = useState<Role | null>(null);
+  const [prefillData, setPrefillData] = useState<{ batchId?: string, destination?: string }>({});
   const { toast } = useToast();
   const router = useRouter();
 
@@ -146,6 +154,7 @@ export default function ShipmentsPage() {
     }
 
     setIsCreateDialogOpen(false);
+    setPrefillData({});
   };
 
   const handleUpdateStatus = (batchId: string, newStatus: ShipmentStatus) => {
@@ -163,6 +172,12 @@ export default function ShipmentsPage() {
     });
   };
 
+  const openCreateShipmentDialog = (batchId?: string, destination?: string) => {
+    setPrefillData({ batchId, destination });
+    setIsCreateDialogOpen(true);
+  };
+
+
   const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
   const availableBatches = allBatches;
 
@@ -171,6 +186,51 @@ export default function ShipmentsPage() {
       <div className="flex min-h-screen w-full flex-col">
         <AppHeader title="Shipments" />
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+         {userRole === 'Manufacturer' && (
+            <Card className="animate-fade-in-up">
+              <CardHeader>
+                <CardTitle>Open Drug Requests</CardTitle>
+                <CardDescription>
+                  Drug orders from other users that need to be fulfilled.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Drug Name</TableHead>
+                      <TableHead>Requested By</TableHead>
+                      <TableHead>Priority</TableHead>
+                      <TableHead className="text-right">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {neededDrugs.map((drug) => (
+                      <TableRow key={drug.id}>
+                        <TableCell className="font-medium">{drug.name}</TableCell>
+                        <TableCell>{drug.requestedBy}</TableCell>
+                        <TableCell>
+                           <Badge className={`border-transparent ${priorityStyles[drug.priority]}`}>
+                            {drug.priority}
+                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => openCreateShipmentDialog(undefined, drug.requestedBy)}
+                          >
+                            Create Shipment
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+
           <Card className="animate-fade-in-up">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
@@ -180,60 +240,12 @@ export default function ShipmentsPage() {
                 </CardDescription>
               </div>
               {userRole === 'Manufacturer' && (
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm" className="gap-1">
-                    <PlusCircle className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                      New Shipment
-                    </span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <form onSubmit={handleCreateShipment}>
-                    <DialogHeader>
-                      <DialogTitle>Create New Shipment</DialogTitle>
-                      <DialogDescription>
-                        Manually enter the details for the new shipment.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="batchId" className="text-right">
-                          Batch
-                        </Label>
-                        <Select name="batchId">
-                          <SelectTrigger className="col-span-3">
-                            <SelectValue placeholder="Select a batch" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableBatches.map(batch => (
-                              <SelectItem key={batch.id} value={batch.id}>
-                                {batch.drugName} ({batch.id}) - Qty: {batch.quantity.toLocaleString()}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="startingPoint" className="text-right">
-                          Origin
-                        </Label>
-                        <Input id="startingPoint" name="startingPoint" defaultValue="New York, NY" className="col-span-3" required />
-                      </div>
-                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="endingPoint" className="text-right">
-                          Destination
-                        </Label>
-                        <Input id="endingPoint" name="endingPoint" defaultValue="Los Angeles, CA" className="col-span-3" required />
-                      </div>
-                    </div>
-                    <DialogFooter>
-                      <Button type="submit">Create Shipment</Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
+                <Button size="sm" className="gap-1" onClick={() => openCreateShipmentDialog()}>
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    New Shipment
+                  </span>
+                </Button>
               )}
             </CardHeader>
             <CardContent>
@@ -320,6 +332,52 @@ export default function ShipmentsPage() {
           </Card>
         </main>
       </div>
+      <Dialog open={isCreateDialogOpen} onOpenChange={(isOpen) => { setIsCreateDialogOpen(isOpen); if (!isOpen) setPrefillData({}); }}>
+        <DialogContent className="sm:max-w-[425px]">
+          <form onSubmit={handleCreateShipment}>
+            <DialogHeader>
+              <DialogTitle>Create New Shipment</DialogTitle>
+              <DialogDescription>
+                Manually enter the details for the new shipment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="batchId" className="text-right">
+                  Batch
+                </Label>
+                <Select name="batchId" defaultValue={prefillData.batchId}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a batch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableBatches.map(batch => (
+                      <SelectItem key={batch.id} value={batch.id}>
+                        {batch.drugName} ({batch.id}) - Qty: {batch.quantity.toLocaleString()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="startingPoint" className="text-right">
+                  Origin
+                </Label>
+                <Input id="startingPoint" name="startingPoint" defaultValue={Object.values(users).find(u => u.role === 'Manufacturer')?.location || 'New York, NY'} className="col-span-3" required />
+              </div>
+               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="endingPoint" className="text-right">
+                  Destination
+                </Label>
+                <Input id="endingPoint" name="endingPoint" defaultValue={prefillData.destination || 'Los Angeles, CA'} className="col-span-3" required />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Create Shipment</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
