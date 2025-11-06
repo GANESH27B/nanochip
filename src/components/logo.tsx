@@ -34,7 +34,7 @@ export function Logo({ className }: { className?: string }) {
           strokeLinejoin="round"
         />
       </svg>
-      <span className="text-xl font-bold text-primary">PharmaTrust</span>
+      <span className="text-xl font-bold text-primary">PharmaChain</span>
     </div>
   );
 }

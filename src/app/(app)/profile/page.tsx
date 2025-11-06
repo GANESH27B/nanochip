@@ -51,7 +51,7 @@ export default function ProfilePage() {
     const role = localStorage.getItem('userRole') as Role;
     if (role) {
       setUserRole(role);
-      const currentUser = users[role as keyof typeof users] || { name: 'PharmaTrust User', email: 'user@example.com', role: role, location: 'Unknown' };
+      const currentUser = users[role as keyof typeof users] || { name: 'PharmaChain User', email: 'user@example.com', role: role, location: 'Unknown' };
       setUser(currentUser);
       reset({ name: currentUser.name, email: currentUser.email, location: currentUser.location });
     }

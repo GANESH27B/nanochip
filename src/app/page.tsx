@@ -11,7 +11,7 @@ export default function LoginPage() {
         <LoginForm />
       </div>
       <footer className="mt-8 text-center text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-        © {new Date().getFullYear()} PharmaTrust. All Rights Reserved.
+        © {new Date().getFullYear()} PharmaChain. All Rights Reserved.
       </footer>
     </div>
   );

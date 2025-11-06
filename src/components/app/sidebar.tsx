@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -60,11 +59,13 @@ const navItems = {
 export default function AppSidebar() {
   const pathname = usePathname();
   const [userRole, setUserRole] = useState<Role | null>(null);
+  const [userName, setUserName] = useState('PharmaChain User');
 
   useEffect(() => {
     const role = localStorage.getItem('userRole') as Role;
     if (role) {
       setUserRole(role);
+      // You can add logic here to get user's name based on role if needed
     }
   }, [pathname]);
 
@@ -122,7 +123,7 @@ export default function AppSidebar() {
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div className="text-left group-data-[collapsible=icon]:hidden">
-                  <p className="text-sm font-medium">PharmaTrust User</p>
+                  <p className="text-sm font-medium">{userName}</p>
                   <p className="text-xs text-muted-foreground">{userRole}</p>
                 </div>
               </div>
