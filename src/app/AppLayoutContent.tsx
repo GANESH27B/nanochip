@@ -18,7 +18,7 @@ export default function AppLayoutContent({ children }: { children: React.ReactNo
     if (item) return item.label;
 
     if (path.startsWith('/shipments/track')) return 'Track Shipment';
-    if (path.startsWith('/shipments')) return 'Shipment Details';
+    if (path.startsWith('/shipments/')) return 'Shipment Details';
 
     // Extract title from path
     const title = path.substring(path.lastIndexOf('/') + 1);
