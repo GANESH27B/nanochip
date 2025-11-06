@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import Link from 'next/link';
+import React from 'react';
+import { Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,11 +21,9 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import type { Role } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
-import React from 'react';
 
 const formSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
@@ -33,7 +33,7 @@ const formSchema = z.object({
   role: z.enum(['Manufacturer', 'Distributor', 'Pharmacy', 'FDA']),
 });
 
-export function LoginForm() {
+export function SignUpForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
@@ -41,6 +41,7 @@ export function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
       role: 'Manufacturer',
@@ -49,40 +50,41 @@ export function LoginForm() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // Simulate API call
+    // Simulate API call for registration
     setTimeout(() => {
-      // In a real app, you'd verify credentials.
-      // Here, we'll just check if email and password are not empty.
-      if (values.email && values.password) {
-        toast({
-          title: 'Login Successful',
-          description: `Redirecting to ${values.role} dashboard.`,
-        });
-        // Store role in local storage for demo purposes
-        localStorage.setItem('userRole', values.role);
-        router.push('/dashboard');
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Login Failed',
-          description: 'Invalid email or password.',
-        });
-        setIsLoading(false);
-      }
+      console.log('New user registered:', values);
+      toast({
+        title: 'Registration Successful',
+        description: 'Your account has been created. Please log in.',
+      });
+      router.push('/');
     }, 1000);
   }
 
   return (
     <Card className="shadow-2xl">
       <CardHeader>
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
+        <CardTitle className="text-2xl">Create an Account</CardTitle>
         <CardDescription>
-          Enter your credentials to access your account.
+          Fill in the details below to join PharmaChain.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Full Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="John Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"
@@ -101,15 +103,7 @@ export function LoginForm() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel>Password</FormLabel>
-                    <Link
-                      href="#"
-                      className="text-sm font-medium text-primary hover:underline"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
+                  <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="********" {...field} />
                   </FormControl>
@@ -142,16 +136,16 @@ export function LoginForm() {
             />
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Login
+              Create Account
             </Button>
           </form>
         </Form>
       </CardContent>
        <CardFooter className="flex-col items-center gap-4">
         <div className="text-sm text-center">
-          Don't have an account?{' '}
-          <Link href="/signup" className="text-primary underline">
-            Sign up
+          Already have an account?{' '}
+          <Link href="/" className="text-primary underline">
+            Log in
           </Link>
         </div>
       </CardFooter>
