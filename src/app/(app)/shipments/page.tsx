@@ -47,7 +47,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useSearch } from '@/hooks/use-search';
-import type { Shipment, ShipmentStatus, Role, User } from '@/lib/types';
+import type { Shipment, ShipmentStatus, Role, User, Batch } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -95,11 +95,11 @@ export default function ShipmentsPage() {
     const formData = new FormData(event.currentTarget);
     const manufacturer = Object.values(users).find(u => u.role === 'Manufacturer');
     
-    if (!manufacturer || userRole !== 'Manufacturer') {
+    if (!manufacturer) {
         toast({
             variant: "destructive",
             title: "Creation Failed",
-            description: "Could not create shipment. Required user roles not found.",
+            description: "Could not create shipment. Manufacturer role not found.",
         });
         return;
     }
@@ -116,42 +116,44 @@ export default function ShipmentsPage() {
       return;
     }
     
-    const existingShipmentIndex = shipments.findIndex(s => s.batchId === batchId);
-
-    if (existingShipmentIndex !== -1) {
-      // Update existing shipment
-      const updatedShipments = [...shipments];
-      updatedShipments[existingShipmentIndex] = {
-        ...updatedShipments[existingShipmentIndex],
-        currentHolder: manufacturer.name,
-        startingPoint: formData.get('startingPoint') as string,
-        endingPoint: formData.get('endingPoint') as string,
-        status: 'Pending',
-        lastUpdate: now.toISOString(),
-      };
-      setShipments(updatedShipments);
-      toast({
-        title: 'Shipment Updated',
-        description: `Shipment for batch ${batchId} has been updated.`,
-      });
-    } else {
-      // Create new shipment
-      const newShipment: Shipment = {
-        batchId: batchId,
-        currentHolder: manufacturer.name,
-        startingPoint: formData.get('startingPoint') as string,
-        endingPoint: formData.get('endingPoint') as string,
-        status: 'Pending',
-        createdAt: now.toISOString(),
-        alerts: 0,
-        lastUpdate: now.toISOString(),
-      };
-      setShipments([newShipment, ...shipments]);
-      toast({
-        title: 'Shipment Created',
-        description: `Shipment for batch ${newShipment.batchId} has been created.`,
-      });
-    }
+    setShipments(prevShipments => {
+        const existingShipmentIndex = prevShipments.findIndex(s => s.batchId === batchId);
+        
+        if (existingShipmentIndex !== -1) {
+          // Update existing shipment
+          const updatedShipments = [...prevShipments];
+          updatedShipments[existingShipmentIndex] = {
+            ...updatedShipments[existingShipmentIndex],
+            currentHolder: manufacturer.name,
+            startingPoint: formData.get('startingPoint') as string,
+            endingPoint: formData.get('endingPoint') as string,
+            status: 'Pending',
+            lastUpdate: now.toISOString(),
+          };
+          toast({
+            title: 'Shipment Updated',
+            description: `Shipment for batch ${batchId} has been updated.`,
+          });
+          return updatedShipments;
+        } else {
+          // Create new shipment
+          const newShipment: Shipment = {
+            batchId: batchId,
+            currentHolder: manufacturer.name,
+            startingPoint: formData.get('startingPoint') as string,
+            endingPoint: formData.get('endingPoint') as string,
+            status: 'Pending',
+            createdAt: now.toISOString(),
+            alerts: 0,
+            lastUpdate: now.toISOString(),
+          };
+          toast({
+            title: 'Shipment Created',
+            description: `Shipment for batch ${newShipment.batchId} has been created.`,
+          });
+          return [newShipment, ...prevShipments];
+        }
+    });
 
     setIsCreateDialogOpen(false);
     setPrefillData({});
@@ -179,7 +181,7 @@ export default function ShipmentsPage() {
 
 
   const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
-  const availableBatches = allBatches;
+  const availableBatches: Batch[] = allBatches;
 
   return (
     <>
