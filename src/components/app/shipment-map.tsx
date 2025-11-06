@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Polyline, Tooltip } from 'react-leafle
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useTheme } from 'next-themes';
+import { useEffect, useRef } from 'react';
 
 // Fix for default icon path issue with webpack
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -33,6 +34,7 @@ interface ShipmentMapProps {
 }
 
 export default function ShipmentMap({ start, end }: ShipmentMapProps) {
+  const mapRef = useRef<L.Map | null>(null);
   const positions: [number, number][] = [
     [start.lat, start.lng],
     [end.lat, end.lng],
@@ -46,6 +48,9 @@ export default function ShipmentMap({ start, end }: ShipmentMapProps) {
       bounds={bounds}
       style={{ height: '100%', width: '100%', borderRadius: 'var(--radius)' }}
       className="z-0"
+      whenCreated={(map) => {
+        mapRef.current = map;
+      }}
     >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
