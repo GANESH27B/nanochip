@@ -204,7 +204,7 @@ export default function ShipmentsPage() {
 
   const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
   const availableBatches: Batch[] = allBatches;
-  const distributors = Object.values(users).filter(u => u.role === 'Distributor');
+  const distributors: User[] = Object.values(users).filter(u => u.role === 'Distributor');
 
 
   return (
