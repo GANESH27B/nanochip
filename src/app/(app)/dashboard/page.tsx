@@ -2,15 +2,59 @@
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { alerts, shipments } from '@/lib/data';
+import { alerts, shipments, neededDrugs } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Siren, Package, Truck, CheckCircle, ShieldCheck, AlertTriangle, ShieldX } from 'lucide-react';
+import { Siren, Package, Truck, CheckCircle, ShieldCheck, AlertTriangle, ShieldX, FlaskConical, CreditCard } from 'lucide-react';
 import AppHeader from '@/components/app/header';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState, useMemo } from 'react';
 import type { Role } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+const actionCategories = [
+    {
+        href: '/batches',
+        label: 'Manage Batches',
+        icon: FlaskConical,
+        description: 'Create & view production batches',
+        image: 'https://picsum.photos/seed/cat1/200/200',
+        imageHint: 'laboratory glassware'
+    },
+    {
+        href: '/shipments',
+        label: 'Create Shipments',
+        icon: Truck,
+        description: 'Ship products to distributors',
+        image: 'https://picsum.photos/seed/cat2/200/200',
+        imageHint: 'cargo truck'
+    },
+    {
+        href: '/billing',
+        label: 'View Billing',
+        icon: CreditCard,
+        description: 'Track invoices & payments',
+        image: 'https://picsum.photos/seed/cat3/200/200',
+        imageHint: 'payment transaction'
+    },
+     {
+        href: '/alerts',
+        label: 'Review Alerts',
+        icon: Siren,
+        description: 'Address supply chain issues',
+        image: 'https://picsum.photos/seed/cat4/200/200',
+        imageHint: 'warning sign'
+    }
+];
 
 export default function DashboardPage() {
   const [userRole, setUserRole] = useState<Role | null>(null);
@@ -21,6 +65,9 @@ export default function DashboardPage() {
       setUserRole(role);
     }
   }, []);
+  
+  const carouselImage1 = PlaceHolderImages.find(p => p.id === 'promo-carousel-1');
+  const carouselImage2 = PlaceHolderImages.find(p => p.id === 'promo-carousel-2');
 
   const totalShipments = shipments.length;
   const pendingApprovals = shipments.filter((s) => s.status === 'Requires-Approval').length;
@@ -66,6 +113,85 @@ export default function DashboardPage() {
       description: `${activeAlerts} low/medium alerts are active.`
     };
   }, [activeAlerts]);
+
+  if (userRole === 'Manufacturer') {
+    return (
+        <div className="flex min-h-screen w-full flex-col bg-muted/20">
+            <AppHeader title="Manufacturer Portal" />
+            <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up">
+                    {actionCategories.map((cat, index) => (
+                        <Link href={cat.href} key={index}>
+                             <Card className="h-full hover:shadow-lg transition-shadow">
+                                <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
+                                     <div className="flex items-center justify-center bg-primary/10 rounded-full p-3 mb-2">
+                                        <cat.icon className="h-6 w-6 text-primary" />
+                                     </div>
+                                     <p className="font-semibold">{cat.label}</p>
+                                     <p className="text-xs text-muted-foreground">{cat.description}</p>
+                                </CardContent>
+                            </Card>
+                        </Link>
+                    ))}
+                </div>
+
+                <Carousel
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                  className="w-full animate-fade-in-up"
+                  style={{animationDelay: '0.2s'}}
+                >
+                  <CarouselContent>
+                    <CarouselItem>
+                         <div className="relative w-full h-[350px] rounded-lg overflow-hidden bg-primary/10 p-8 flex items-center">
+                            {carouselImage1 && (
+                                <Image
+                                    src={carouselImage1.imageUrl}
+                                    alt={carouselImage1.description}
+                                    fill
+                                    className="object-cover opacity-20"
+                                    data-ai-hint={carouselImage1.imageHint}
+                                />
+                            )}
+                            <div className="relative z-10 max-w-md text-primary-foreground">
+                                <h2 className="text-3xl font-bold text-foreground">New Drug Requests</h2>
+                                <p className="mt-2 text-muted-foreground">{neededDrugs.length} new orders are waiting for fulfillment.</p>
+                                <Button asChild className="mt-4">
+                                    <Link href="/shipments">View Requests</Link>
+                                </Button>
+                            </div>
+                        </div>
+                    </CarouselItem>
+                     <CarouselItem>
+                        <div className="relative w-full h-[350px] rounded-lg overflow-hidden bg-destructive/10 p-8 flex items-center">
+                           {carouselImage2 && (
+                                <Image
+                                    src={carouselImage2.imageUrl}
+                                    alt={carouselImage2.description}
+                                    fill
+                                    className="object-cover opacity-20"
+                                    data-ai-hint={carouselImage2.imageHint}
+                                />
+                            )}
+                            <div className="relative z-10 max-w-md">
+                                <h2 className="text-3xl font-bold text-foreground">Active Alerts</h2>
+                                <p className="mt-2 text-muted-foreground">{activeAlerts} alerts require your immediate attention.</p>
+                                <Button asChild className="mt-4" variant="destructive">
+                                    <Link href="/alerts">Review Alerts</Link>
+                                </Button>
+                            </div>
+                        </div>
+                    </CarouselItem>
+                  </CarouselContent>
+                  <CarouselPrevious className="left-4" />
+                  <CarouselNext className="right-4" />
+                </Carousel>
+            </main>
+        </div>
+    );
+  }
 
 
   return (
