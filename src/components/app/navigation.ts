@@ -52,6 +52,7 @@ export const navItems = {
   Distributor: [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/shipments', icon: Truck, label: 'Shipments' },
+    { href: '/my-products', icon: ShoppingBag, label: 'My Products' },
   ],
   Pharmacy: [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },

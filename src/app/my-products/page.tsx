@@ -130,7 +130,7 @@ export default function MyProductsPage() {
   const manufacturerProducts = products.filter(p => p.manufacturerInfo === 'Alice Manufacturer');
   
   const filteredProducts = useMemo(() => {
-    const baseProducts = userRole === 'Manufacturer' ? manufacturerProducts : products;
+    const baseProducts = userRole === 'Manufacturer' || userRole === 'Distributor' ? manufacturerProducts : products;
     if (userRole === 'FDA' && activeTab === 'pending') {
       return baseProducts.filter(p => p.ideaStatus === 'Pending' || p.productStatus === 'Pending');
     }
@@ -253,8 +253,8 @@ export default function MyProductsPage() {
                     <TableHead>Product Name</TableHead>
                     {userRole === 'FDA' && <TableHead>Manufacturer</TableHead>}
                     <TableHead>Submission Date</TableHead>
-                    <TableHead>Idea Approval</TableHead>
-                    <TableHead>Final Product Approval</TableHead>
+                    {userRole !== 'Distributor' && <TableHead>Idea Approval</TableHead>}
+                    {userRole !== 'Distributor' && <TableHead>Final Product Approval</TableHead>}
                     <TableHead>
                       <span className="sr-only">Actions</span>
                     </TableHead>
@@ -266,16 +266,16 @@ export default function MyProductsPage() {
                       <TableCell className="font-medium">{product.name}</TableCell>
                       {userRole === 'FDA' && <TableCell>{product.manufacturerInfo}</TableCell>}
                       <TableCell>{format(new Date(product.submissionDate), 'MM/dd/yyyy')}</TableCell>
-                       <TableCell>
+                       {userRole !== 'Distributor' && <TableCell>
                         <Badge className={`border-transparent ${approvalStatusStyles[product.ideaStatus]}`}>
                           {product.ideaStatus}
                         </Badge>
-                      </TableCell>
-                       <TableCell>
+                      </TableCell>}
+                       {userRole !== 'Distributor' && <TableCell>
                         <Badge className={`border-transparent ${approvalStatusStyles[product.productStatus]}`}>
                           {product.productStatus}
                         </Badge>
-                      </TableCell>
+                      </TableCell>}
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
