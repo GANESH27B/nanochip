@@ -107,23 +107,45 @@ export default function ShipmentsPage() {
       });
       return;
     }
+    
+    const existingShipmentIndex = shipments.findIndex(s => s.batchId === batchId);
 
-    const newShipment: Shipment = {
-      batchId: batchId,
-      currentHolder: manufacturer.name,
-      startingPoint: formData.get('startingPoint') as string,
-      endingPoint: formData.get('endingPoint') as string,
-      status: 'Pending',
-      createdAt: now.toISOString(),
-      alerts: 0,
-      lastUpdate: now.toISOString(),
-    };
-    setShipments([newShipment, ...shipments]);
+    if (existingShipmentIndex !== -1) {
+      // Update existing shipment
+      const updatedShipments = [...shipments];
+      updatedShipments[existingShipmentIndex] = {
+        ...updatedShipments[existingShipmentIndex],
+        currentHolder: manufacturer.name,
+        startingPoint: formData.get('startingPoint') as string,
+        endingPoint: formData.get('endingPoint') as string,
+        status: 'Pending',
+        lastUpdate: now.toISOString(),
+      };
+      setShipments(updatedShipments);
+      toast({
+        title: 'Shipment Updated',
+        description: `Shipment for batch ${batchId} has been updated.`,
+      });
+    } else {
+      // Create new shipment
+      const newShipment: Shipment = {
+        batchId: batchId,
+        currentHolder: manufacturer.name,
+        startingPoint: formData.get('startingPoint') as string,
+        endingPoint: formData.get('endingPoint') as string,
+        status: 'Pending',
+        createdAt: now.toISOString(),
+        alerts: 0,
+        lastUpdate: now.toISOString(),
+      };
+      setShipments([newShipment, ...shipments]);
+      toast({
+        title: 'Shipment Created',
+        description: `Shipment for batch ${newShipment.batchId} has been created.`,
+      });
+    }
+
     setIsCreateDialogOpen(false);
-    toast({
-      title: 'Shipment Created',
-      description: `Shipment for batch ${newShipment.batchId} has been created.`,
-    });
   };
 
   const handleUpdateStatus = (batchId: string, newStatus: ShipmentStatus) => {
