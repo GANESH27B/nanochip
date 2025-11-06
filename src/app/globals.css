@@ -5,17 +5,17 @@
 
 @layer base {
   :root {
-    --background: 240 4.8% 95.9%; /* Lighter Gray */
+    --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 25 95% 53%; /* Orange */
+    --primary: 173 80% 30%; /* Teal */
     --primary-foreground: 0 0% 98%;
     --secondary: 142.1 76.2% 36.3%; /* green */
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 4.8% 92.9%;
+    --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
     --accent: 240 4.8% 95.9%;
     --accent-foreground: 240 10% 3.9%;
@@ -23,9 +23,9 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 25 95% 53%;
+    --ring: 173 80% 30%;
     --radius: 0.5rem;
-    --chart-1: 25 95% 53%;
+    --chart-1: 173 80% 30%;
     --chart-2: 147 16% 51%;
     --chart-3: 160 70% 45%;
     --chart-4: 200 80% 50%;
@@ -34,12 +34,12 @@
      /* Sidebar Custom Colors */
     --sidebar-background: 240 10% 3.9%; /* Same as dark background */
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary: 173 80% 30%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-ring: 173 80% 30%;
   }
 
   .dark {
@@ -49,7 +49,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 25 95% 53%; /* Orange */
+    --primary: 173 70% 40%; /* Teal */
     --primary-foreground: 0 0% 98%;
     --secondary: 142.1 76.2% 36.3%; /* green */
     --secondary-foreground: 0 0% 98%;
@@ -61,17 +61,17 @@
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 25 95% 53%;
+    --ring: 173 70% 40%;
 
     /* Dark Sidebar colors are the same as the default sidebar colors */
     --sidebar-background: 240 10% 3.9%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary: 173 70% 40%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-ring: 173 70% 40%;
   }
 }
 

@@ -5,36 +5,24 @@ export function Logo({ className }: { className?: string }) {
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <svg
-        width="24"
-        height="24"
-        viewBox="0 0 32 32"
-        fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="text-primary"
+        width="32"
+        height="32"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="h-8 w-8 text-primary"
       >
-        <path
-          d="M16 2.5L4 8.5V20.5L16 26.5L28 20.5V8.5L16 2.5Z"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M16 11V21"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M11 16H21"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <path d="m9 12 2 2 4-4"></path>
       </svg>
-      <span className="text-lg font-bold text-foreground">PharmaChain</span>
+      <div>
+        <p className="text-xs font-light text-muted-foreground -mb-1">Take it easy</p>
+        <span className="text-lg font-bold text-foreground">PharmaChain</span>
+      </div>
     </div>
   );
 }

@@ -20,7 +20,7 @@ import { PanelLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AppSidebar() {
-  const { userRole, userName, visibleNavItems } = useAppNavigation();
+  const { userRole, userName, visibleNavItems, user } = useAppNavigation();
   const pathname = usePathname();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 

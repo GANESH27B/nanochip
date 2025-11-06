@@ -170,8 +170,7 @@ const Sidebar = React.forwardRef<
         </Sheet>
       );
     }
-    
-    // On desktop, we don't render a persistent sidebar
+
     return null;
   }
 );
@@ -181,11 +180,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-    const { isMobile, toggleSidebar } = useSidebar();
-
-    if (!isMobile) {
-        return null;
-    }
+    const { toggleSidebar } = useSidebar();
 
   return (
     <Button

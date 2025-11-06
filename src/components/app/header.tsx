@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, Search, User, MapPin, ChevronDown, ShoppingCart, Percent } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import {
@@ -17,8 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useAppNavigation } from './navigation';
 import Link from 'next/link';
 import { Logo } from '../logo';
@@ -29,91 +27,107 @@ export default function AppHeader({ title }: { title?: string }) {
   const { searchTerm, setSearchTerm } = useSearch();
   const { isMobile } = useSidebar();
   const pathname = usePathname();
-  const { handleLogout, userName, visibleNavItems, userRole, user } = useAppNavigation();
+  const { handleLogout, userName, visibleNavItems } = useAppNavigation();
 
   const showSearch = ['/shipments', '/alerts', '/batches', '/raw-materials', '/needed-drugs'].includes(pathname);
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
-      <div className="flex items-center gap-2">
-         {isMobile && <SidebarTrigger />}
-         <div className="hidden md:flex items-center gap-4">
-            <Link href="/dashboard" className="flex items-center gap-2">
-                <Logo />
-            </Link>
-          </div>
-          <div className='hidden md:block'>
-            <h1 className="text-xl font-semibold">{title}</h1>
-          </div>
-      </div>
-      
-      <nav className="hidden items-center gap-4 text-sm font-medium md:flex ml-6">
-         {visibleNavItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "transition-colors hover:text-foreground/80",
-                pathname === item.href ? "text-foreground" : "text-foreground/60"
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-      </nav>
+    <header className="sticky top-0 z-30 flex flex-col border-b bg-background shadow-sm">
+      <div className="flex h-16 items-center gap-4 px-4 sm:px-6">
+        <div className="flex items-center gap-2">
+          {isMobile && <SidebarTrigger />}
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <Logo />
+          </Link>
+        </div>
 
-      <div className="ml-auto flex items-center gap-2">
-        {showSearch && !isMobile && (
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        {!isMobile && (
+           <div className="flex items-center gap-2 text-sm text-muted-foreground ml-4 border-l pl-4">
+              <MapPin className="h-4 w-4" />
+              <span>Express delivery to</span>
+              <Button variant="ghost" className="p-1 h-auto text-primary font-semibold">
+                400001 Mumbai <ChevronDown className="h-4 w-4" />
+              </Button>
+           </div>
+        )}
+        
+        <div className="flex-1 flex justify-center px-4">
+          <div className="relative w-full max-w-lg">
             <Input
               type="search"
-              placeholder="Search..."
-              className="w-full rounded-lg bg-muted pl-8"
+              placeholder="Search for Medicine"
+              className="w-full rounded-full bg-muted pl-10 pr-24"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </div>
-        )}
-        <ThemeSwitcher />
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <Bell className="h-4 w-4" />
-          <span className="sr-only">Toggle notifications</span>
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className='gap-2 p-2 h-10'>
-              <Avatar className="h-8 w-8 cursor-pointer">
-                <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" />
-                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div className='hidden md:flex flex-col items-start'>
-                  <span className='font-semibold text-sm'>{userName}</span>
-                  <span className='text-xs text-muted-foreground'>{userRole}</span>
-              </div>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Button variant="default" className="absolute right-1 top-1/2 h-8 -translate-y-1/2 rounded-full px-6">
+              Search
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/profile">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/alerts">
-                <Bell className="mr-2 h-4 w-4" />
-                <span>Notifications</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </div>
+        </div>
+
+        <div className="ml-auto flex items-center gap-4">
+          <ThemeSwitcher />
+          
+          {!isMobile && (
+              <>
+                 <Button variant="ghost" className="gap-2">
+                    <User className="h-5 w-5" /> Hello, {userName.split(' ')[0]}
+                </Button>
+                <Button variant="ghost" className="gap-2">
+                    <Percent className="h-5 w-5" /> Offers
+                </Button>
+                <Button variant="ghost" className="gap-2">
+                    <ShoppingCart className="h-5 w-5" /> Cart
+                </Button>
+              </>
+          )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden">
+                <User className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Percent className="mr-2 h-4 w-4" /> Offers
+              </DropdownMenuItem>
+               <DropdownMenuItem>
+                <ShoppingCart className="mr-2 h-4 w-4" /> Cart
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
+      
+      {!isMobile && (
+         <nav className="flex items-center gap-6 text-sm font-medium px-6 h-12 border-t justify-center">
+            {visibleNavItems.map((item) => (
+                <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                    "transition-colors hover:text-primary pb-1",
+                    pathname === item.href ? "text-primary border-b-2 border-primary" : "text-foreground/60"
+                )}
+                >
+                {item.label}
+                </Link>
+            ))}
+        </nav>
+      )}
     </header>
   );
 }
