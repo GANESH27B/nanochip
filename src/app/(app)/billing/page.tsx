@@ -121,6 +121,50 @@ export default function BillingPage() {
     });
   };
 
+  const handleExport = () => {
+    if (transactions.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'No Data to Export',
+        description: 'There are no transactions to export.',
+      });
+      return;
+    }
+
+    const headers = ['Transaction ID', 'Date', 'Description', 'Amount', 'Status'];
+    const csvRows = [headers.join(',')];
+
+    transactions.forEach(transaction => {
+      const row = [
+        `"${transaction.id}"`,
+        `"${format(new Date(transaction.date), 'yyyy-MM-dd HH:mm:ss')}"`,
+        `"${transaction.description.replace(/"/g, '""')}"`,
+        transaction.amount,
+        `"${transaction.status}"`,
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.href) {
+      URL.revokeObjectURL(link.href);
+    }
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.setAttribute('download', 'transaction-history.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: 'Export Successful',
+      description: 'Your transaction history has been downloaded.',
+    });
+  };
+
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader title="Billing" />
@@ -288,7 +332,7 @@ export default function BillingPage() {
               </CardDescription>
             </div>
             <div className="ml-auto flex items-center gap-2">
-              <Button size="sm" variant="outline" className="h-7 gap-1">
+              <Button size="sm" variant="outline" className="h-7 gap-1" onClick={handleExport}>
                 <Download className="h-3.5 w-3.5" />
                 <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
                   Export
@@ -332,5 +376,4 @@ export default function BillingPage() {
     </div>
   );
 }
-
     
