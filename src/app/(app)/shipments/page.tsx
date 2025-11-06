@@ -258,6 +258,7 @@ export default function ShipmentsPage() {
                     <TableHead>Status</TableHead>
                     <TableHead className="hidden md:table-cell">Current Holder</TableHead>
                     <TableHead className="hidden md:table-cell">Route</TableHead>
+                    <TableHead className="hidden md:table-cell">Last Updated</TableHead>
                     <TableHead className="text-right">Alerts</TableHead>
                     <TableHead>
                       <span className="sr-only">Actions</span>
@@ -277,6 +278,9 @@ export default function ShipmentsPage() {
                       </TableCell>
                       <TableCell className="hidden md:table-cell">{shipment.currentHolder}</TableCell>
                       <TableCell className="hidden md:table-cell">{shipment.startingPoint} to {shipment.endingPoint}</TableCell>
+                       <TableCell className="hidden md:table-cell">
+                        {format(new Date(shipment.lastUpdate), 'dd/MM/yyyy p')}
+                      </TableCell>
                       <TableCell className="text-right">{shipment.alerts}</TableCell>
                       <TableCell>
                         <DropdownMenu>
