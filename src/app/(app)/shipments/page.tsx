@@ -319,7 +319,7 @@ export default function ShipmentsPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredShipments.map((shipment, index) => (
-                    <Collapsible asChild key={`${shipment.batchId}-${shipment.createdAt}`} >
+                    <Collapsible asChild key={`${shipment.batchId}-${shipment.createdAt}`}>
                       <>
                         <TableRow className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
                           <TableCell>
@@ -515,7 +515,3 @@ export default function ShipmentsPage() {
     </>
   );
 }
-
-    
-
-    
