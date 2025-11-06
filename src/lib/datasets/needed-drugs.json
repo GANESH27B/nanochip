@@ -14,7 +14,7 @@
     "currentStock": 120,
     "reorderLevel": 100,
     "priority": "Medium",
-    "requestedBy": "City Clinic"
+    "requestedBy": "Bob Distributor"
   },
   {
     "id": "DRUG-003",

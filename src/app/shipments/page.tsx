@@ -294,6 +294,11 @@ export default function ShipmentsPage() {
     return [];
   }, [userRole]);
 
+  const distributorDrugRequests = useMemo(() => {
+    const distributorNames = distributors.map(d => d.name);
+    return neededDrugs.filter(drug => distributorNames.includes(drug.requestedBy));
+  }, [distributors]);
+
 
   const isFdaView = userRole === 'FDA';
 
@@ -303,9 +308,9 @@ export default function ShipmentsPage() {
        {userRole === 'Manufacturer' && (
           <Card className="animate-fade-in-up">
             <CardHeader>
-              <CardTitle>Open Drug Requests</CardTitle>
+              <CardTitle>Distributor Drug Requests</CardTitle>
               <CardDescription>
-                Drug orders from other users that need to be fulfilled.
+                Drug orders from distributors that need to be fulfilled.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -319,7 +324,7 @@ export default function ShipmentsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {neededDrugs.map((drug) => (
+                  {distributorDrugRequests.map((drug) => (
                     <TableRow key={drug.id}>
                       <TableCell className="font-medium">{drug.name}</TableCell>
                       <TableCell>{drug.requestedBy}</TableCell>
@@ -653,6 +658,7 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
 
 
 
