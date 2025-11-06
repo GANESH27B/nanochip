@@ -1,10 +1,31 @@
+
 'use client';
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { alerts, shipments, neededDrugs } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Siren, Package, Truck, CheckCircle, ShieldCheck, AlertTriangle, ShieldX, FlaskConical, ShoppingBag, FileCheck } from 'lucide-react';
+import {
+    Siren,
+    Package,
+    Truck,
+    CheckCircle,
+    ShieldCheck,
+    AlertTriangle,
+    ShieldX,
+    FlaskConical,
+    ShoppingBag,
+    FileCheck,
+    LayoutGrid,
+    FileText,
+    Beaker,
+    Factory,
+    Tags,
+    Shield,
+    Users,
+    Bell,
+    AreaChart,
+} from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -20,7 +41,7 @@ import {
 } from '@/components/ui/carousel';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-const actionCategories = [
+const manufacturerActionCategories = [
     {
         href: '/batches',
         label: 'Manage Batches',
@@ -45,6 +66,69 @@ const actionCategories = [
         icon: Siren,
         description: 'Address supply chain issues',
     }
+];
+
+const fdaActionCategories = [
+    {
+        href: '#',
+        label: 'Dashboard Overview',
+        icon: LayoutGrid,
+        description: 'Summary, charts, key metrics',
+    },
+    {
+        href: '/my-products',
+        label: 'Product Management',
+        icon: Package,
+        description: 'Add/edit products, basic details',
+    },
+    {
+        href: '#',
+        label: 'Submission Tracking',
+        icon: FileText,
+        description: 'FDA forms, status, documents',
+    },
+    {
+        href: '#',
+        label: 'Clinical & Study Data',
+        icon: Beaker,
+        description: 'Test results, safety, efficacy',
+    },
+    {
+        href: '#',
+        label: 'Manufacturer Info',
+        icon: Factory,
+        description: 'Facility, GMP, contact',
+    },
+    {
+        href: '#',
+        label: 'Labeling & Packaging',
+        icon: Tags,
+        description: 'Labels, artwork, inserts',
+    },
+    {
+        href: '#',
+        label: 'Compliance & Certificates',
+        icon: Shield,
+        description: 'GMP, CoA, approvals',
+    },
+    {
+        href: '#',
+        label: 'User Management',
+        icon: Users,
+        description: 'Roles, access control',
+    },
+    {
+        href: '/alerts',
+        label: 'Notifications & Alerts',
+        icon: Bell,
+        description: 'Deadlines, updates',
+    },
+    {
+        href: '/analytics',
+        label: 'Reports & Analytics',
+        icon: AreaChart,
+        description: 'Exportable data, insights',
+    },
 ];
 
 export default function DashboardPage() {
@@ -116,7 +200,7 @@ export default function DashboardPage() {
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up">
-                {actionCategories.map((cat, index) => (
+                {manufacturerActionCategories.map((cat, index) => (
                     <Link href={cat.href} key={index}>
                          <Card className="h-full hover:shadow-lg transition-shadow">
                             <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
@@ -191,87 +275,26 @@ export default function DashboardPage() {
   if (userRole === 'FDA') {
      return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-                <Card className="animate-fade-in-up" style={{ animationDelay: '0s' }}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-                    <FileCheck className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">{pendingApprovals}</div>
-                    <p className="text-xs text-muted-foreground">Shipments awaiting regulatory review.</p>
-                    </CardContent>
-                </Card>
-                 <Card className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">High-Severity Alerts</CardTitle>
-                    <Siren className="h-4 w-4 text-destructive" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold text-destructive">{recentAlerts.length}</div>
-                    <p className="text-xs text-muted-foreground">Critical issues requiring immediate action.</p>
-                    </CardContent>
-                </Card>
-                <Card className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Shipments Monitored</CardTitle>
-                    <Truck className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                    <div className="text-2xl font-bold">{totalShipments}</div>
-                    <p className="text-xs text-muted-foreground">Across the entire supply chain.</p>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-                <Card className="xl:col-span-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                    <CardHeader>
-                        <CardTitle>Shipment Status Overview</CardTitle>
-                        <CardDescription>A summary of all current shipment statuses.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="pl-2">
-                        <ResponsiveContainer width="100%" height={350}>
-                        <BarChart data={chartData}>
-                            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
-                            <Tooltip cursor={{fill: 'hsl(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
-                            <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
-                <Card className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                    <CardHeader>
-                        <CardTitle>High-Priority Alerts</CardTitle>
-                        <CardDescription>Critical alerts that require your attention.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="grid gap-4">
-                        {recentAlerts.length > 0 ? (
-                        recentAlerts.map((alert) => (
-                            <Alert key={alert.alertId} variant="destructive">
-                            <Siren className="h-4 w-4" />
-                            <AlertTitle className="font-semibold">{alert.type} Alert</AlertTitle>
-                            <AlertDescription className="text-xs">{alert.details}</AlertDescription>
-                            </Alert>
-                        ))
-                        ) : (
-                        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-                            <CheckCircle className="h-12 w-12 text-green-500 mb-4"/>
-                            <h3 className="text-lg font-semibold">No High-Severity Alerts</h3>
-                            <p className="text-sm text-muted-foreground">All critical systems are normal.</p>
-                        </div>
-                        )}
-                        <div className="flex gap-2">
-                             <Button asChild variant="secondary" size="sm" className="w-full">
-                                <Link href="/approvals">Go to Approvals</Link>
-                            </Button>
-                             <Button asChild variant="outline" size="sm" className="w-full">
-                            <Link href="/alerts">View All Alerts</Link>
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>FDA Regulatory Dashboard</CardTitle>
+                    <CardDescription>A central hub for managing and monitoring pharmaceutical submissions and compliance.</CardDescription>
+                </CardHeader>
+            </Card>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 animate-fade-in-up">
+                {fdaActionCategories.map((cat, index) => (
+                    <Link href={cat.href} key={index}>
+                         <Card className="h-full hover:shadow-lg transition-shadow">
+                            <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
+                                 <div className="flex items-center justify-center bg-primary/10 rounded-full p-3 mb-2">
+                                    <cat.icon className="h-6 w-6 text-primary" />
+                                 </div>
+                                 <p className="font-semibold">{cat.label}</p>
+                                 <p className="text-xs text-muted-foreground">{cat.description}</p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                ))}
             </div>
         </main>
      );
