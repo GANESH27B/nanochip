@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +17,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import type { Role } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
@@ -146,6 +147,14 @@ export function LoginForm() {
           </form>
         </Form>
       </CardContent>
+       <CardFooter className="flex-col items-center gap-4">
+        <div className="text-sm text-center">
+          Don't have an account?{' '}
+          <Link href="#" className="text-primary underline">
+            Sign up
+          </Link>
+        </div>
+      </CardFooter>
     </Card>
   );
 }
