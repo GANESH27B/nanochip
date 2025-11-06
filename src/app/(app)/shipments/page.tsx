@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -142,7 +143,6 @@ export default function ShipmentsPage() {
     }
     
     setShipments(prevShipments => {
-        const existingShipmentIndex = prevShipments.findIndex(s => s.batchId === batchId);
         const endingPoint = formData.get('endingPoint') as string;
         
         const historyEntry: ShipmentHistoryEntry = {
@@ -151,43 +151,22 @@ export default function ShipmentsPage() {
             timestamp: now.toISOString(),
         };
 
-        if (existingShipmentIndex !== -1) {
-          // Update existing shipment
-          const updatedShipments = [...prevShipments];
-          const existingShipment = updatedShipments[existingShipmentIndex];
-          updatedShipments[existingShipmentIndex] = {
-            ...existingShipment,
-            currentHolder: distributor.name,
-            startingPoint: formData.get('startingPoint') as string,
-            endingPoint: endingPoint,
-            status: 'Pending',
-            lastUpdate: now.toISOString(),
-            history: [...(existingShipment.history || []), historyEntry],
-          };
-          toast({
-            title: 'Shipment Updated',
-            description: `Shipment for batch ${batchId} has been updated and assigned to ${distributor.name}.`,
-          });
-          return updatedShipments;
-        } else {
-          // Create new shipment
-          const newShipment: Shipment = {
-            batchId: batchId,
-            currentHolder: distributor.name, // Assigned to distributor
-            startingPoint: formData.get('startingPoint') as string,
-            endingPoint: endingPoint,
-            status: 'Pending',
-            createdAt: now.toISOString(),
-            alerts: 0,
-            lastUpdate: now.toISOString(),
-            history: [historyEntry],
-          };
-          toast({
-            title: 'Shipment Created',
-            description: `Shipment for ${newShipment.batchId} assigned to ${distributor.name}.`,
-          });
-          return [newShipment, ...prevShipments];
-        }
+        const newShipment: Shipment = {
+          batchId: batchId,
+          currentHolder: distributor.name, // Assigned to distributor
+          startingPoint: formData.get('startingPoint') as string,
+          endingPoint: endingPoint,
+          status: 'Pending',
+          createdAt: now.toISOString(),
+          alerts: 0,
+          lastUpdate: now.toISOString(),
+          history: [historyEntry],
+        };
+        toast({
+          title: 'Shipment Created',
+          description: `Shipment for ${newShipment.batchId} assigned to ${distributor.name}.`,
+        });
+        return [newShipment, ...prevShipments];
     });
 
     setIsCreateDialogOpen(false);
@@ -320,7 +299,7 @@ export default function ShipmentsPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredShipments.map((shipment, index) => (
-                    <Collapsible asChild key={shipment.batchId} >
+                    <Collapsible asChild key={`${shipment.batchId}-${shipment.createdAt}`} >
                       <>
                         <TableRow className="animate-fade-in-up" style={{ animationDelay: `${index * 0.05}s` }}>
                           <TableCell>
@@ -516,5 +495,7 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
+    
 
     
