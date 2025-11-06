@@ -1,3 +1,4 @@
+
 import AlertsList from '@/components/app/alerts-list';
 import { alerts } from '@/lib/data';
 

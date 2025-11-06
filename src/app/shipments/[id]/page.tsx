@@ -94,7 +94,7 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
       toast({
         variant: 'destructive',
         title: 'Summarization Failed',
-        description: result.error || 'Could not generate AI summary.',
+        description: result.error || 'Could not generate summary.',
       });
     }
   };
