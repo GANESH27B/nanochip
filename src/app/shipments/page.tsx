@@ -458,7 +458,7 @@ export default function ShipmentsPage() {
                           </TableCell>
                           <TableCell className="text-right">{shipment ? shipment.alerts : 'N/A'}</TableCell>
                           <TableCell>
-                             {item.status === 'Ready-for-Shipment' && userRole === 'Manufacturer' ? (
+                             {item.status === 'Ready-for-Shipment' ? (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="outline" size="sm">
@@ -469,28 +469,26 @@ export default function ShipmentsPage() {
                                         <DropdownMenuItem onClick={() => openCreateShipmentDialog(item.batchId)}>
                                             Create Generic Shipment
                                         </DropdownMenuItem>
-                                        <DropdownMenuSub>
-                                            <DropdownMenuSubTrigger>Ship to Distributor</DropdownMenuSubTrigger>
-                                            <DropdownMenuPortal>
-                                                <DropdownMenuSubContent>
-                                                    <DropdownMenuLabel>Select Distributor</DropdownMenuLabel>
-                                                    {distributors.map(distributor => (
-                                                        <DropdownMenuItem 
-                                                            key={distributor.id} 
-                                                            onClick={() => openCreateShipmentDialog(item.batchId, distributor.name)}
-                                                        >
-                                                            {distributor.name}
-                                                        </DropdownMenuItem>
-                                                    ))}
-                                                </DropdownMenuSubContent>
-                                            </DropdownMenuPortal>
-                                        </DropdownMenuSub>
+                                        {userRole === 'Manufacturer' && (
+                                          <DropdownMenuSub>
+                                              <DropdownMenuSubTrigger>Ship to Distributor</DropdownMenuSubTrigger>
+                                              <DropdownMenuPortal>
+                                                  <DropdownMenuSubContent>
+                                                      <DropdownMenuLabel>Select Distributor</DropdownMenuLabel>
+                                                      {distributors.map(distributor => (
+                                                          <DropdownMenuItem 
+                                                              key={distributor.id} 
+                                                              onClick={() => openCreateShipmentDialog(item.batchId, distributor.name)}
+                                                          >
+                                                              {distributor.name}
+                                                          </DropdownMenuItem>
+                                                      ))}
+                                                  </DropdownMenuSubContent>
+                                              </DropdownMenuPortal>
+                                          </DropdownMenuSub>
+                                        )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
-                             ) : item.status === 'Ready-for-Shipment' ? (
-                                <Button variant="outline" size="sm" onClick={() => openCreateShipmentDialog(item.batchId)}>
-                                    Create Shipment
-                                </Button>
                              ) : (
                                 <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -652,5 +650,6 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
 
 
