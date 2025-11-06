@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Package, MoreHorizontal, Check, X } from 'lucide-react';
+import { PlusCircle, Package, MoreHorizontal, Check, X, Truck } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,11 +32,13 @@ import {
   DropdownMenuPortal,
   DropdownMenuSubContent
 } from '@/components/ui/dropdown-menu';
-import type { Product, ApprovalStatus, Role } from '@/lib/types';
+import type { Product, ApprovalStatus, Role, User, Shipment, Batch, RawMaterial, ShipmentHistoryEntry } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
-import { products as allProducts } from '@/lib/data';
+import { products as allProducts, users, shipments as initialShipments, batches as allBatches, rawMaterials } from '@/lib/data';
 import { format } from 'date-fns';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useRouter } from 'next/navigation';
 
 
 const approvalStatusStyles: { [key: string]: string } = {
@@ -54,6 +56,12 @@ export default function MyProductsPage() {
   const [userRole, setUserRole] = useState<Role | null>(null);
   const [activeTab, setActiveTab] = useState('all');
   const { toast } = useToast();
+  const router = useRouter();
+
+  const [isCreateShipmentDialogOpen, setIsCreateShipmentDialogOpen] = useState(false);
+  const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
+  const [prefillData, setPrefillData] = useState<{ productId?: string, productName?: string, destination?: string, availableItems?: (Product)[] }>({});
+
 
   useEffect(() => {
     const role = localStorage.getItem('userRole') as Role;
@@ -136,6 +144,70 @@ export default function MyProductsPage() {
     }
     return baseProducts;
   }, [products, manufacturerProducts, userRole, activeTab]);
+
+  const currentUser = userRole ? Object.values(users).find(u => u.role === userRole) : null;
+  const pharmacies: User[] = Object.values(users).filter(u => u.role === 'Pharmacy');
+  
+  const openCreateShipmentDialog = (product: Product, destination?: string) => {
+    setPrefillData({
+      productId: product.id,
+      productName: product.name,
+      destination,
+      availableItems: manufacturerProducts
+    });
+    setIsCreateShipmentDialogOpen(true);
+  };
+
+  const handleCreateShipment = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const now = new Date();
+
+    const productId = formData.get('productId') as string;
+    const product = products.find(p => p.id === productId);
+    if (!product) {
+      toast({ variant: "destructive", title: "Creation Failed", description: "Please select an item to ship." });
+      return;
+    }
+    
+    const startUser = currentUser;
+    const endUserName = formData.get('endingPoint') as string;
+    const endUser = Object.values(users).find(u => u.name === endUserName);
+
+    if (!startUser || !endUser) {
+        toast({ variant: "destructive", title: "Creation Failed", description: "Invalid start or end point." });
+        return;
+    }
+
+    const newShipment: Shipment = {
+      batchId: `SHIP-${Date.now()}`,
+      productName: product.name,
+      submissionType: 'NDA', // Default
+      assignedReviewer: 'Unassigned',
+      currentHolder: endUser.name,
+      startingPoint: startUser.location!,
+      endingPoint: endUser.location!,
+      status: 'In-Transit',
+      createdAt: now.toISOString(),
+      alerts: 0,
+      lastUpdate: now.toISOString(),
+      history: [
+        { status: 'Pending', holder: startUser.name, timestamp: now.toISOString() },
+        { status: 'In-Transit', holder: endUser.name, timestamp: now.toISOString() }
+      ],
+    };
+
+    setShipments(prev => [newShipment, ...prev]);
+
+    toast({
+      title: 'Shipment Created',
+      description: `Shipment for ${newShipment.productName} to ${endUser.name} is now In-Transit.`,
+    });
+
+    setIsCreateShipmentDialogOpen(false);
+    setPrefillData({});
+    router.push('/shipments');
+  };
 
   return (
     <>
@@ -328,6 +400,24 @@ export default function MyProductsPage() {
                                   </DropdownMenuSub>
                                 </>
                             )}
+                             {userRole === 'Distributor' && (
+                                <DropdownMenuSub>
+                                    <DropdownMenuSubTrigger>
+                                        <Truck className="mr-2 h-4 w-4" />
+                                        Ship to Pharmacy
+                                    </DropdownMenuSubTrigger>
+                                    <DropdownMenuPortal>
+                                        <DropdownMenuSubContent>
+                                            <DropdownMenuLabel>Select Pharmacy</DropdownMenuLabel>
+                                            {pharmacies.map(pharmacy => (
+                                                <DropdownMenuItem key={pharmacy.id} onClick={() => openCreateShipmentDialog(product, pharmacy.name)}>
+                                                    {pharmacy.name}
+                                                </DropdownMenuItem>
+                                            ))}
+                                        </DropdownMenuSubContent>
+                                    </DropdownMenuPortal>
+                                </DropdownMenuSub>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
@@ -369,6 +459,65 @@ export default function MyProductsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={isCreateShipmentDialogOpen} onOpenChange={(isOpen) => { setIsCreateShipmentDialogOpen(isOpen); if (!isOpen) setPrefillData({}); }}>
+        <DialogContent className="sm:max-w-[425px]">
+          <form onSubmit={handleCreateShipment}>
+            <DialogHeader>
+              <DialogTitle>Create New Shipment</DialogTitle>
+              <DialogDescription>
+                Manually enter the details for the new shipment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="productId" className="text-right">
+                  Item to Ship
+                </Label>
+                <Select name="productId" defaultValue={prefillData.productId}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select an item" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {prefillData.availableItems?.map(item => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.name} ({item.id})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+               <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="startingPoint" className="text-right">
+                  Origin
+                </Label>
+                <Input id="startingPoint" name="startingPoint" defaultValue={currentUser?.name || ''} className="col-span-3" required readOnly />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="endingPoint" className="text-right">
+                  Destination
+                </Label>
+                <Select name="endingPoint" defaultValue={prefillData.destination} required>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a destination" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {pharmacies.map(user => (
+                      <SelectItem key={user.id} value={user.name}>
+                        {user.name} ({user.role})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit">Create Shipment</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
+
