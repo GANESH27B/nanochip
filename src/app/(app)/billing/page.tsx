@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import type { Transaction } from '@/lib/types';
+import type { Transaction, Role } from '@/lib/types';
 import { transactions as initialTransactions } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -27,12 +27,24 @@ const defaultInvoice: InvoiceItem[] = [];
 export default function BillingPage() {
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>(defaultInvoice);
   const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+  const [userRole, setUserRole] = useState<Role | null>(null);
   const { toast } = useToast();
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [activeTab, setActiveTab] = useState('card');
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole') as Role;
+    if (role) {
+      setUserRole(role);
+    }
+    const storedInvoice = localStorage.getItem('currentInvoice');
+    if (storedInvoice) {
+      setInvoiceItems(JSON.parse(storedInvoice));
+    }
+  }, []);
 
   const stopCamera = useCallback(() => {
     if (videoRef.current && videoRef.current.srcObject) {
@@ -78,20 +90,10 @@ export default function BillingPage() {
     }
   }, [activeTab, stopCamera]);
 
-
-  useEffect(() => {
-    const storedInvoice = localStorage.getItem('currentInvoice');
-    if (storedInvoice) {
-      setInvoiceItems(JSON.parse(storedInvoice));
-    }
-  }, []);
-
   const processingFee = 5.00;
   const invoiceSubtotal = useMemo(() => invoiceItems.reduce((acc, item) => acc + item.price, 0), [invoiceItems]);
   const invoiceTotal = useMemo(() => invoiceSubtotal + processingFee, [invoiceSubtotal, processingFee]);
   const totalUnits = useMemo(() => invoiceItems.reduce((acc, item) => acc + item.quantity, 0), [invoiceItems]);
-
-  const currentBalance = useMemo(() => transactions.reduce((acc, t) => acc + t.amount, 0), [transactions]);
 
   const handlePayment = () => {
     if (invoiceItems.length === 0) {
@@ -163,6 +165,15 @@ export default function BillingPage() {
       description: 'Your transaction history has been downloaded.',
     });
   };
+
+  const displayedTransactions = useMemo(() => {
+    if (userRole === 'Manufacturer') {
+      // Example filter: show all transactions for Manufacturer
+      return transactions;
+    }
+    // In a real app, you would fetch and filter transactions based on the user
+    return transactions;
+  }, [userRole, transactions]);
 
 
   return (
@@ -308,7 +319,7 @@ export default function BillingPage() {
             <div className="grid gap-2">
               <CardTitle>Transaction History</CardTitle>
               <CardDescription>
-                A record of all financial activities on your account.
+                A record of all financial activities for this portal.
               </CardDescription>
             </div>
             <div className="ml-auto flex items-center gap-2">
@@ -331,7 +342,7 @@ export default function BillingPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map((transaction) => (
+                {displayedTransactions.map((transaction) => (
                   <TableRow key={transaction.id}>
                     <TableCell>
                       <div className="font-medium">{transaction.description}</div>
@@ -356,4 +367,5 @@ export default function BillingPage() {
     </div>
   );
 }
+    
     
