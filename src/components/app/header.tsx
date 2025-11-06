@@ -63,6 +63,28 @@ export default function AppHeader() {
              <Logo />
           </div>
           
+          <div className="hidden items-center gap-2 text-sm lg:flex">
+            <MapPin className="h-5 w-5 text-muted-foreground" />
+            <div className="flex flex-col">
+              <span className="font-bold">Express delivery to</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex cursor-pointer items-center text-muted-foreground">
+                    <span>400001 Mumbai</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuLabel>Select Location</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>New York</DropdownMenuItem>
+                  <DropdownMenuItem>London</DropdownMenuItem>
+                  <DropdownMenuItem>Tokyo</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
           <div className="flex-1">
             <div className="relative mx-auto max-w-lg">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
