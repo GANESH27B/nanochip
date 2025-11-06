@@ -37,7 +37,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -203,7 +202,7 @@ export default function ShipmentsPage() {
     setIsCreateDialogOpen(true);
   };
 
-  const availableBatches: (Batch | RawMaterial)[] = userRole === 'Ingredient Supplier' ? rawMaterials : allBatches;
+  const availableBatches: (Batch | RawMaterial)[] = userRole === 'Ingredient Supplier' ? rawMaterials.filter(rm => rm.status !== 'Shipped') : allBatches.filter(b => b.status !== 'Shipped');
   const manufacturers: User[] = Object.values(users).filter(u => u.role === 'Manufacturer');
   const distributors: User[] = Object.values(users).filter(u => u.role === 'Distributor');
   const pharmacies: User[] = Object.values(users).filter(u => u.role === 'Pharmacy');

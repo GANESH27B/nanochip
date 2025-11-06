@@ -43,6 +43,7 @@ import { useEffect, useState, useMemo } from 'react';
 import type { Role } from '@/lib/types';
 import { ThemeSwitcher } from '../theme-switcher';
 import Link from 'next/link';
+import { users } from '@/lib/data';
 
 const navItems = {
   all: [
@@ -86,12 +87,15 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const [userRole, setUserRole] = useState<Role | null>(null);
   const [userName, setUserName] = useState('PharmaChain User');
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const role = localStorage.getItem('userRole') as Role;
     if (role) {
       setUserRole(role);
-      // You can add logic here to get user's name based on role if needed
+      const currentUser = users[role as keyof typeof users] || { name: 'PharmaChain User', role: role };
+      setUser(currentUser);
+      setUserName(currentUser.name);
     }
   }, [pathname]);
 
@@ -150,7 +154,7 @@ export default function AppSidebar() {
              <div className="flex items-center gap-3 p-2 rounded-md hover:bg-sidebar-accent cursor-pointer w-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={userAvatar?.imageUrl} alt="User avatar" />
-                  <AvatarFallback>U</AvatarFallback>
+                  <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="text-left group-data-[collapsible=icon]:hidden">
                   <p className="text-sm font-medium">{userName}</p>
