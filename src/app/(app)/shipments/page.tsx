@@ -209,7 +209,7 @@ export default function ShipmentsPage() {
                           <SelectContent>
                             {availableBatches.map(batch => (
                               <SelectItem key={batch.id} value={batch.id}>
-                                {batch.drugName} ({batch.id})
+                                {batch.drugName} ({batch.id}) - Qty: {batch.quantity.toLocaleString()}
                               </SelectItem>
                             ))}
                           </SelectContent>
