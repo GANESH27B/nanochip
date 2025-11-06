@@ -9,12 +9,23 @@ import { Label } from '@/components/ui/label';
 import { PlusCircle, Package } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 // In a real app, this would be a more complex type
 type Product = {
   id: string;
   name: string;
   description: string;
+  dosageForm?: string;
+  routeOfAdministration?: string;
+  activeIngredients?: string;
+  manufacturerInfo?: string;
+  processDescription?: string;
+  stabilityData?: string;
+  clinicalSummary?: string;
+  labelingDetails?: string;
+  applicantInfo?: string;
 };
 
 export default function MyProductsPage() {
@@ -29,6 +40,15 @@ export default function MyProductsPage() {
       id: `PROD-${Date.now()}`,
       name: formData.get('product-name') as string,
       description: formData.get('product-description') as string,
+      dosageForm: formData.get('dosage-form') as string,
+      routeOfAdministration: formData.get('route-of-administration') as string,
+      activeIngredients: formData.get('active-ingredients') as string,
+      manufacturerInfo: formData.get('manufacturer-info') as string,
+      processDescription: formData.get('process-description') as string,
+      stabilityData: formData.get('stability-data') as string,
+      clinicalSummary: formData.get('clinical-summary') as string,
+      labelingDetails: formData.get('labeling-details') as string,
+      applicantInfo: formData.get('applicant-info') as string,
     };
 
     setProducts(prev => [...prev, newProduct]);
@@ -58,7 +78,7 @@ export default function MyProductsPage() {
                 </span>
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[600px]">
               <form onSubmit={handleAddProduct}>
                 <DialogHeader>
                   <DialogTitle>Add New Product</DialogTitle>
@@ -66,21 +86,55 @@ export default function MyProductsPage() {
                     Fill in the details to add a new product to your catalog.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="product-name" className="text-right">
-                      Name
-                    </Label>
-                    <Input id="product-name" name="product-name" className="col-span-3" required />
+                <ScrollArea className="h-[60vh] p-1">
+                <div className="grid gap-4 py-4 px-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="product-name">Product Name (Brand & Generic)</Label>
+                    <Input id="product-name" name="product-name" required />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="product-description" className="text-right">
-                      Description
-                    </Label>
-                    <Input id="product-description" name="product-description" className="col-span-3" required />
+                   <div className="grid gap-2">
+                    <Label htmlFor="product-description">Description</Label>
+                    <Textarea id="product-description" name="product-description" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="dosage-form">Dosage Form and Strength</Label>
+                    <Input id="dosage-form" name="dosage-form" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="route-of-administration">Route of Administration</Label>
+                    <Input id="route-of-administration" name="route-of-administration" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="active-ingredients">Active Ingredient(s) and Composition</Label>
+                    <Textarea id="active-ingredients" name="active-ingredients" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="manufacturer-info">Manufacturer Name & Address</Label>
+                    <Textarea id="manufacturer-info" name="manufacturer-info" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="process-description">Manufacturing Process Description</Label>
+                    <Textarea id="process-description" name="process-description" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="stability-data">Stability Data and Shelf Life</Label>
+                    <Input id="stability-data" name="stability-data" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="clinical-summary">Clinical Study Summary (Safety & Efficacy Data)</Label>
+                    <Textarea id="clinical-summary" name="clinical-summary" required />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="labeling-details">Labeling and Packaging Details</Label>
+                    <Textarea id="labeling-details" name="labeling-details" required />
+                  </div>
+                   <div className="grid gap-2">
+                    <Label htmlFor="applicant-info">Applicant / Company Information</Label>
+                    <Input id="applicant-info" name="applicant-info" required />
                   </div>
                 </div>
-                <DialogFooter>
+                </ScrollArea>
+                <DialogFooter className="pt-4 border-t">
                   <Button type="submit">Add Product</Button>
                 </DialogFooter>
               </form>
