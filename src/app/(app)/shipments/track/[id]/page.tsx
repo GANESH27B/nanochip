@@ -24,26 +24,30 @@ const statusColors: { [key: string]: string } = {
 
 
 export default function TrackShipmentPage({ params }: { params: { id: string } }) {
-  const { id } = params;
   const [shipment, setShipment] = useState<Shipment | undefined>();
+  const [id, setId] = useState<string | null>(null);
+
 
   useEffect(() => {
-    const currentShipment = initialShipments.find(s => s.batchId === id);
-    setShipment(currentShipment);
+    if (params.id) {
+      setId(params.id);
+      const currentShipment = initialShipments.find(s => s.batchId === params.id);
+      setShipment(currentShipment);
 
-    if (currentShipment) {
-        // This effect simulates real-time updates for the shipment status
-        const interval = setInterval(() => {
-        // In a real app, you would fetch this from a server
-        const updatedShipment = initialShipments.find(s => s.batchId === id);
-        if (updatedShipment && updatedShipment.status !== currentShipment?.status) {
-            setShipment(updatedShipment);
-        }
-        }, 2000); // Check for updates every 2 seconds
+      if (currentShipment) {
+          // This effect simulates real-time updates for the shipment status
+          const interval = setInterval(() => {
+          // In a real app, you would fetch this from a server
+          const updatedShipment = initialShipments.find(s => s.batchId === params.id);
+          if (updatedShipment && updatedShipment.status !== currentShipment?.status) {
+              setShipment(updatedShipment);
+          }
+          }, 2000); // Check for updates every 2 seconds
 
-        return () => clearInterval(interval);
+          return () => clearInterval(interval);
+      }
     }
-  }, [id]);
+  }, [params.id]);
 
   const { startUser, endUser } = useMemo(() => {
     if (!shipment) return { startUser: null, endUser: null };
