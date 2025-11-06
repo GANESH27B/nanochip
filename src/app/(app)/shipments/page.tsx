@@ -164,7 +164,7 @@ export default function ShipmentsPage() {
   };
 
   const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
-  const availableBatches = allBatches.filter(b => b.status === 'Ready-for-Shipment');
+  const availableBatches = allBatches;
 
   return (
     <>
