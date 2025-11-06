@@ -7,7 +7,7 @@ import { Siren, Sparkles, Loader2 } from 'lucide-react';
 import { shipments as initialShipments, alerts as allAlerts } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useMemo } from 'react';
-import type { Shipment, Role } from '@/lib/types';
+import type { Shipment, Role, ShipmentStatus } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { getAlertsSummary } from '@/app/actions';
 import {
@@ -17,9 +17,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useRouter } from 'next/navigation';
 
 export default function ShipmentDetailPage({ params }: { params: { id: string } }) {
   const [shipments, setShipments] = useState(initialShipments);
+  const router = useRouter();
   const id = params.id;
   
   const shipment = useMemo(() => shipments.find(s => s.batchId === id), [shipments, id]);
@@ -39,7 +41,7 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
 
   const shipmentAlerts = allAlerts.filter(a => a.batchId === id);
 
-  const handleUpdateStatus = (newStatus: 'Delivered' | 'In-Transit') => {
+  const handleUpdateStatus = (newStatus: ShipmentStatus) => {
     if (shipment) {
       setShipments(currentShipments =>
         currentShipments.map(s =>
@@ -47,8 +49,8 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
         )
       );
       toast({
-        title: `Shipment ${newStatus === 'Delivered' ? 'Approved' : 'Rejected'}`,
-        description: `Batch ${shipment.batchId} has been updated.`,
+        title: `Shipment Status Updated`,
+        description: `Batch ${shipment.batchId} has been updated to "${newStatus.replace('-', ' ')}".`,
       });
     }
   };
@@ -90,8 +92,9 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
           <Card className="lg:col-span-4">
-            <CardHeader>
+            <CardHeader className='flex-row items-center justify-between'>
               <CardTitle>Shipment Details</CardTitle>
+               <Button onClick={() => router.push(`/shipments/track/${shipment.batchId}`)}>Track on map</Button>
             </CardHeader>
             <CardContent className="grid gap-4">
               <div>
@@ -146,23 +149,29 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
         </div>
          <Card>
           <CardHeader>
-            <CardTitle>FDA Approval</CardTitle>
+            <CardTitle>Update Status</CardTitle>
+             <CardDescription>
+              Manually update the status of this shipment.
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Status: <span className="font-semibold">{shipment.status.replace('-', ' ')}</span>
-            </p>
-            {shipment.status === 'Requires-Approval' && userRole === 'FDA' && (
-              <div className="flex gap-2">
+            <div className="flex gap-2">
+              {(['Pending', 'In-Transit', 'Requires-Approval', 'Delivered'] as ShipmentStatus[]).map(status => (
+                  <Button 
+                    key={status} 
+                    onClick={() => handleUpdateStatus(status)}
+                    variant={shipment.status === status ? 'default' : 'outline'}
+                  >
+                    Mark as {status.replace('-', ' ')}
+                  </Button>
+              ))}
+            </div>
+             {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
+              <div className="mt-4 flex gap-2">
+                <p className='text-sm text-muted-foreground pt-2'>Or as an FDA agent you can: </p>
                 <Button onClick={() => handleUpdateStatus('Delivered')}>Approve Batch</Button>
                 <Button variant="destructive" onClick={() => handleUpdateStatus('In-Transit')}>Reject Batch</Button>
               </div>
-            )}
-             {shipment.status !== 'Requires-Approval' && (
-                <p className="text-sm text-muted-foreground">This shipment has already been reviewed.</p>
-            )}
-            {userRole !== 'FDA' && shipment.status === 'Requires-Approval' && (
-                 <p className="text-sm text-muted-foreground">Awaiting review from an FDA agent.</p>
             )}
           </CardContent>
         </Card>

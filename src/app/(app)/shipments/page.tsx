@@ -23,6 +23,10 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal
 } from '@/components/ui/dropdown-menu';
 import {
   Dialog,
@@ -36,7 +40,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
-import type { Shipment } from '@/lib/types';
+import type { Shipment, ShipmentStatus } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 const statusStyles: { [key: string]: string } = {
@@ -96,6 +100,18 @@ export default function ShipmentsPage() {
         description: 'This shipment does not have a valid starting or ending point.',
       });
     }
+  };
+
+  const handleUpdateStatus = (batchId: string, newStatus: ShipmentStatus) => {
+    setShipments(currentShipments =>
+      currentShipments.map(s =>
+        s.batchId === batchId ? { ...s, status: newStatus } : s
+      )
+    );
+    toast({
+      title: 'Shipment Status Updated',
+      description: `Batch ${batchId} is now ${newStatus.replace('-', ' ')}.`,
+    });
   };
 
   return (
@@ -198,9 +214,25 @@ export default function ShipmentsPage() {
                             <DropdownMenuItem asChild>
                               <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
                             </DropdownMenuItem>
-                             <DropdownMenuItem onClick={() => handleTrackOnMap(shipment)}>
-                              Track on Map
+                            <DropdownMenuItem asChild>
+                               <Link href={`/shipments/track/${shipment.batchId}`}>Track on Map</Link>
                             </DropdownMenuItem>
+                             <DropdownMenuSub>
+                                <DropdownMenuSubTrigger>Update Status</DropdownMenuSubTrigger>
+                                <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                    {(['Pending', 'In-Transit', 'Requires-Approval', 'Delivered'] as ShipmentStatus[]).map(status => (
+                                        <DropdownMenuItem 
+                                            key={status}
+                                            onClick={() => handleUpdateStatus(shipment.batchId, status)}
+                                            disabled={shipment.status === status}
+                                        >
+                                            Mark as {status.replace('-', ' ')}
+                                        </DropdownMenuItem>
+                                    ))}
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                            </DropdownMenuSub>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

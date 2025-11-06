@@ -13,6 +13,7 @@ import {
   CreditCard,
   ClipboardList,
   MessageSquare,
+  Map,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
@@ -98,7 +99,7 @@ export default function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
+                isActive={pathname.startsWith(item.href) && (item.href !== '/shipments' || pathname.includes('/shipments'))}
                 tooltip={{ children: item.label, side: 'right' }}
               >
                 <a href={item.href}>
@@ -151,5 +152,3 @@ export default function AppSidebar() {
     </Sidebar>
   );
 }
-
-    
