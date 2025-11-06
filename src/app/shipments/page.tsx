@@ -136,7 +136,7 @@ export default function ShipmentsPage() {
 
         const newShipment: Shipment = {
           batchId: batchId,
-          productName: allBatches.find(b => b.id === batchId)?.drugName || 'Unknown Product',
+          productName: allBatches.find(b => b.id === batchId)?.drugName || rawMaterials.find(rm => rm.id === batchId)?.name || 'Unknown Product',
           submissionType: 'NDA', // Default for new shipments
           assignedReviewer: 'Unassigned',
           currentHolder: startUser.name,
@@ -545,7 +545,7 @@ export default function ShipmentsPage() {
                   <SelectContent>
                     {prefillData.availableItems?.map(item => (
                       <SelectItem key={item.id} value={item.id}>
-                        {item.name} ({item.id})
+                        {item.name} ({'lotNumber' in item ? item.lotNumber : item.id})
                       </SelectItem>
                     ))}
                   </SelectContent>
