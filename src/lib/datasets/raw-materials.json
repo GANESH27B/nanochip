@@ -1,0 +1,39 @@
+
+[
+  {
+    "id": "RM-ACET-001",
+    "name": "Acetaminophen",
+    "supplier": "GlobalChem",
+    "lotNumber": "LOT-ACET-2024A",
+    "quantity": 500,
+    "units": "kg",
+    "status": "In-Stock"
+  },
+  {
+    "id": "RM-IBUP-001",
+    "name": "Ibuprofen Base",
+    "supplier": "PharmaSource",
+    "lotNumber": "LOT-IBUP-2024B",
+    "quantity": 750,
+    "units": "kg",
+    "status": "In-Stock"
+  },
+  {
+    "id": "RM-CELL-001",
+    "name": "Microcrystalline Cellulose",
+    "supplier": "BinderCorp",
+    "lotNumber": "LOT-CELL-2024C",
+    "quantity": 1200,
+    "units": "kg",
+    "status": "In-Stock"
+  },
+  {
+    "id": "RM-LACT-001",
+    "name": "Lactose Monohydrate",
+    "supplier": "FillerSupplies",
+    "lotNumber": "LOT-LACT-2023D",
+    "quantity": 40,
+    "units": "kg",
+    "status": "Low-Stock"
+  }
+]

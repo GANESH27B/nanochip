@@ -2,16 +2,17 @@
 
 import { cn } from '@/lib/utils';
 import type { Shipment, SupplyChainStage } from '@/lib/types';
-import { Factory, Truck, Store, PackageCheck } from 'lucide-react';
+import { Factory, Truck, Store, PackageCheck, Beaker } from 'lucide-react';
 import { users } from '@/lib/data';
 
 const stageIcons: { [key in SupplyChainStage]: React.ElementType } = {
+  'Ingredient Supplier': Beaker,
   Manufacturer: Factory,
   Distributor: Truck,
   Pharmacy: Store,
 };
 
-const STAGES: SupplyChainStage[] = ['Manufacturer', 'Distributor', 'Pharmacy'];
+const STAGES: SupplyChainStage[] = ['Ingredient Supplier', 'Manufacturer', 'Distributor', 'Pharmacy'];
 
 export default function SupplyChainStatus({ shipment }: { shipment: Shipment }) {
   const getActiveStageIndex = () => {
@@ -24,17 +25,19 @@ export default function SupplyChainStatus({ shipment }: { shipment: Shipment }) 
     if (!holder) return 0;
 
     switch (holder.role) {
-      case 'Manufacturer':
+      case 'Ingredient Supplier':
         return 0;
-      case 'Distributor':
+      case 'Manufacturer':
         return 1;
-      case 'Pharmacy':
+      case 'Distributor':
         return 2;
+      case 'Pharmacy':
+        return 3;
       default:
         // For roles like FDA, find the last non-regulatory holder
         for (let i = shipment.history.length - 2; i >= 0; i--) {
             const prevHolder = Object.values(users).find(u => u.name === shipment.history![i].holder);
-            if (prevHolder && ['Manufacturer', 'Distributor', 'Pharmacy'].includes(prevHolder.role)) {
+            if (prevHolder && STAGES.includes(prevHolder.role as SupplyChainStage)) {
                 return STAGES.indexOf(prevHolder.role as SupplyChainStage);
             }
         }
@@ -63,7 +66,7 @@ export default function SupplyChainStatus({ shipment }: { shipment: Shipment }) 
           const isActive = index === activeStageIndex && !isCompleted;
           const isPassed = index < activeStageIndex || isCompleted;
           return (
-            <div key={stage} className="flex flex-col items-center gap-2">
+            <div key={stage} className="flex flex-col items-center gap-2 text-center w-20">
               <div
                 className={cn(
                   'flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background transition-colors',
@@ -71,11 +74,11 @@ export default function SupplyChainStatus({ shipment }: { shipment: Shipment }) 
                   isActive && 'animate-pulse'
                 )}
               >
-                {isCompleted ? <PackageCheck className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                {isCompleted && index === STAGES.length - 1 ? <PackageCheck className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
               </div>
               <p
                 className={cn(
-                  'text-xs font-medium text-center',
+                  'text-xs font-medium',
                   isPassed ? 'text-primary' : 'text-muted-foreground',
                   isActive && 'font-bold'
                 )}

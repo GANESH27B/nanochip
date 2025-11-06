@@ -30,7 +30,7 @@ const formSchema = z.object({
   password: z.string().min(8, {
     message: 'Password must be at least 8 characters.',
   }),
-  role: z.enum(['Manufacturer', 'Distributor', 'Pharmacy', 'FDA']),
+  role: z.enum(['Manufacturer', 'Distributor', 'Pharmacy', 'FDA', 'Ingredient Supplier']),
 });
 
 export function SignUpForm() {
@@ -124,6 +124,7 @@ export function SignUpForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="Ingredient Supplier">Ingredient Supplier</SelectItem>
                       <SelectItem value="Manufacturer">Manufacturer</SelectItem>
                       <SelectItem value="Distributor">Distributor</SelectItem>
                       <SelectItem value="Pharmacy">Pharmacy</SelectItem>

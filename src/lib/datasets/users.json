@@ -34,5 +34,14 @@
     "location": "Washington, DC",
     "latitude": 38.9072,
     "longitude": -77.0369
+  },
+  "Ingredient Supplier": {
+    "id": "user-supplier",
+    "name": "Eve Supplier",
+    "email": "eve@ingredients.co",
+    "role": "Ingredient Supplier",
+    "location": "Philadelphia, PA",
+    "latitude": 39.9526,
+    "longitude": -75.1652
   }
 }

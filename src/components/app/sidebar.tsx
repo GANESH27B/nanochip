@@ -13,6 +13,7 @@ import {
   ClipboardList,
   MessageSquare,
   ShieldCheck,
+  Beaker,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
@@ -52,6 +53,7 @@ const navItems = {
     { href: '/needed-drugs', icon: ClipboardList, label: 'Needed Drugs' },
     { href: '/billing', icon: CreditCard, label: 'Billing' },
   ],
+  'Ingredient Supplier': [{ href: '/raw-materials', icon: Beaker, label: 'Raw Materials' }],
   Manufacturer: [{ href: '/batches', icon: FlaskConical, label: 'Batches' }],
   FDA: [{ href: '/approvals', icon: Package, label: 'Approvals' }],
 };
