@@ -75,13 +75,6 @@ const manufacturerActionCategories = [
 
 const fdaActionCategories = [
     {
-        id: 'dashboard-overview',
-        href: '#',
-        label: 'Dashboard Overview',
-        icon: LayoutGrid,
-        description: 'Summary, charts, key metrics',
-    },
-    {
         id: 'product-management',
         href: '#',
         label: 'Product Management',
@@ -215,8 +208,6 @@ export default function DashboardPage() {
   const handleFdaModuleClick = (moduleId: string, href: string) => {
     if (moduleId === 'product-management') {
       setActiveFdaModule('product-management');
-    } else if (moduleId === 'dashboard-overview') {
-      setActiveFdaModule('dashboard-overview');
     } else if (href !== '#') {
       router.push(href);
     }
