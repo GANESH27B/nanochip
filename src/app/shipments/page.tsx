@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -461,9 +460,34 @@ export default function ShipmentsPage() {
                           <TableCell className="text-right">{shipment ? shipment.alerts : 'N/A'}</TableCell>
                           <TableCell>
                              {item.status === 'Ready-for-Shipment' ? (
-                                <Button variant="outline" size="sm" onClick={() => openCreateShipmentDialog(item.batchId)}>
-                                    Create Shipment
-                                </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline" size="sm">
+                                            Actions <ChevronDown className="ml-2 h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuItem onClick={() => openCreateShipmentDialog(item.batchId)}>
+                                            Create Shipment
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSub>
+                                            <DropdownMenuSubTrigger>Ship to Distributor</DropdownMenuSubTrigger>
+                                            <DropdownMenuPortal>
+                                                <DropdownMenuSubContent>
+                                                    <DropdownMenuLabel>Select Distributor</DropdownMenuLabel>
+                                                    {distributors.map(distributor => (
+                                                        <DropdownMenuItem 
+                                                            key={distributor.id} 
+                                                            onClick={() => openCreateShipmentDialog(item.batchId, distributor.name)}
+                                                        >
+                                                            {distributor.name}
+                                                        </DropdownMenuItem>
+                                                    ))}
+                                                </DropdownMenuSubContent>
+                                            </DropdownMenuPortal>
+                                        </DropdownMenuSub>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                              ) : (
                                 <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -625,3 +649,5 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
+    
