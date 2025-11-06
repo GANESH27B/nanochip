@@ -76,27 +76,9 @@ export default function AppHeader({ title }: { title?: string }) {
           
           {!isMobile && (
               <>
-                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                         <Button variant="ghost" className="gap-2">
-                            <User className="h-5 w-5" /> Hello, {userName.split(' ')[0]}
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link href="/profile">
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Profile</span>
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={handleLogout}>
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                 <Button variant="ghost" className="gap-2">
+                    <User className="h-5 w-5" /> Hello, {userName.split(' ')[0]}
+                </Button>
 
                 <Button variant="ghost" className="gap-2">
                     <Percent className="h-5 w-5" /> Offers
