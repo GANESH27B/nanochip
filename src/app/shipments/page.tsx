@@ -642,7 +642,7 @@ export default function ShipmentsPage() {
                   <SelectContent>
                     {nextStageUsers.map(user => (
                       <SelectItem key={user.id} value={user.name}>
-                        {user.name} ({user.role === 'Distributor' ? user.location : user.role})
+                        {user.name} ({user.role})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -658,6 +658,7 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
 
 
 
