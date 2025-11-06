@@ -30,7 +30,6 @@ export const navItems = {
     { href: '/analytics', icon: LineChart, label: 'Analytics' },
     { href: '/alerts', icon: Siren, label: 'Alerts' },
     { href: '/needed-drugs', icon: ClipboardList, label: 'Needed Drugs' },
-    { href: '/billing', icon: CreditCard, label: 'Billing' },
   ],
   'Ingredient Supplier': [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -42,7 +41,6 @@ export const navItems = {
     { href: '/batches', icon: FlaskConical, label: 'Batches' },
     { href: '/shipments', icon: Truck, label: 'Shipments' },
     { href: '/my-products', icon: ShoppingBag, label: 'My Products' },
-    { href: '/billing', icon: CreditCard, label: 'Billing' },
   ],
   FDA: [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
@@ -54,12 +52,10 @@ export const navItems = {
   Distributor: [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/shipments', icon: Truck, label: 'Shipments' },
-    { href: '/billing', icon: CreditCard, label: 'Billing' },
   ],
   Pharmacy: [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/shipments', icon: Truck, label: 'Shipments' },
-    { href: '/billing', icon: CreditCard, label: 'Billing' },
   ],
 };
 
