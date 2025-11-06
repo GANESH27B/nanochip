@@ -428,7 +428,7 @@ export default function ShipmentsPage() {
                     const shipment = isShipment ? item as Shipment : null;
                     const isCurrentUserHolder = shipment?.currentHolder === currentUser?.name;
                     const currentHolderUser = shipment ? Object.values(users).find(u => u.name === shipment.currentHolder) : null;
-                    const canShip = isCurrentUserHolder && shipment && (shipment.status === 'Pending' || (shipment.status === 'Delivered' && currentHolderUser?.role !== 'Pharmacy' && currentHolderUser?.role !== 'Patient'));
+                    const canShip = isCurrentUserHolder && shipment && (shipment.status === 'Pending' || (shipment.status === 'Delivered' && currentHolderUser?.role === 'Manufacturer'));
                     const nextPossibleUsers = canShip && currentHolderUser ? getNextStageUsers(currentHolderUser.role) : [];
                     
                     return (
