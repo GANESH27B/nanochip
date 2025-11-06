@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, Search, User, MapPin, ChevronDown, ShoppingCart, Percent } from 'lucide-react';
+import { Bell, Search, User, MapPin, ChevronDown, ShoppingCart, Percent, LogOut } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import {
@@ -22,12 +22,16 @@ import Link from 'next/link';
 import { Logo } from '../logo';
 import { ThemeSwitcher } from '../theme-switcher';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function AppHeader({ title }: { title?: string }) {
   const { searchTerm, setSearchTerm } = useSearch();
   const { isMobile } = useSidebar();
   const pathname = usePathname();
-  const { handleLogout, userName, visibleNavItems } = useAppNavigation();
+  const { handleLogout, userName, user } = useAppNavigation();
+  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
+
 
   const showSearch = ['/shipments', '/alerts', '/batches', '/raw-materials', '/needed-drugs'].includes(pathname);
 
@@ -67,14 +71,33 @@ export default function AppHeader({ title }: { title?: string }) {
           </div>
         </div>
 
-        <div className="ml-auto flex items-center gap-4">
+        <div className="ml-auto flex items-center gap-2">
           <ThemeSwitcher />
           
           {!isMobile && (
               <>
-                 <Button variant="ghost" className="gap-2">
-                    <User className="h-5 w-5" /> Hello, {userName.split(' ')[0]}
-                </Button>
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                         <Button variant="ghost" className="gap-2">
+                            <User className="h-5 w-5" /> Hello, {userName.split(' ')[0]}
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                            <Link href="/profile">
+                            <User className="mr-2 h-4 w-4" />
+                            <span>Profile</span>
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout}>
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Logout</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
                 <Button variant="ghost" className="gap-2">
                     <Percent className="h-5 w-5" /> Offers
                 </Button>
@@ -86,8 +109,11 @@ export default function AppHeader({ title }: { title?: string }) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden">
-                <User className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+                 <Avatar className="h-8 w-8">
+                    <AvatarImage src={userAvatar?.imageUrl} />
+                    <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -99,14 +125,21 @@ export default function AppHeader({ title }: { title?: string }) {
                   <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Percent className="mr-2 h-4 w-4" /> Offers
-              </DropdownMenuItem>
-               <DropdownMenuItem>
-                <ShoppingCart className="mr-2 h-4 w-4" /> Cart
-              </DropdownMenuItem>
+              {isMobile && (
+                 <>
+                    <DropdownMenuItem>
+                        <Percent className="mr-2 h-4 w-4" /> Offers
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                        <ShoppingCart className="mr-2 h-4 w-4" /> Cart
+                    </DropdownMenuItem>
+                 </>
+              )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                 <LogOut className="mr-2 h-4 w-4" />
+                 <span>Logout</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -114,7 +147,7 @@ export default function AppHeader({ title }: { title?: string }) {
       
       {!isMobile && (
          <nav className="flex items-center gap-6 text-sm font-medium px-6 h-12 border-t justify-center">
-            {visibleNavItems.map((item) => (
+            {useAppNavigation().visibleNavItems.map((item) => (
                 <Link
                 key={item.href}
                 href={item.href}
