@@ -33,10 +33,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { batches as initialBatches } from '@/lib/data';
-import type { Batch } from '@/lib/types';
+import { batches as initialBatches, products as allProducts } from '@/lib/data';
+import type { Batch, Product } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const statusStyles: { [key: string]: string } = {
   'In-Production': 'bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300',
@@ -50,12 +51,24 @@ export default function BatchesPage() {
   const { toast } = useToast();
   const router = useRouter();
 
+  const approvedProducts = allProducts.filter(p => p.productStatus === 'Approved');
+
   const handleCreateBatch = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const drugName = formData.get('drugName') as string;
+    if (!drugName) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Please select a drug to create a batch.',
+      });
+      return;
+    }
+    
     const newBatch: Batch = {
       id: `B-NEW-${Math.floor(Math.random() * 90000) + 10000}`,
-      drugName: formData.get('drugName') as string,
+      drugName: drugName,
       quantity: parseInt(formData.get('quantity') as string, 10),
       manufactureDate: new Date().toISOString(),
       expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString(),
@@ -117,7 +130,18 @@ export default function BatchesPage() {
                     <Label htmlFor="drugName" className="text-right">
                       Drug Name
                     </Label>
-                    <Input id="drugName" name="drugName" required className="col-span-3" />
+                    <Select name="drugName" required>
+                      <SelectTrigger className="col-span-3">
+                        <SelectValue placeholder="Select approved product" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {approvedProducts.map((product: Product) => (
+                          <SelectItem key={product.id} value={product.name}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="quantity" className="text-right">
