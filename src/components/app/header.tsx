@@ -40,38 +40,28 @@ export default function AppHeader({ title }: { title?: string }) {
       <div className="flex h-16 items-center gap-4 px-4 sm:px-6">
         <div className="flex items-center gap-2">
           {isMobile && <SidebarTrigger />}
-          <Link href="/dashboard" className="flex items-center gap-2">
+          <Link href="/dashboard" className="hidden items-center gap-2 md:flex">
             <Logo />
           </Link>
         </div>
-
-        {!isMobile && (
-           <div className="flex items-center gap-2 text-sm text-muted-foreground ml-4 border-l pl-4">
-              <MapPin className="h-4 w-4" />
-              <span>Express delivery to</span>
-              <Button variant="ghost" className="p-1 h-auto text-primary font-semibold">
-                400001 Mumbai <ChevronDown className="h-4 w-4" />
-              </Button>
-           </div>
-        )}
         
-        <div className="flex-1 flex justify-center px-4">
-          <div className="relative w-full max-w-lg">
-            <Input
-              type="search"
-              placeholder="Search for Medicine"
-              className="w-full rounded-full bg-muted pl-10 pr-24"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Button variant="default" className="absolute right-1 top-1/2 h-8 -translate-y-1/2 rounded-full px-6">
-              Search
-            </Button>
-          </div>
+        <div className='flex items-center gap-4'>
+           <h1 className="text-xl font-semibold md:text-2xl">{title}</h1>
         </div>
 
         <div className="ml-auto flex items-center gap-2">
+          {showSearch && !isMobile && (
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          )}
           <ThemeSwitcher />
           
           <DropdownMenu>
@@ -117,23 +107,6 @@ export default function AppHeader({ title }: { title?: string }) {
           </DropdownMenu>
         </div>
       </div>
-      
-      {!isMobile && (
-         <nav className="flex items-center gap-6 text-sm font-medium px-6 h-12 border-t justify-center">
-            {visibleNavItems.map((item) => (
-                <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                    "transition-colors hover:text-primary pb-1",
-                    pathname === item.href ? "text-primary border-b-2 border-primary" : "text-foreground/60"
-                )}
-                >
-                {item.label}
-                </Link>
-            ))}
-        </nav>
-      )}
     </header>
   );
 }

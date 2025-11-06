@@ -29,6 +29,7 @@ export default function AppSidebar() {
       <SidebarHeader>
         <Link href="/dashboard" className="flex items-center gap-2">
             <Logo />
+            <span className="font-semibold text-lg">PharmaChain</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>
