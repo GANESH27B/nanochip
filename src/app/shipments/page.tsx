@@ -97,7 +97,9 @@ export default function ShipmentsPage() {
   const { toast } = useToast();
   const router = useRouter();
 
+  const [isClient, setIsClient] = useState(false);
   useEffect(() => {
+    setIsClient(true);
     const role = localStorage.getItem('userRole') as Role;
     if (role) {
       setUserRole(role);
@@ -118,8 +120,28 @@ export default function ShipmentsPage() {
     const existingBatchIds = new Set(manufacturerBatches.map(b => b.batchId));
     const uniqueShipments = shipments.filter(s => !existingBatchIds.has(s.batchId));
 
-    return [...manufacturerBatches, ...uniqueShipments];
-  }, [shipments]);
+    const allItems = [...manufacturerBatches, ...uniqueShipments];
+
+    if (!userRole || !isClient) return [];
+
+    if (userRole === 'Manufacturer') {
+        return allItems.filter(item => item.currentHolder === 'Alice Manufacturer' || ('startingPoint' in item && (item as Shipment).startingPoint === 'New York, NY'));
+    }
+    
+    if (userRole === 'Distributor') {
+        const distName = users.Distributor.name;
+        const distLocation = users.Distributor.location;
+        return allItems.filter(item => 'startingPoint' in item && ((item as Shipment).currentHolder === distName || ((item as Shipment).endingPoint === distLocation && (item as Shipment).status === 'In-Transit')));
+    }
+    
+    if (userRole === 'Pharmacy') {
+        const pharmName = users.Pharmacy.name;
+        const pharmLocation = users.Pharmacy.location;
+        return allItems.filter(item => 'startingPoint' in item && ((item as Shipment).currentHolder === pharmName || ((item as Shipment).endingPoint === pharmLocation && (item as Shipment).status === 'In-Transit')));
+    }
+
+    return allItems;
+  }, [shipments, userRole, isClient]);
 
 
   const filteredItems = useMemo(() => {
@@ -159,29 +181,34 @@ export default function ShipmentsPage() {
             timestamp: now.toISOString(),
         };
 
+        const inTransitHistoryEntry: ShipmentHistoryEntry = {
+            status: 'In-Transit',
+            holder: endUser.name, // Immediately transfer to the distributor
+            timestamp: now.toISOString(),
+        };
+
         const newShipment: Shipment = {
           batchId: batchId,
           productName: allBatches.find(b => b.id === batchId)?.drugName || rawMaterials.find(rm => rm.id === batchId)?.name || 'Unknown Product',
           submissionType: 'NDA', // Default for new shipments
           assignedReviewer: 'Unassigned',
-          currentHolder: startUser.name,
+          currentHolder: endUser.name, // Set distributor as current holder
           startingPoint: startUser.location!,
           endingPoint: endUser.location!,
-          status: 'Pending',
+          status: 'In-Transit', // Set status to In-Transit
           createdAt: now.toISOString(),
           alerts: 0,
           lastUpdate: now.toISOString(),
-          history: [historyEntry],
+          history: [historyEntry, inTransitHistoryEntry],
         };
         toast({
           title: 'Shipment Created',
-          description: `Shipment for ${newShipment.batchId} from ${startUser.name} to ${endUser.name} has been initiated.`,
+          description: `Shipment for ${newShipment.batchId} to ${endUser.name} is now In-Transit.`,
         });
 
         // Mark the item as shipped if it's a raw material or batch
         if (userRole === 'Ingredient Supplier') {
             const newRawMaterials = rawMaterials.map(rm => rm.id === batchId ? {...rm, status: 'Shipped'} : rm);
-            // This is a client-side only update for demo purposes. In a real app, this would be an API call.
             console.log("Updated raw materials (simulation):", newRawMaterials);
         } else if (userRole === 'Manufacturer') {
             const newBatches = allBatches.map(b => b.id === batchId ? {...b, status: 'Shipped'} : b);
@@ -242,7 +269,7 @@ export default function ShipmentsPage() {
     if (userRole === 'Ingredient Supplier') {
       availableItems = rawMaterials.filter(rm => rm.status === 'In-Stock' || rm.status === 'Low-Stock');
     } else if (userRole === 'Manufacturer') {
-      availableItems = allBatches;
+      availableItems = allBatches.filter(b => b.status === 'Ready-for-Shipment');
     }
     setPrefillData({ batchId, destination, availableItems });
     setIsCreateDialogOpen(true);
@@ -425,10 +452,12 @@ export default function ShipmentsPage() {
                     const isShipment = 'startingPoint' in item;
                     const shipment = isShipment ? item as Shipment : null;
                     const isCurrentUserHolder = shipment?.currentHolder === currentUser?.name;
-                    const currentHolderUser = shipment ? Object.values(users).find(u => u.name === shipment.currentHolder) : null;
-                    const canShip = isCurrentUserHolder && shipment && (shipment.status === 'Pending' || (shipment.status === 'Delivered' && currentHolderUser?.role === 'Manufacturer'));
-                    const nextPossibleUsers = canShip && currentHolderUser ? getNextStageUsers(currentHolderUser.role) : [];
+                    const currentHolderUser = shipment ? Object.values(users).find(u => u.name === shipment.currentHolder) : currentUser;
                     
+                    const canShip = item.status === 'Ready-for-Shipment' && userRole === 'Manufacturer';
+                    
+                    const canReceive = isShipment && shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location;
+
                     return (
                     <Collapsible asChild key={`${item.batchId}-${index}`}>
                       <>
@@ -454,7 +483,7 @@ export default function ShipmentsPage() {
                           <TableCell className="hidden md:table-cell">{item.currentHolder}</TableCell>
                           <TableCell className="hidden md:table-cell">{shipment ? `${shipment.startingPoint} to ${shipment.endingPoint}` : 'N/A'}</TableCell>
                           <TableCell className="hidden md:table-cell">
-                            <ClientOnlyDate isoDate={item.lastUpdate} />
+                            {isClient && <ClientOnlyDate isoDate={item.lastUpdate} />}
                           </TableCell>
                           <TableCell className="text-right">{shipment ? shipment.alerts : 'N/A'}</TableCell>
                           <TableCell>
@@ -478,11 +507,12 @@ export default function ShipmentsPage() {
                                     </>
                                 )}
 
+                                {canShip && (
                                 <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger>Create Shipment</DropdownMenuSubTrigger>
+                                    <DropdownMenuSubTrigger>Ship to Distributor</DropdownMenuSubTrigger>
                                     <DropdownMenuPortal>
                                         <DropdownMenuSubContent>
-                                            <DropdownMenuLabel>Ship to Distributor</DropdownMenuLabel>
+                                            <DropdownMenuLabel>Select Distributor</DropdownMenuLabel>
                                             {distributors.map(distributor => (
                                                 <DropdownMenuItem 
                                                     key={distributor.id} 
@@ -494,24 +524,9 @@ export default function ShipmentsPage() {
                                         </DropdownMenuSubContent>
                                     </DropdownMenuPortal>
                                 </DropdownMenuSub>
-
-                                {canShip && nextPossibleUsers.length > 0 && (
-                                <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger>Ship to Next</DropdownMenuSubTrigger>
-                                    <DropdownMenuPortal>
-                                    <DropdownMenuSubContent>
-                                        <DropdownMenuLabel>Select Recipient</DropdownMenuLabel>
-                                        {nextPossibleUsers.map(user => (
-                                        <DropdownMenuItem key={user.id} onClick={() => handleUpdateStatus(item.batchId, 'In-Transit', user.name)}>
-                                            {user.name} ({user.role})
-                                        </DropdownMenuItem>
-                                        ))}
-                                    </DropdownMenuSubContent>
-                                    </DropdownMenuPortal>
-                                </DropdownMenuSub>
                                 )}
                                 
-                                {shipment && shipment.currentHolder !== currentUser?.name && shipment.status === 'In-Transit' && shipment.endingPoint === currentUser?.location && (
+                                {canReceive && (
                                     <DropdownMenuItem onClick={() => handleUpdateStatus(item.batchId, 'Delivered', currentUser!.name)}>
                                         Mark as Received
                                     </DropdownMenuItem>
@@ -558,7 +573,7 @@ export default function ShipmentsPage() {
                                                 </TableCell>
                                                 <TableCell>{entry.holder}</TableCell>
                                                 <TableCell>
-                                                    <ClientOnlyDate isoDate={entry.timestamp} />
+                                                   {isClient && <ClientOnlyDate isoDate={entry.timestamp} />}
                                                 </TableCell>
                                                 </TableRow>
                                             ))}
@@ -638,6 +653,7 @@ export default function ShipmentsPage() {
     </>
   );
 }
+
 
 
 
