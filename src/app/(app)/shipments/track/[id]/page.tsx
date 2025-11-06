@@ -3,7 +3,7 @@
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { shipments as initialShipments, users } from '@/lib/data';
-import { useMemo, useState, useEffect, use } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { Shipment } from '@/lib/types';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
@@ -23,11 +23,10 @@ const statusColors: { [key: string]: string } = {
 };
 
 
-export default function TrackShipmentPage() {
-  const params = use(Promise.resolve(useParams() as { id: string }));
-  const id = params.id;
+export default function TrackShipmentPage({ params }: { params: { id: string } }) {
+  const { id } = params;
   const [shipments, setShipments] = useState(initialShipments);
-  const [shipment, setShipment] = useState<Shipment | undefined>(initialShipments.find(s => s.batchId === id));
+  const [shipment, setShipment] = useState<Shipment | undefined>(() => initialShipments.find(s => s.batchId === id));
 
   useEffect(() => {
     // This effect simulates real-time updates for the shipment status
@@ -107,14 +106,4 @@ export default function TrackShipmentPage() {
       </main>
     </div>
   );
-}
-
-function useParams() {
-    const [params, setParams] = useState<null | { id: string }>(null);
-    useEffect(() => {
-        const pathParts = window.location.pathname.split('/');
-        const id = pathParts[pathParts.length - 1];
-        setParams({ id });
-    }, []);
-    return params;
 }
