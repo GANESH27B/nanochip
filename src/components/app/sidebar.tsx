@@ -56,6 +56,7 @@ const navItems = {
   'Ingredient Supplier': [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/raw-materials', icon: Beaker, label: 'Raw Materials' },
+    { href: '/shipments', icon: Truck, label: 'Shipments' },
   ],
   Manufacturer: [{ href: '/batches', icon: FlaskConical, label: 'Batches' }],
   FDA: [{ href: '/approvals', icon: Package, label: 'Approvals' }],
