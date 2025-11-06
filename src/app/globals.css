@@ -30,6 +30,16 @@
     --chart-3: 160 70% 45%;
     --chart-4: 200 80% 50%;
     --chart-5: 340 75% 55%;
+
+     /* Sidebar Custom Colors */
+    --sidebar-background: 240 10% 3.9%; /* Same as dark background */
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 25 95% 53%;
   }
 
   .dark {
@@ -52,6 +62,16 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 25 95% 53%;
+
+    /* Dark Sidebar colors are the same as the default sidebar colors */
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 25 95% 53%;
   }
 }
 

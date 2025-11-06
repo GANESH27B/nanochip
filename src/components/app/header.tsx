@@ -21,7 +21,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { navItems, useAppNavigation } from './navigation';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 import { Logo } from '../logo';
 import { ThemeSwitcher } from '../theme-switcher';
 
@@ -29,7 +28,7 @@ export default function AppHeader() {
   const { searchTerm, setSearchTerm } = useSearch();
   const { isMobile } = useSidebar();
   const pathname = usePathname();
-  const { userRole, userName, user, handleLogout, visibleNavItems } = useAppNavigation();
+  const { handleLogout, userName } = useAppNavigation();
 
   const showSearch = ['/shipments', '/alerts', '/batches', '/raw-materials', '/needed-drugs'].includes(pathname);
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
@@ -49,32 +48,10 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 sm:px-6">
       <div className="flex items-center gap-4">
-        {!isMobile && <Logo className="h-6" />}
-        {isMobile && <SidebarTrigger />}
+        {isMobile && <Logo className="h-6" />}
+        <SidebarTrigger />
         <h1 className="hidden text-lg font-semibold md:block">{getPageTitle()}</h1>
       </div>
-
-      {!isMobile && (
-        <nav className="mx-auto flex items-center space-x-2">
-          {visibleNavItems.map((item) => (
-            <Button
-              key={item.href}
-              asChild
-              variant="ghost"
-              size="sm"
-              className={cn(
-                'text-sm font-medium text-muted-foreground transition-colors hover:text-primary',
-                pathname === item.href && 'text-primary'
-              )}
-            >
-              <Link href={item.href}>
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.label}
-              </Link>
-            </Button>
-          ))}
-        </nav>
-      )}
 
       <div className="ml-auto flex items-center gap-4">
         {showSearch && (

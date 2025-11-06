@@ -13,30 +13,16 @@ import {
 import { Logo } from '../logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-
-import { ThemeSwitcher } from '../theme-switcher';
-import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAppNavigation } from './navigation';
 
 export default function AppSidebar() {
-  const { userRole, userName, handleLogout, visibleNavItems } = useAppNavigation();
-
+  const { userRole, userName, visibleNavItems } = useAppNavigation();
+  const pathname = usePathname();
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   return (
-    <Sidebar
-      variant="sidebar"
-      collapsible="offcanvas"
-      className="border-r bg-background text-foreground md:hidden"
-    >
+    <Sidebar>
       <SidebarHeader className="border-b">
         <div className="flex w-full items-center justify-between p-4">
           <Logo />
@@ -48,8 +34,7 @@ export default function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                // @ts-ignore
-                isActive={typeof window !== 'undefined' && window.location.pathname === item.href}
+                isActive={pathname === item.href}
               >
                 <a href={item.href}>
                   <item.icon />
