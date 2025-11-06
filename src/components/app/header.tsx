@@ -23,19 +23,8 @@ import {
 } from "@/components/ui/sheet"
 
 
-const mainNavLinks = [
-  { label: 'Medicine', href: '#' },
-  { label: 'Healthcare', href: '#', dropdown: true },
-  { label: 'Doctor Consult', href: '#' },
-  { label: 'Lab Tests', href: '/analytics', dropdown: true },
-  { label: 'PLUS', href: '#' },
-  { label: 'Health Insights', href: '#', dropdown: true },
-  { label: 'Offers', href: '#' },
-];
-
-
 export default function AppHeader() {
-  const { handleLogout, userName } = useAppNavigation();
+  const { handleLogout, userName, visibleNavItems } = useAppNavigation();
 
   return (
     <header className="sticky top-0 z-30 flex w-full flex-col border-b bg-background shadow-sm">
@@ -52,14 +41,16 @@ export default function AppHeader() {
                 <div className="flex flex-col gap-4 p-4">
                   <Logo />
                   <nav className="flex flex-col gap-2">
-                    {mainNavLinks.map((item, index) => (
+                    {visibleNavItems.map((item, index) => (
                       <Link
                         key={index}
                         href={item.href}
                         className="flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium hover:bg-muted"
                       >
-                        {item.label}
-                        {item.dropdown && <ChevronDown className="h-4 w-4" />}
+                        <div className="flex items-center gap-2">
+                           <item.icon className="h-4 w-4" />
+                           {item.label}
+                        </div>
                       </Link>
                     ))}
                   </nav>
@@ -144,16 +135,16 @@ export default function AppHeader() {
       <div className="hidden border-t md:block">
         <div className="container mx-auto px-4">
             <nav className="flex h-12 items-center justify-center gap-8">
-                 {mainNavLinks.map((item, index) => (
+                 {visibleNavItems.map((item, index) => (
                     <Link
                         key={index}
                         href={item.href}
                         className={cn(
-                            "flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
+                            "flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
                         )}
                     >
+                        <item.icon className="h-4 w-4" />
                         {item.label}
-                        {item.dropdown && <ChevronDown className="h-4 w-4" />}
                     </Link>
                 ))}
             </nav>
