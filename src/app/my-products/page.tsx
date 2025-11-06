@@ -293,16 +293,16 @@ export default function MyProductsPage() {
                             {userRole === 'Manufacturer' && (
                                 <>
                                     <DropdownMenuItem 
-                                        disabled={product.ideaStatus !== 'Not Submitted'}
+                                        disabled={!['Not Submitted', 'Rejected'].includes(product.ideaStatus)}
                                         onClick={() => handleUpdateApprovalStatus(product.id, 'idea', 'Pending')}
                                     >
-                                        Submit for Idea Approval
+                                        {product.ideaStatus === 'Rejected' ? 'Resubmit for Idea Approval' : 'Submit for Idea Approval'}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem 
-                                        disabled={product.ideaStatus !== 'Approved' || product.productStatus !== 'Not Submitted'}
+                                        disabled={product.ideaStatus !== 'Approved' || !['Not Submitted', 'Rejected'].includes(product.productStatus)}
                                         onClick={() => handleUpdateApprovalStatus(product.id, 'product', 'Pending')}
                                     >
-                                        Submit for Final Product Approval
+                                        {product.productStatus === 'Rejected' ? 'Resubmit for Final Product Approval' : 'Submit for Final Product Approval'}
                                     </DropdownMenuItem>
                                 </>
                             )}
@@ -359,7 +359,7 @@ export default function MyProductsPage() {
                     <DetailItem label="Stability Data" value={selectedProduct.stabilityData} />
                     <DetailItem label="Clinical Summary" value={selectedProduct.clinicalSummary} />
                     <DetailItem label="Labeling Details" value={selectedProduct.labelingDetails} />
-                    <DetailItem label="Applicant Info" value={selected.applicantInfo} />
+                    <DetailItem label="Applicant Info" value={selectedProduct.applicantInfo} />
                     <DetailItem label="Submission Date" value={format(new Date(selectedProduct.submissionDate), 'PPP')} />
                 </dl>
             </ScrollArea>
@@ -372,5 +372,3 @@ export default function MyProductsPage() {
     </>
   );
 }
-
-    
