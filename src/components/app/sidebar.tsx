@@ -38,7 +38,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { Role } from '@/lib/types';
 import { ThemeSwitcher } from '../theme-switcher';
 import Link from 'next/link';
@@ -53,7 +53,10 @@ const navItems = {
     { href: '/needed-drugs', icon: ClipboardList, label: 'Needed Drugs' },
     { href: '/billing', icon: CreditCard, label: 'Billing' },
   ],
-  'Ingredient Supplier': [{ href: '/raw-materials', icon: Beaker, label: 'Raw Materials' }],
+  'Ingredient Supplier': [
+    { href: '/dashboard', icon: Home, label: 'Dashboard' },
+    { href: '/raw-materials', icon: Beaker, label: 'Raw Materials' },
+  ],
   Manufacturer: [{ href: '/batches', icon: FlaskConical, label: 'Batches' }],
   FDA: [{ href: '/approvals', icon: Package, label: 'Approvals' }],
 };
@@ -72,12 +75,21 @@ export default function AppSidebar() {
   }, [pathname]);
 
   const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
-  const roleNav = userRole ? navItems[userRole as keyof typeof navItems] || [] : [];
-  const combinedNav = [...navItems.all, ...roleNav].filter((item, index, self) =>
-    index === self.findIndex((t) => (
-      t.href === item.href
-    ))
-  );
+  
+  const visibleNavItems = useMemo(() => {
+    if (userRole === 'Ingredient Supplier') {
+      return navItems['Ingredient Supplier'];
+    }
+    
+    const roleNav = userRole ? navItems[userRole as keyof typeof navItems] || [] : [];
+    const combinedNav = [...navItems.all, ...roleNav].filter((item, index, self) =>
+      index === self.findIndex((t) => (
+        t.href === item.href
+      ))
+    );
+    return combinedNav;
+  }, [userRole]);
+
 
   const handleLogout = () => {
     localStorage.removeItem('userRole');
@@ -98,7 +110,7 @@ export default function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="flex-1 p-2">
         <SidebarMenu>
-          {combinedNav.map((item) => (
+          {visibleNavItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
