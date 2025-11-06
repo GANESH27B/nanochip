@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -459,16 +460,16 @@ export default function ShipmentsPage() {
                           </TableCell>
                           <TableCell className="text-right">{shipment ? shipment.alerts : 'N/A'}</TableCell>
                           <TableCell>
-                             {item.status === 'Ready-for-Shipment' ? (
+                             {item.status === 'Ready-for-Shipment' && userRole === 'Manufacturer' ? (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="outline" size="sm">
-                                            Actions <ChevronDown className="ml-2 h-4 w-4" />
+                                            Create Shipment <ChevronDown className="ml-2 h-4 w-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem onClick={() => openCreateShipmentDialog(item.batchId)}>
-                                            Create Shipment
+                                            Create Generic Shipment
                                         </DropdownMenuItem>
                                         <DropdownMenuSub>
                                             <DropdownMenuSubTrigger>Ship to Distributor</DropdownMenuSubTrigger>
@@ -488,6 +489,10 @@ export default function ShipmentsPage() {
                                         </DropdownMenuSub>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
+                             ) : item.status === 'Ready-for-Shipment' ? (
+                                <Button variant="outline" size="sm" onClick={() => openCreateShipmentDialog(item.batchId)}>
+                                    Create Shipment
+                                </Button>
                              ) : (
                                 <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -650,4 +655,3 @@ export default function ShipmentsPage() {
   );
 }
 
-    
