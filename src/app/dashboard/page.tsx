@@ -89,13 +89,6 @@ const fdaActionCategories = [
         description: 'FDA forms, status, documents',
     },
     {
-        id: 'clinical-study-data',
-        href: '#',
-        label: 'Clinical & Study Data',
-        icon: Beaker,
-        description: 'Test results, safety, efficacy',
-    },
-    {
         id: 'manufacturer-info',
         href: '#',
         label: 'Manufacturer Info',
@@ -311,7 +304,7 @@ export default function DashboardPage() {
                         <CardDescription>A central hub for managing and monitoring pharmaceutical submissions and compliance.</CardDescription>
                     </CardHeader>
                 </Card>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 animate-fade-in-up">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in-up">
                     {fdaActionCategories.map((cat, index) => (
                         <button key={index} className="w-full h-full text-left" onClick={() => handleFdaModuleClick(cat.id, cat.href)}>
                              <Card className="h-full hover:shadow-lg transition-shadow">
@@ -431,5 +424,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
-    
