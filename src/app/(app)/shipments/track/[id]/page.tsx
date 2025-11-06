@@ -54,15 +54,15 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader title={`Tracking: ${shipment.batchId}`} />
       <main className="flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8 flex">
-        <Card>
+        <Card className="flex-1">
           <CardHeader>
             <CardTitle>Live Shipment Tracking</CardTitle>
             <CardDescription>
               Visualizing the route from {shipment.startingPoint} to {shipment.endingPoint}.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="relative h-[60vh] w-full overflow-hidden rounded-lg">
+          <CardContent className="h-[calc(100%-100px)]">
+            <div className="relative h-full w-full overflow-hidden rounded-lg">
               {mapImage ? (
                 <Image
                   src={mapImage.imageUrl}
