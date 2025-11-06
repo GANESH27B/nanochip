@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { PlusCircle, MoreHorizontal } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -82,20 +83,24 @@ export default function BatchesPage() {
     });
   };
 
-  const handleMarkAsReady = (batchId: string) => {
-    setBatches((prevBatches) =>
-      prevBatches.map((batch) =>
-        batch.id === batchId ? { ...batch, status: 'Ready-for-Shipment' } : batch
-      )
-    );
+  const handleEditBatch = (batch: Batch) => {
+    // In a real app, you would open a dialog pre-filled with batch data.
+    // For this example, we'll just log to the console.
+    console.log('Editing batch:', batch);
     toast({
-      title: 'Batch Updated',
-      description: `Batch ${batchId} is now ready for shipment.`,
+      title: 'Edit Action (Simulated)',
+      description: `Triggered edit for batch ${batch.id}.`,
     });
   };
 
-  const handleViewDetails = (batchId: string) => {
-    router.push(`/shipments/${batchId}`);
+  const handleDeleteBatch = (batchId: string) => {
+    // In a real app, you would show a confirmation dialog first.
+    setBatches(prevBatches => prevBatches.filter(batch => batch.id !== batchId));
+    toast({
+      variant: 'destructive',
+      title: 'Batch Deleted',
+      description: `Batch ${batchId} has been removed.`,
+    });
   };
 
   return (
@@ -195,14 +200,13 @@ export default function BatchesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                          onClick={() => handleMarkAsReady(batch.id)}
-                          disabled={batch.status !== 'In-Production'}
-                        >
-                          Mark as Ready
+                        <DropdownMenuItem onClick={() => handleEditBatch(batch)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleViewDetails(batch.id)}>
-                          View Details
+                        <DropdownMenuItem onClick={() => handleDeleteBatch(batch.id)} className="text-destructive">
+                           <Trash2 className="mr-2 h-4 w-4" />
+                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
