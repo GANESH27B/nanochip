@@ -137,7 +137,7 @@ export default function AppHeader() {
                                 )}
                             >
                                 <link.icon className="h-4 w-4" />
-                                {link.label}
+                                {link.label === 'Dashboard' && userRole ? `${userRole} ${link.label}` : link.label}
                             </Link>
                         ))}
                     </div>
