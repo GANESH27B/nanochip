@@ -85,6 +85,8 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
     );
   }
 
+  const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
+
   return (
     <>
     <div className="flex min-h-screen w-full flex-col">
@@ -147,6 +149,7 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
             </CardContent>
           </Card>
         </div>
+        {canUpdateStatus && (
          <Card>
           <CardHeader>
             <CardTitle>Update Status</CardTitle>
@@ -156,25 +159,30 @@ export default function ShipmentDetailPage({ params }: { params: { id: string } 
           </CardHeader>
           <CardContent>
             <div className="flex gap-2">
-              {(['Pending', 'In-Transit', 'Requires-Approval', 'Delivered'] as ShipmentStatus[]).map(status => (
+              {(userRole === 'Distributor' || userRole === 'Pharmacy') &&
+                (['In-Transit', 'Delivered'] as ShipmentStatus[]).map(status => (
                   <Button 
                     key={status} 
                     onClick={() => handleUpdateStatus(status)}
                     variant={shipment.status === status ? 'default' : 'outline'}
+                    disabled={shipment.status === status}
                   >
                     Mark as {status.replace('-', ' ')}
                   </Button>
               ))}
             </div>
              {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
-              <div className="mt-4 flex gap-2">
-                <p className='text-sm text-muted-foreground pt-2'>Or as an FDA agent you can: </p>
-                <Button onClick={() => handleUpdateStatus('Delivered')}>Approve Batch</Button>
-                <Button variant="destructive" onClick={() => handleUpdateStatus('In-Transit')}>Reject Batch</Button>
+              <div className="mt-4 flex flex-col gap-2">
+                <p className='text-sm text-muted-foreground'>As an FDA agent, you can approve or reject this batch.</p>
+                <div className="flex gap-2">
+                    <Button onClick={() => handleUpdateStatus('In-Transit')}>Approve Batch</Button>
+                    <Button variant="destructive" onClick={() => handleUpdateStatus('Pending')}>Reject Batch</Button>
+                </div>
               </div>
             )}
           </CardContent>
         </Card>
+        )}
       </main>
     </div>
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

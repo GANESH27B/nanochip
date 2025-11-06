@@ -4,13 +4,37 @@
 import AppHeader from '@/components/app/header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { shipments as initialShipments } from '@/lib/data';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
+import type { Shipment } from '@/lib/types';
+
+const statusColors: { [key: string]: string } = {
+  'In-Transit': 'text-blue-500',
+  Delivered: 'text-green-500',
+  'Requires-Approval': 'text-yellow-500',
+  Pending: 'text-gray-500',
+};
+
 
 export default function TrackShipmentPage({ params }: { params: { id: string } }) {
   const id = params.id;
-  const shipment = useMemo(() => initialShipments.find(s => s.batchId === id), [id]);
+  const [shipments, setShipments] = useState(initialShipments);
+  const [shipment, setShipment] = useState<Shipment | undefined>(initialShipments.find(s => s.batchId === id));
+
+  useEffect(() => {
+    // This effect simulates real-time updates for the shipment status
+    const interval = setInterval(() => {
+      // In a real app, you would fetch this from a server
+      const updatedShipment = shipments.find(s => s.batchId === id);
+      if (updatedShipment && updatedShipment.status !== shipment?.status) {
+        setShipment(updatedShipment);
+      }
+    }, 2000); // Check for updates every 2 seconds
+
+    return () => clearInterval(interval);
+  }, [id, shipments, shipment]);
+
   const mapImage = PlaceHolderImages.find(img => img.id === 'shipment-map');
 
   if (!shipment) {
@@ -23,6 +47,8 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
       </div>
     );
   }
+  
+  const statusColor = statusColors[shipment.status] || 'text-gray-500';
 
   return (
     <div className="flex min-h-screen w-full flex-col">
@@ -41,9 +67,10 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
                 <Image
                   src={mapImage.imageUrl}
                   alt="Shipment map"
-                  layout="fill"
-                  objectFit="cover"
+                  fill
+                  style={{objectFit: 'cover'}}
                   data-ai-hint={mapImage.imageHint}
+                  priority
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-muted">
@@ -52,7 +79,7 @@ export default function TrackShipmentPage({ params }: { params: { id: string } }
               )}
                <div className="absolute top-4 left-4 bg-background/80 p-4 rounded-md shadow-lg">
                     <h3 className="font-bold text-lg">{shipment.batchId}</h3>
-                    <p className="text-sm">Status: <span className="font-semibold text-primary">{shipment.status.replace('-', ' ')}</span></p>
+                    <p className="text-sm">Status: <span className={`font-semibold ${statusColor}`}>{shipment.status.replace('-', ' ')}</span></p>
                     <p className="text-sm text-muted-foreground">{shipment.currentHolder}</p>
                 </div>
             </div>

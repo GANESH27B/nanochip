@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
@@ -40,8 +40,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSearch } from '@/hooks/use-search';
-import type { Shipment, ShipmentStatus } from '@/lib/types';
+import type { Shipment, ShipmentStatus, Role } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 const statusStyles: { [key: string]: string } = {
   'In-Transit': 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
@@ -54,7 +55,16 @@ export default function ShipmentsPage() {
   const { searchTerm } = useSearch();
   const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [userRole, setUserRole] = useState<Role | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
+
+  useEffect(() => {
+    const role = localStorage.getItem('userRole') as Role;
+    if (role) {
+      setUserRole(role);
+    }
+  }, []);
 
   const filteredShipments = useMemo(() => {
     if (!searchTerm) {
@@ -71,7 +81,7 @@ export default function ShipmentsPage() {
     const now = new Date();
     const newShipment: Shipment = {
       batchId: `B-NEW-${Math.floor(Math.random() * 90000) + 10000}`,
-      currentHolder: formData.get('currentHolder') as string,
+      currentHolder: 'Alice Manufacturer',
       startingPoint: formData.get('startingPoint') as string,
       endingPoint: formData.get('endingPoint') as string,
       status: 'Pending',
@@ -87,21 +97,6 @@ export default function ShipmentsPage() {
     });
   };
 
-  const handleTrackOnMap = (shipment: Shipment) => {
-    if (shipment.startingPoint && shipment.endingPoint) {
-      const origin = encodeURIComponent(shipment.startingPoint);
-      const destination = encodeURIComponent(shipment.endingPoint);
-      const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
-      window.open(googleMapsUrl, '_blank');
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Tracking Unavailable',
-        description: 'This shipment does not have a valid starting or ending point.',
-      });
-    }
-  };
-
   const handleUpdateStatus = (batchId: string, newStatus: ShipmentStatus) => {
     setShipments(currentShipments =>
       currentShipments.map(s =>
@@ -113,6 +108,8 @@ export default function ShipmentsPage() {
       description: `Batch ${batchId} is now ${newStatus.replace('-', ' ')}.`,
     });
   };
+
+  const canUpdateStatus = userRole === 'Distributor' || userRole === 'Pharmacy' || userRole === 'FDA';
 
   return (
     <>
@@ -127,6 +124,7 @@ export default function ShipmentsPage() {
                   Track and manage all pharmaceutical shipments across the supply chain.
                 </CardDescription>
               </div>
+              {userRole === 'Manufacturer' && (
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button size="sm" className="gap-1">
@@ -145,23 +143,17 @@ export default function ShipmentsPage() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="currentHolder" className="text-right">
-                          Holder
-                        </Label>
-                        <Input id="currentHolder" name="currentHolder" required className="col-span-3" />
-                      </div>
                        <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="startingPoint" className="text-right">
                               Starting Point
                           </Label>
-                          <Input id="startingPoint" name="startingPoint" required className="col-span-3" />
+                          <Input id="startingPoint" name="startingPoint" placeholder="e.g. New York, NY" required className="col-span-3" />
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="endingPoint" className="text-right">
                               Ending Point
                           </Label>
-                          <Input id="endingPoint" name="endingPoint" required className="col-span-3" />
+                          <Input id="endingPoint" name="endingPoint" placeholder="e.g. Los Angeles, CA" required className="col-span-3" />
                       </div>
                     </div>
                     <DialogFooter>
@@ -170,6 +162,7 @@ export default function ShipmentsPage() {
                   </form>
                 </DialogContent>
               </Dialog>
+              )}
             </CardHeader>
             <CardContent>
               <Table>
@@ -214,14 +207,16 @@ export default function ShipmentsPage() {
                             <DropdownMenuItem asChild>
                               <Link href={`/shipments/${shipment.batchId}`}>View Details</Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                               <Link href={`/shipments/track/${shipment.batchId}`}>Track on Map</Link>
+                            <DropdownMenuItem onClick={() => router.push(`/shipments/track/${shipment.batchId}`)}>
+                               Track on Map
                             </DropdownMenuItem>
+                            {canUpdateStatus && (
                              <DropdownMenuSub>
                                 <DropdownMenuSubTrigger>Update Status</DropdownMenuSubTrigger>
                                 <DropdownMenuPortal>
                                     <DropdownMenuSubContent>
-                                    {(['Pending', 'In-Transit', 'Requires-Approval', 'Delivered'] as ShipmentStatus[]).map(status => (
+                                    {(userRole === 'Distributor' || userRole === 'Pharmacy') &&
+                                      (['In-Transit', 'Delivered'] as ShipmentStatus[]).map(status => (
                                         <DropdownMenuItem 
                                             key={status}
                                             onClick={() => handleUpdateStatus(shipment.batchId, status)}
@@ -230,9 +225,20 @@ export default function ShipmentsPage() {
                                             Mark as {status.replace('-', ' ')}
                                         </DropdownMenuItem>
                                     ))}
+                                    {userRole === 'FDA' && shipment.status === 'Requires-Approval' && (
+                                      <>
+                                        <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'In-Transit')}>
+                                          Approve Batch
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => handleUpdateStatus(shipment.batchId, 'Pending')}>
+                                          Reject Batch
+                                        </DropdownMenuItem>
+                                      </>
+                                    )}
                                     </DropdownMenuSubContent>
                                 </DropdownMenuPortal>
                             </DropdownMenuSub>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
