@@ -4,6 +4,7 @@ import {
   Bell,
   ChevronDown,
   LogIn,
+  LogOut,
   MapPin,
   Menu,
   Percent,
@@ -28,6 +29,8 @@ import Link from 'next/link';
 import { useAppNavigation } from './navigation';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const navLinks = [
   { label: 'Dashboard', href: '/dashboard' },
@@ -38,7 +41,8 @@ const navLinks = [
 ];
 
 export default function AppHeader() {
-  const { userName, handleLogout, visibleNavItems } = useAppNavigation();
+  const { userName, userRole, handleLogout, visibleNavItems } = useAppNavigation();
+  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 shadow-sm backdrop-blur-sm">
@@ -107,10 +111,40 @@ export default function AppHeader() {
           </div>
 
           <div className="hidden items-center gap-6 text-sm md:flex">
-             <Link href="/" className="flex items-center gap-1.5 font-medium">
-                <User className="h-5 w-5" />
-                Hello, Log in
-             </Link>
+              {userRole ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2">
+                       <Avatar className="h-8 w-8">
+                          <AvatarImage src={userAvatar?.imageUrl} />
+                          <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      <span className="font-medium">Hello, {userName.split(' ')[0]}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link href="/" className="flex items-center gap-1.5 font-medium">
+                  <User className="h-5 w-5" />
+                  Hello, Log in
+                </Link>
+              )}
              <ThemeSwitcher />
           </div>
         </div>
