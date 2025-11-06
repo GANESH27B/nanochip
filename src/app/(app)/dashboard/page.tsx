@@ -42,26 +42,30 @@ export default function DashboardPage() {
       <AppHeader title={userRole ? `${userRole} Dashboard` : 'Dashboard'} />
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-          <Card className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Shipments</CardTitle>
-              <Truck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalShipments}</div>
-              <p className="text-xs text-muted-foreground">Tracked across the network</p>
-            </CardContent>
-          </Card>
-          <Card className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{pendingApprovals}</div>
-              <p className="text-xs text-muted-foreground">Awaiting FDA review</p>
-            </CardContent>
-          </Card>
+          <Link href="/shipments">
+            <Card className="animate-fade-in-up hover:bg-muted/50" style={{ animationDelay: '0.1s' }}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Shipments</CardTitle>
+                <Truck className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalShipments}</div>
+                <p className="text-xs text-muted-foreground">Tracked across the network</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href="/shipments">
+            <Card className="animate-fade-in-up hover:bg-muted/50" style={{ animationDelay: '0.2s' }}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
+                <Package className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{pendingApprovals}</div>
+                <p className="text-xs text-muted-foreground">Awaiting FDA review</p>
+              </CardContent>
+            </Card>
+          </Link>
           <Card className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Active Alerts</CardTitle>

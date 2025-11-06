@@ -66,7 +66,7 @@ export default function ShipmentsPage() {
     const formData = new FormData(event.currentTarget);
     const now = new Date();
     const newShipment: Shipment = {
-      batchId: formData.get('batchId') as string,
+      batchId: `B-NEW-${Math.floor(Math.random() * 90000) + 10000}`,
       currentHolder: formData.get('currentHolder') as string,
       startingPoint: formData.get('startingPoint') as string,
       endingPoint: formData.get('endingPoint') as string,
@@ -125,16 +125,10 @@ export default function ShipmentsPage() {
                     <DialogHeader>
                       <DialogTitle>Create New Shipment</DialogTitle>
                       <DialogDescription>
-                        Fill in the details for the new shipment.
+                        Fill in the details for the new shipment. A batch ID will be generated.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="batchId" className="text-right">
-                          Batch ID
-                        </Label>
-                        <Input id="batchId" name="batchId" required className="col-span-3" />
-                      </div>
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="currentHolder" className="text-right">
                           Holder
