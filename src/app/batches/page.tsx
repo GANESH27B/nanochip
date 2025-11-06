@@ -58,6 +58,7 @@ export default function BatchesPage() {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const drugName = formData.get('drugName') as string;
+    const batchId = formData.get('batchId') as string;
     if (!drugName) {
       toast({
         variant: 'destructive',
@@ -68,7 +69,7 @@ export default function BatchesPage() {
     }
     
     const newBatch: Batch = {
-      id: `B-NEW-${Math.floor(Math.random() * 90000) + 10000}`,
+      id: batchId,
       drugName: drugName,
       quantity: parseInt(formData.get('quantity') as string, 10),
       manufactureDate: new Date().toISOString(),
@@ -131,6 +132,12 @@ export default function BatchesPage() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
+                   <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="batchId" className="text-right">
+                      Batch ID
+                    </Label>
+                    <Input id="batchId" name="batchId" required className="col-span-3" />
+                  </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="drugName" className="text-right">
                       Drug Name
