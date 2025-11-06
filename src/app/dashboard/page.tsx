@@ -26,6 +26,14 @@ import {
     Bell,
     AreaChart,
     ArrowLeft,
+    ClipboardList,
+    Briefcase,
+    Building,
+    FileBadge,
+    Users2,
+    BookUser,
+    DollarSign,
+    Inbox,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -47,24 +55,48 @@ import { useRouter } from 'next/navigation';
 
 const manufacturerActionCategories = [
     {
+        href: '/my-products',
+        label: 'Product Inventory',
+        icon: Inbox,
+        description: 'Manage your product listings',
+    },
+    {
         href: '/batches',
-        label: 'Manage Batches',
+        label: 'Batch Tracking',
         icon: FlaskConical,
         description: 'Create & view production batches',
     },
-    {
+     {
         href: '/shipments',
-        label: 'Create Shipments',
-        icon: Truck,
+        label: 'Order Management',
+        icon: ShoppingCart,
         description: 'Ship products to distributors',
     },
     {
-        href: '/my-products',
-        label: 'My Products',
-        icon: ShoppingBag,
-        description: 'Manage your product listings',
+        href: '/analytics',
+        label: 'Sales & Distribution',
+        icon: AreaChart,
+        description: 'Analyze sales and shipment data',
     },
-     {
+    {
+        href: '#',
+        label: 'Customer / Retailer Management',
+        icon: Users2,
+        description: 'View and manage your customers'
+    },
+    {
+        href: '/raw-materials',
+        label: 'Supplier Management',
+        icon: Building,
+        description: 'Manage raw material suppliers',
+    },
+    {
+        href: '/approvals',
+        label: 'Compliance & Documentation',
+        icon: FileBadge,
+        description: 'Handle regulatory approvals',
+    },
+    {
         href: '/alerts',
         label: 'Review Alerts',
         icon: Siren,
@@ -75,7 +107,7 @@ const manufacturerActionCategories = [
 const fdaActionCategories = [
     {
         id: 'product-management',
-        href: '#',
+        href: '/my-products',
         label: 'Product Management',
         icon: Package,
         description: 'Add/edit products, basic details',
@@ -103,7 +135,7 @@ const fdaActionCategories = [
     },
     {
         id: 'compliance-certificates',
-        href: '#',
+        href: '/approvals',
         label: 'Compliance & Certificates',
         icon: Shield,
         description: 'GMP, CoA, approvals',
@@ -329,97 +361,22 @@ export default function DashboardPage() {
 
 
   return (
-    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-         <Card className={cn("animate-fade-in-up", supplyChainStatus.color)} style={{ animationDelay: '0s' }}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Supply Chain Status</CardTitle>
-              <supplyChainStatus.icon className="h-4 w-4 text-current" />
-            </CardHeader>
-            <CardContent>
-              <div className={cn("text-2xl font-bold", supplyChainStatus.color)}>{supplyChainStatus.label}</div>
-              <p className="text-xs text-muted-foreground">{supplyChainStatus.description}</p>
-            </CardContent>
-          </Card>
-        <Link href="/shipments">
-          <Card className="animate-fade-in-up hover:bg-muted/50" style={{ animationDelay: '0.1s' }}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Shipments</CardTitle>
-              <Truck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalShipments}</div>
-              <p className="text-xs text-muted-foreground">Tracked across the network</p>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href="/approvals">
-          <Card className="animate-fade-in-up hover:bg-muted/50" style={{ animationDelay: '0.2s' }}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{pendingApprovals}</div>
-              <p className="text-xs text-muted-foreground">Awaiting FDA review</p>
-            </CardContent>
-          </Card>
-        </Link>
-        <Card className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Alerts</CardTitle>
-            <Siren className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-destructive">{activeAlerts}</div>
-            <p className="text-xs text-muted-foreground">Require immediate attention</p>
-          </CardContent>
-        </Card>
-      </div>
-      <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-        <Card className="xl:col-span-2 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-          <CardHeader>
-            <CardTitle>Shipment Status Overview</CardTitle>
-            <CardDescription>A summary of all current shipment statuses.</CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={chartData}>
-                <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}`} />
-                <Tooltip cursor={{fill: 'hsl(var(--muted))'}} contentStyle={{backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))'}}/>
-                <Bar dataKey="total" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        <Card className="animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-          <CardHeader>
-            <CardTitle>Recent Alerts</CardTitle>
-            <CardDescription>Top priority alerts from the network.</CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {alerts.slice(0, 3).length > 0 ? (
-              alerts.slice(0, 3).map((alert) => (
-                <Alert key={alert.alertId} variant={alert.severity === 'High' ? 'destructive' : 'default'}>
-                  <Siren className="h-4 w-4" />
-                  <AlertTitle className="font-semibold">{alert.type} Alert</AlertTitle>
-                  <AlertDescription className="text-xs">{alert.details}</AlertDescription>
-                </Alert>
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-                  <CheckCircle className="h-12 w-12 text-green-500 mb-4"/>
-                  <h3 className="text-lg font-semibold">All Systems Normal</h3>
-                  <p className="text-sm text-muted-foreground">No active alerts at the moment.</p>
-              </div>
-            )}
-             <Button asChild variant="outline" size="sm">
-              <Link href="/alerts">View All Alerts</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </main>
-  );
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up">
+                {manufacturerActionCategories.map((cat, index) => (
+                    <Link href={cat.href} key={index}>
+                         <Card className="h-full hover:shadow-lg transition-shadow">
+                            <CardContent className="p-4 flex flex-col items-center justify-center text-center gap-2">
+                                 <div className="flex items-center justify-center bg-primary/10 rounded-full p-3 mb-2">
+                                    <cat.icon className="h-6 w-6 text-primary" />
+                                 </div>
+                                 <p className="font-semibold">{cat.label}</p>
+                                 <p className="text-xs text-muted-foreground">{cat.description}</p>
+                            </CardContent>
+                        </Card>
+                    </Link>
+                ))}
+            </div>
+        </main>
+    );
 }
