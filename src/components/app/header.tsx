@@ -117,7 +117,7 @@ export default function AppHeader() {
 
         <div className="hidden border-t md:block">
             <div className="container mx-auto">
-                <nav className="flex h-12 items-center justify-between">
+                <nav className="flex h-12 items-center justify-center">
                     <div className="flex gap-8">
                          {visibleNavItems.map((link) => (
                             <Link
